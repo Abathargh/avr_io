@@ -90,16 +90,29 @@ when isMainModule:
 
 ### Defining interrupt service routines
 
-When defining an ISR, you must associate your procedure with the specific interrupt, defined in ```avr_io/interrupt/private/{mcu_part_number}```. In order to do so, you have to mark the function with the ```exportc``` and ```codegenDecl``` pragmas. Every module tied to an MCU defines an enum type that describes each interrupt implemented by the MCU and maps it to the C name expected by avr-gcc. In order to map the interrupt to the avr-gcc handle, you can use the ```vectorDecl``` template defined in ```avr_io/interrupt```.
+When defining an ISR, you must associate your procedure with the specific interrupt, defined in ```avr_io/interrupt/private/{mcu_part_number}```. 
+
+Every module tied to an MCU defines an enum type that describes each interrupt implemented by the MCU and maps it to the C name expected by avr-gcc. In order to map the interrupt to the avr-gcc handle, you can use the ```isr``` macro defined in ```avr_io/interrupt```.
 
 The following example defines an ISR that handles the CompareA interrupt for Timer0 in an ATMega644. Notice the way in which the vectorDecl template must be used:
 
 ```nim
 import avr_io/interrupt
 
-proc timer0_compa_isr() {.exportc, codegenDecl: vectorDecl(Timer0CompAVect).} =
+proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
   discard
 ```
+
+You can also write the same function with the following alternative syntax:
+
+```nim
+import avr_io/interrupt
+
+isr(Timer0CompAVect):
+  proc timer0_compa_isr() =
+    discard
+```
+
 
 ### Enabling/disabling interrupts
 
@@ -111,7 +124,7 @@ import avr_io/interrupt
 
 ctr: uint16 = 0
 
-proc timer0_compa_isr() {.exportc, codegenDecl: vectorDecl(Timer0CompAVect).} =
+proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
   let c = volatileLoad(addr ctr)
   volatileStore(addr ctr, c + 1)
   
@@ -135,8 +148,6 @@ import avr_io/interrupt
 
 import volatile
 
-# Note: F_CPU is set at 16000000 in the nim.cfg file
-
 var ctr: uint16 = 0
 
 proc initTimer0*() =
@@ -147,7 +158,7 @@ proc initTimer0*() =
   TCCR0B[] = 1 shl 2
   TIMSK0[] = 1 shl 1
 
-proc timer0_compa_isr() {.exportc, codegenDecl: vectorDecl(Timer0CompAVect).} =
+proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
   #[
     Timer0 in CTC mode, interrupt on compare match with OCR0A
     Prescaling the clock of a factor of 256.
@@ -175,10 +186,7 @@ proc loop() =
       avr_io.PORTA[] = (if (readVal and 0x01) == 0: 1 else: 0)
       volatileStore(addr ctr, 0)
 
-
       
 when isMainModule:
   loop()
-
-
 ```
