@@ -28,7 +28,7 @@ The library currently supports the following chips:
 
 ### nim.cfg
 
-Note that you should pass the ```-mmcu``` and ```-DF_CPU``` flags according to the MCU and you are using and the clock frequncy that you have set up.
+Note that you should pass the ```-mmcu``` and ```-DF_CPU``` flags according to the MCU you are using and the clock frequncy that you have set up.
 
 You must also define the symbol ```USING_XXX``` where ```XXX``` is the name of the MCU you want to use.
 
@@ -94,7 +94,7 @@ When defining an ISR, you must associate your procedure with the specific interr
 
 Every module tied to an MCU defines an enum type that describes each interrupt implemented by the MCU and maps it to the C name expected by avr-gcc. In order to map the interrupt to the avr-gcc handle, you can use the ```isr``` macro defined in ```avr_io/interrupt```.
 
-The following example defines an ISR that handles the CompareA interrupt for Timer0 in an ATMega644. Notice the way in which the vectorDecl template must be used:
+The following example defines an ISR that handles the CompareA interrupt for Timer0 in an ATMega644:
 
 ```nim
 import avr_io/interrupt
@@ -150,24 +150,22 @@ import volatile
 
 var ctr: uint16 = 0
 
-proc initTimer0*() =
-  # Initializes timer0 in CTC mode
-  # interrupt on compare match with register A.
+proc initTimer0() =
+  #[
+    Timer0 in CTC mode, interrupt on compare match with OCR0A
+    Prescaling the clock of a factor of 256.
+    Considering:
+      f = 16 MHz; f_tim0 = f/256 = 16 MHz / 256 = 62,5 KHz
+      t_tim0 = 1/t_tim0 = 16 us;
+      t_int = t_tim0 * OCR0A = 16 us * 250 = 4 ms
+    This configuration raises an interrupt every 4 ms
+  ]#
   OCR0A[]  = 250
   TCCR0A[] = 1 shl 1
   TCCR0B[] = 1 shl 2
   TIMSK0[] = 1 shl 1
 
 proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
-  #[
-    Timer0 in CTC mode, interrupt on compare match with OCR0A
-    Prescaling the clock of a factor of 256.
-    Considering:
-      f = 16 MHz; f_inT0 = f/256 = 1/16 MHz = 62,5 KHz
-      t_inT0 = 16 us;
-      t_int = t_inT0 * OCR0A = 16 us * 250 = 4 ms
-    This configuration raises an interrupt every 4 ms
-  ]#
   let c = volatileLoad(addr ctr)
   volatileStore(addr ctr, c + 1)
 
@@ -175,15 +173,15 @@ proc loop() =
   sei()
   initTimer0()
 
-  avr_io.DDRA[]  = 1 shl 0
-  avr_io.PORTA[] = 0
+  DDRA[]  = 1 shl 0
+  PORTA[] = 0
   
   while true:
     # c > 250 => switch the led every 250 interrupts, or every 1s
     let c = volatileLoad(addr ctr)
     if c > 250:
-      let readVal = avr_io.PINA[] and 0x01
-      avr_io.PORTA[] = (if (readVal and 0x01) == 0: 1 else: 0)
+      let readVal = PINA[] and 0x01
+      PORTA[] = (if (readVal and 0x01) == 0: 1 else: 0)
       volatileStore(addr ctr, 0)
 
       
