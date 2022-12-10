@@ -15,13 +15,13 @@ This library has the objective of collecting memory mappings of the IO hardware 
     - [A complete example](#a-complete-example)
 
 
-
 ## Support
 
 The nim modules that offer IO register mappings and ISR definitions are generated using the chips' datasheets as a reference. 
 
 The library currently supports the following chips:
 
+- ATMega328P
 - ATMega644
 
 ## Usage
