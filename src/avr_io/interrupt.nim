@@ -1,9 +1,17 @@
-# TODO: IST attributes (block, non block, naked, aliasof)
-
 import macros
 
 when defined(USING_ATMEGA328P):
   include interrupt/private/atmega328p
+elif defined(USING_ATMEGA640):
+  include interrupt/private/atmega64_128_256_01
+elif defined(USING_ATMEGA1280):
+  include interrupt/private/atmega64_128_256_01
+elif defined(USING_ATMEGA1281): 
+  include interrupt/private/atmega64_128_256_01
+elif defined(USING_ATMEGA2560): 
+  include interrupt/private/atmega64_128_256_01
+elif defined(USING_ATMEGA2561):
+  include interrupt/private/atmega64_128_256_01
 elif defined(USING_ATMEGA644):
   include interrupt/private/atmega644
 else:
@@ -11,6 +19,7 @@ else:
     error "undefined architecture"
 
 
+# TODO: IST attributes (block, non block, naked, aliasof)
 template vectorDecl(n: int): string =
   "$1  __vector_" & $n & "$3 __attribute__((__signal__,__used__,__externally_visible__)); $1 __vector_" & $n & "$3"
 
