@@ -146,6 +146,7 @@ The following example implements a simple interrupt-based application, that make
 import avr_io
 import avr_io/interrupt
 
+import bitops
 import volatile
 
 var ctr: uint16 = 0
@@ -180,8 +181,7 @@ proc loop() =
     # c > 250 => switch the led every 250 interrupts, or every 1s
     let c = volatileLoad(addr ctr)
     if c > 250:
-      let readVal = PINA[] and 0x01
-      PORTA[] = (if (readVal and 0x01) == 0: 1 else: 0)
+      PORTB[] = bitxor(PORTB[], 1 shl 0)
       volatileStore(addr ctr, 0)
 
       
