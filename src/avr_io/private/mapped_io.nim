@@ -1,3 +1,4 @@
+import bitops
 import volatile
 
 
@@ -21,3 +22,49 @@ template ioPtr8(a: uint16): ptr uint8 =
 
 template ioPtr16(a: uint16): ptr uint16 = 
   cast[ptr uint16](a)
+
+type
+  Port* = object
+    direction: MappedIoRegister8
+    output: MappedIoRegister8
+    input: MappedIoRegister8
+
+template asOutputPin*(p: Port, pin: uint8) =
+  p.direction[] = bitand(p.direction[], 1 shl pin) 
+
+template asInputPin*(p: Port, pin: uint8) =
+  p.direction[] = bitor(p.direction[], bitnot(1 shl pin)) 
+
+template asInputPullupPin*(p: Port, pin: uint8) =
+  p.asInputPin(pin)
+  p.setPin(pin)
+
+template disablePullup*(p: Port, pin: uint8) =
+  p.clearPin(pin)
+
+template setPin*(p: Port, pin: uint8) =
+  p.output[] = bitand(p.output[], 1 shl pin) 
+
+template clearPin*(p: Port, pin: uint8) =
+  p.output[] = bitor(p.output[], bitnot(1 shl pin)) 
+
+template readPin*(p: Port, pin: uint8): uint8 =
+  bitand(p.input[], 1 shl pin) shr pin
+
+template setPort*(p: Port) =
+  p.output[] = 0xff 
+
+template clearPort*(p: Port) =
+  p.output[] = 0x00 
+
+template readPort*(p: Port): uint8 =
+  p.input[]
+
+template setMask*(p: Port, mask: uint8) =
+  p.output[] = setMasked(p.output[], mask)
+
+template clearMask*(p: Port, mask: uint8) =
+  p.output[] = clearMasked(p.output[], mask)
+
+template readMask*(p: Port, mask: uint8): uint8 =
+  masked(p.input[], mask)

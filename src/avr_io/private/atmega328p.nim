@@ -95,3 +95,8 @@ const
     UBRR0L* = MappedIoRegister8(ioPtr8(0xC4))
     UBRR0H* = MappedIoRegister8(ioPtr8(0xC5))
     UDR0*   = MappedIoRegister8(ioPtr8(0xC6))
+
+let
+  portB* = Port(direction: DDRB, output: PORTB, input: PINB)
+  portC* = Port(direction: DDRC, output: PORTC, input: PINC)
+  portD* = Port(direction: DDRD, output: PORTD, input: PIND)

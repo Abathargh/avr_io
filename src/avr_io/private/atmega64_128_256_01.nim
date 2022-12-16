@@ -186,3 +186,12 @@ const
   OCR5C*   = MappedIoRegister16(ioPtr16(0x12C))
   OCR5CL*  = MappedIoRegister8(ioPtr8(0x12C))
   OCR5CH*  = MappedIoRegister8(ioPtr8(0x12D))
+
+let
+  portA* = Port(direction: DDRA, output: PORTA, input: PINA)
+  portB* = Port(direction: DDRB, output: PORTB, input: PINB)
+  portC* = Port(direction: DDRC, output: PORTC, input: PINC)
+  portD* = Port(direction: DDRD, output: PORTD, input: PIND)
+  portE* = Port(direction: DDRE, output: PORTE, input: PINE)
+  portF* = Port(direction: DDRF, output: PORTF, input: PINF)
+  portG* = Port(direction: DDRG, output: PORTG, input: PING)
