@@ -2,7 +2,7 @@
 
 This library has the objective of collecting memory mappings of the IO hardware registers of AVR microcontrollers, and it's inspired by the avr/io headers from the avr-gcc suite. It must be used with avr-gcc as the C backend.
 
-**NOTE: the contents of the library are highly experimental, they are not recomended for use in production code!**
+**NOTE: the contents of the library are highly experimental, they are not recomended for use in production code, APIs may break at any time!**
 
 - [avr\_io - nim mappings for AVR IO registers and ISRs](#avr_io---nim-mappings-for-avr-io-registers-and-isrs)
   - [Support](#support)
