@@ -23,6 +23,8 @@ The library currently supports the following chips:
 
 - ATMega328P
 - ATMega644
+- ATMega2560/1
+- ATMega1280/1
 
 ## Usage
 
