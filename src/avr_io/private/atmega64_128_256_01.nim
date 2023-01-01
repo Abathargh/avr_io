@@ -1,6 +1,6 @@
 include mapped_io
 
-when defined(USING_ATMEGA1281) or defined(USING_ATMEGA2561):
+when defined(USING_ATMEGA1280) or defined(USING_ATMEGA2560):
   include atmega64_128_256_0only
 
 const
