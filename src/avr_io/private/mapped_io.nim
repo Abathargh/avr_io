@@ -69,6 +69,9 @@ template setPort*(p: Port) =
 template clearPort*(p: Port) =
   p.output[] = 0x00 
 
+template setPortValue*(p: Port, val: uint8) =
+  p.output[] = val 
+
 template readPort*(p: Port): uint8 =
   p.input[]
 
