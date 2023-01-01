@@ -35,6 +35,12 @@ template asOutputPin*(p: Port, pin: uint8) =
 template asInputPin*(p: Port, pin: uint8) =
   p.direction[] = bitor(p.direction[], bitnot(1'u8 shl pin)) 
 
+template asOutputPort*(p: Port) =
+  p.direction[] = 0xFF
+
+template asInputPort*(p: Port) =
+  p.direction[] = 0x00
+
 template setupWithMask*(p: Port, mask: uint8) =
   p.direction[] = setMasked(p.direction[], mask)
 
