@@ -30,10 +30,10 @@ type
     input: MappedIoRegister8
 
 template asOutputPin*(p: Port, pin: uint8) =
-  p.direction[] = bitand(p.direction[], 1'u8 shl pin) 
+  p.direction[] = bitor(p.direction[], 1'u8 shl pin) 
 
 template asInputPin*(p: Port, pin: uint8) =
-  p.direction[] = bitor(p.direction[], bitnot(1'u8 shl pin)) 
+  p.direction[] = bitand(p.direction[], bitnot(1'u8 shl pin)) 
 
 template asOutputPort*(p: Port) =
   p.direction[] = 0xFF
@@ -55,10 +55,10 @@ template disablePullup*(p: Port, pin: uint8) =
   p.clearPin(pin)
 
 template setPin*(p: Port, pin: uint8) =
-  p.output[] = bitand(p.output[], 1'u8 shl pin) 
+  p.output[] = bitor(p.output[], 1'u8 shl pin) 
 
 template clearPin*(p: Port, pin: uint8) =
-  p.output[] = bitor(p.output[], bitnot(1'u8 shl pin)) 
+  p.output[] = bitand(p.output[], bitnot(1'u8 shl pin)) 
 
 template readPin*(p: Port, pin: uint8): uint8 =
   bitand(p.input[], 1'u8 shl pin) shr pin
