@@ -46,7 +46,6 @@ gc = "none"
 define = "release" 
 stackTrace = "off" 
 lineTrace = "off" 
-define = "debug"
 define = "USING_ATMEGA644"
 passC = "-mmcu=atmega644 -DF_CPU=16000000 -O0"
 passL = "-mmcu=atmega644 -DF_CPU=16000000 -O0"
@@ -55,6 +54,11 @@ nimcache=nimcache
 avr.standalone.gcc.options.linker = "-static" 
 avr.standalone.gcc.exe = "avr-gcc"
 avr.standalone.gcc.linkerexe = "avr-gcc"
+```
+
+When cross-compiling for AVR MCUs on Windows, the following option may be required:
+```cfg
+gcc.options.always = ""
 ```
 
 ### panicoverride.nim
