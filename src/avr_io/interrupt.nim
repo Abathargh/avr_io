@@ -25,7 +25,7 @@ template vectorDecl(n: int): string =
 
 
 macro isr*(v: static[VectorInterrupt], p: untyped): untyped =
-  ## Turns the passed procedure into an interrupt serrvice routine.
+  ## Turns the passed procedure into an interrupt service routine.
   ## This macro applies a series of pragmas to the procedure, that are
   ## necessary to map it to the specified interrupt handle.
   ## Use as a macro pragma.
