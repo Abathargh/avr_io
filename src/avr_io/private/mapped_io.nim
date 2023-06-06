@@ -9,7 +9,7 @@ type MappedIoRegister16* = distinct uint16
 template ioPtr8(a: MappedIoRegister8): ptr uint8 = 
   cast[ptr uint8](a)
 
-template ioPtr16(a: uint16): ptr uint16 = 
+template ioPtr16(a: MappedIoRegister16): ptr uint16 = 
   cast[ptr uint16](a)
 
 template `[]`*(p: MappedIoRegister8): uint8 =
@@ -60,6 +60,9 @@ template setPin*(p: Port, pin: uint8) =
 
 template clearPin*(p: Port, pin: uint8) =
   p.output[] = bitand(p.output[], bitnot(1'u8 shl pin)) 
+
+template togglePin*(p: Port, pin: uint8) = 
+  p.output[] = bitxor(p.output[], 1'u8 shl pin)
 
 template readPin*(p: Port, pin: uint8): uint8 =
   bitand(p.input[], 1'u8 shl pin) shr pin
