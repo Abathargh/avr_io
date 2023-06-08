@@ -101,7 +101,7 @@ const
     UBRR0H* = MappedIoRegister8(0xC5)
     UDR0*   = MappedIoRegister8(0xC6)
 
-let
+const
   portA* = Port(direction: DDRA, output: PORTA, input: PINA)
   portB* = Port(direction: DDRB, output: PORTB, input: PINB)
   portC* = Port(direction: DDRC, output: PORTC, input: PINC)
