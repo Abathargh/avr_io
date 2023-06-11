@@ -2,33 +2,22 @@ import bitops
 import volatile
 
 
-type MappedIoRegister8* = distinct uint16
-type MappedIoRegister16* = distinct uint16
+type MappedIoRegister*[T: uint8|uint16] = distinct uint16
 
-## check usage with generics now?
-template ioPtr8(a: MappedIoRegister8): ptr uint8 = 
-  cast[ptr uint8](a)
+template ioPtr[T](a: MappedIoRegister[T]): ptr T = 
+  cast[ptr T](a)
 
-template ioPtr16(a: MappedIoRegister16): ptr uint16 = 
-  cast[ptr uint16](a)
+template `[]`*[T](p: MappedIoRegister[T]): T =
+  volatile.volatileLoad(ioPtr[T](p))
 
-template `[]`*(p: MappedIoRegister8): uint8 =
-  volatile.volatileLoad(ioPtr8(p))
-
-template `[]=`*(p: MappedIoRegister8, v: uint8) =
-  volatile.volatileStore(ioPtr8(p), v)
-
-template `[]`*(p: MappedIoRegister16): uint16 =
-  volatile.volatileLoad(ioPtr16(p))
-
-template `[]=`*(p: MappedIoRegister16, v: uint16) =
-  volatile.volatileStore(ioPtr16(p), v)
+template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
+  volatile.volatileStore(ioPtr[T](p), v)
 
 type
   Port* = object
-    direction: MappedIoRegister8
-    output: MappedIoRegister8
-    input: MappedIoRegister8
+    direction: MappedIoRegister[uint8]
+    output: MappedIoRegister[uint8]
+    input: MappedIoRegister[uint8]
 
 template asOutputPin*(p: Port, pin: uint8) =
   p.direction[] = bitor(p.direction[], 1'u8 shl pin) 
