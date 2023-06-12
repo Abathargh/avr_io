@@ -10,6 +10,7 @@ This library has the objective of collecting memory mappings of the IO hardware 
     - [nim.cfg](#nimcfg)
     - [panicoverride.nim](#panicoverridenim)
     - [Accessing IO registers](#accessing-io-registers)
+    - [Using Port objects](#using-port-objects)
     - [Defining interrupt service routines](#defining-interrupt-service-routines)
     - [Enabling/disabling interrupts](#enablingdisabling-interrupts)
     - [A complete example](#a-complete-example)
@@ -43,13 +44,14 @@ You must also define the symbol ```USING_XXX``` where ```XXX``` is the name of t
 os = "standalone"
 cpu = "avr"
 gc = "none" 
-define = "release" 
 stackTrace = "off" 
 lineTrace = "off" 
+opt = "speed"
+define = "release"
 define = "USING_ATMEGA644"
-passC = "-mmcu=atmega644 -DF_CPU=16000000 -O0"
-passL = "-mmcu=atmega644 -DF_CPU=16000000 -O0"
-nimcache=nimcache
+passC = "-mmcu=atmega644 -DF_CPU=16000000"
+passL = "-mmcu=atmega644 -DF_CPU=16000000"
+nimcache=.nimcache
 
 avr.standalone.gcc.options.linker = "-static" 
 avr.standalone.gcc.exe = "avr-gcc"
@@ -63,7 +65,9 @@ gcc.options.always = ""
 
 ### panicoverride.nim
 
-If you are not going to use echo, you do not need to provide a printf implementation, and the following panicoverride (a modified version of the original from the tests/avr dir nim sources) is more than enough:
+When compiling with ```--os:standalone``` you must provide a ```panicoverride.nim``` file.
+
+If you are not going to use echo, you do not need to provide a printf implementation, and the following panicoverride (a modified version of the original from the tests/avr directory within the nim sources) is more than enough:
 
 ```nim
 proc exit(code: int) {.importc, header: "<stdlib.h>", cdecl.}
@@ -79,6 +83,10 @@ proc panic(s: string) =
 {.pop.}
 ```
 
+Note that any error caused by a failing bound-check, overflow, etc. will cause a call to the panic proc defined within the panicoverride.nim file. This makes it possible to use the panic proc for diagnostic purposes in debug builds.
+
+Using ```---define:danger``` removes those checks.
+
 ### Accessing IO registers
 
 As in the original avr/io.h header, you just import the top module and the only definitions that will be compiled will be the ones related to the specified MCU:
@@ -93,6 +101,61 @@ when isMainModule:
   while true: 
     discard
 ```
+
+### Using Port objects
+
+In order to interface with ports in a simpler way, a number of ```Port``` objects are available for each microcontroller. 
+
+```Port``` objects are simple objects containing the direction, input and output register for a specific port:
+
+```nim
+type
+  Port* = object
+    direction: MappedIoRegister[uint8]
+    output: MappedIoRegister[uint8]
+    input: MappedIoRegister[uint8]
+```
+
+A series of templates are defined to simplify access in write and read mode to the specific port or a specific pin of a port:
+
+```nim
+import avr_io
+
+const 
+  blinkPin = 1'u8
+  ctlPin = 2'u8
+
+proc loop = 
+  ## Assuming this MCU has a "portA" and a "portB" port
+  portA.asOutputPin(blinkPin)
+  portB.asOutputPin(ctlPin)
+  portB.setPin(ctlPin)
+  while true:
+    portA.togglePin(blinkPin)
+    # some delay
+```
+
+The following is the current complete Port API:
+
+- ```asOutputPin*(p: Port, pin: uint8)```
+- ```asInputPin*(p: Port, pin: uint8)```
+- ```asOutputPort*(p: Port)```
+- ```asInputPort*(p: Port)```
+- ```setupWithMask*(p: Port, mask: uint8)```
+- ```setupWithClearedMask*(p: Port, mask: uint8)```
+- ```asInputPullupPin*(p: Port, pin: uint8)```
+- ```disablePullup*(p: Port, pin: uint8)```
+- ```setPin*(p: Port, pin: uint8)```
+- ```clearPin*(p: Port, pin: uint8)```
+- ```togglePin*(p: Port, pin: uint8)```
+- ```readPin*(p: Port, pin: uint8): uint8```
+- ```setPort*(p: Port)```
+- ```clearPort*(p: Port)```
+- ```setPortValue*(p: Port, val: uint8)```
+- ```readPort*(p: Port): uint8```
+- ```setMask*(p: Port, mask: uint8)```
+- ```clearMask*(p: Port, mask: uint8)```
+- ```readMask*(p: Port, mask: uint8): uint8```
 
 ### Defining interrupt service routines
 
