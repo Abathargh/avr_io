@@ -11,7 +11,7 @@ bin           = @["arduino_uno_blink"]
 # Dependencies
 
 requires "nim >= 1.6.8"
-requires "avr_io >= 0.1.0"
+requires "https://github.com/Abathargh/avr_io >= 0.1.0"
 
 after build:
   mvFile(bin[0], bin[0] & ".elf")
