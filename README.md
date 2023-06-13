@@ -6,9 +6,10 @@ This library has the objective of collecting memory mappings of the IO hardware 
 
 - [avr\_io - nim mappings for AVR IO registers and ISRs](#avr_io---nim-mappings-for-avr-io-registers-and-isrs)
   - [Support](#support)
-  - [Usage](#usage)
+  - [Setup](#setup)
     - [nim.cfg](#nimcfg)
     - [panicoverride.nim](#panicoverridenim)
+  - [Usage](#usage)
     - [Accessing IO registers](#accessing-io-registers)
     - [Using Port objects](#using-port-objects)
     - [Defining interrupt service routines](#defining-interrupt-service-routines)
@@ -27,15 +28,26 @@ The library currently supports the following chips:
 - ATMega2560/1
 - ATMega1280/1
 
-## Usage
+## Setup
+
+To use this library on an AVR chip, you will have to
+- pass ```avr``` as the cpu option to the compiler;
+- pass ```standalone``` as the os type.
+- define a ```panicoverride.nim``` file.
+
+Optionally you may want to:
+- pass ```none``` as the gc (if you do not want to deal with dynamic memory, otherwise ```--gc:arc```, ```--gc:orc``` and ```-d:useMalloc``` are not a bad choice);
+
 
 ### nim.cfg
+
+The following is a template nim.cfg file containing various flags that you can use a s a reference to set up a project
 
 Note that you should pass the ```-mmcu``` and ```-DF_CPU``` flags according to the MCU you are using and the clock frequncy that you have set up.
 
 You must also define the symbol ```USING_XXX``` where ```XXX``` is the name of the MCU you want to use.
 
- For example, if I am using an atmega644 MCU, I would define the ```USING_ATMEGA664``` symbol in the nim.cfg file. 
+For example, if I am using an atmega644 MCU, I would define the ```USING_ATMEGA664``` symbol in the nim.cfg file. 
  
  **NOTE: This syntax could change in the future.**
 
@@ -46,7 +58,6 @@ cpu = "avr"
 gc = "none" 
 stackTrace = "off" 
 lineTrace = "off" 
-opt = "speed"
 define = "release"
 define = "USING_ATMEGA644"
 passC = "-mmcu=atmega644 -DF_CPU=16000000"
@@ -86,6 +97,12 @@ proc panic(s: string) =
 Note that any error caused by a failing bound-check, overflow, etc. will cause a call to the panic proc defined within the panicoverride.nim file. This makes it possible to use the panic proc for diagnostic purposes in debug builds.
 
 Using ```---define:danger``` removes those checks.
+
+
+## Usage
+
+The following is a quick intro to the features of this library. Note that you can find some complete working examples within the ```examples``` directory.
+
 
 ### Accessing IO registers
 
