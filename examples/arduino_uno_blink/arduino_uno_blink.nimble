@@ -3,7 +3,7 @@
 version       = "0.1.0"
 author        = "mar"
 description   = "Simple blink application running on an Arduino Uno."
-license       = "MIT"
+license       = "BSD-3-Clause"
 srcDir        = "src"
 bin           = @["arduino_uno_blink"]
 
