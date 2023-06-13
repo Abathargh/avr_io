@@ -13,6 +13,9 @@ template `[]`*[T](p: MappedIoRegister[T]): T =
 template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
   volatile.volatileStore(ioPtr[T](p), v)
 
+template setBit*[T](p: MappedIoRegister[T]; b: uint8) =
+  p[] = 1'u8 shl b
+
 type
   Port* = object
     direction: MappedIoRegister[uint8]
