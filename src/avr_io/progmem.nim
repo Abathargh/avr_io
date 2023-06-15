@@ -8,10 +8,13 @@ type ProgramMemoryArray*[S: static[int]; T: ProgramMemoryInteger] = distinct arr
 template pgmPtr[T](pm: ProgramMemory[T]): uint16 =
   cast[uint16](unsafeAddr pm)
 
-proc readByteNear(a: uint16): uint8 {.importc: "pgm_read_byte", header:"<pgmspace.h>".}
-proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<pgmspace.h>".}
-proc readDWordNear(a: uint16): uint32 {.importc: "pgm_read_dword", header:"<pgmspace.h>".}
-proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<pgmspace.h>".}
+template pgmPtr[S; T](pm: ProgramMemoryArray[S, T]): uint16 =
+  cast[uint16](unsafeAddr pm)
+
+proc readByteNear(a: uint16): uint8 {.importc: "pgm_read_byte", header:"<avr/pgmspace.h>".}
+proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<avr/pgmspace.h>".}
+proc readDWordNear(a: uint16): uint32 {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
+proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
 template read*[T](pm: ProgramMemory[T]): T =
   when typeof(T) is float32:
@@ -27,7 +30,7 @@ template read*[T](pm: ProgramMemory[T]): T =
       static:
          error("unsupported size for ProgramMemory.read")
 
-template `[]`*[S; T](pm: ProgramMemoryArray[S, T]; i: int): ptr T =
+template `[]`*[S; T](pm: ProgramMemoryArray[S, T]; offset: int): T =
   when typeof(T) is float32:
     readFloatNear(pgmPtr(pm) + uint16(offset))
   else:
@@ -42,18 +45,20 @@ template `[]`*[S; T](pm: ProgramMemoryArray[S, T]; i: int): ptr T =
          error("unsupported size for ProgramMemory.read")
 
 iterator progmemIter*[S; T](pm: ProgramMemoryArray[S, T]): T =
-  for i in low(pm) .. high(pm):
-    yield pm.read(i)
+  var i = 0
+  while i < S:
+    yield pm[i]
+    inc i
 
 macro progmem*(n, v: untyped): untyped =
   quote do:
-    let `n` {.exportc, codegenDecl: "static const $# $# __attribute__((__progmem__))", global.}: 
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM", global.}: 
       ProgramMemory[typeOf(`v`)] = ProgramMemory(`v`)
 
 macro progmemArray*(n, v: untyped; size: static[int]): untyped =
   quote do:
-    let `n` {.exportc, codegenDecl: "static const $# $# __attribute__((__progmem__))".}: ProgramMemoryArray[size, `v`] = `v`
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM", global.}: ProgramMemoryArray[size, `v`] = `v`
 
 macro progmemString*(n: untyped; val: static[string]): untyped =
   quote do:
-    let `n` {.exportc, codegenDecl: "const char* $2 __attribute__((__progmem__))".}: ProgramMemoryArray[uint8] = `val`
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM = \"" & `val` & "\"", global.}: ProgramMemoryArray[`val`.len, uint8]
