@@ -1,4 +1,5 @@
 import macros
+import strutils
 
 # TODO: atmega1284? type FarProgramMemory*[T] = distinct T
 type ProgramMemoryInteger = SomeUnsignedInt | float32
@@ -52,13 +53,18 @@ iterator progmemIter*[S; T](pm: ProgramMemoryArray[S, T]): T =
 
 macro progmem*(n, v: untyped): untyped =
   quote do:
-    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM", global.}: 
-      ProgramMemory[typeOf(`v`)] = ProgramMemory(`v`)
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM = " & $`v`, global, noinit.}: 
+      ProgramMemory[`v`.typeof]
 
-macro progmemArray*(n, v: untyped; size: static[int]): untyped =
+macro progmemArray*(n, v: untyped): untyped =
   quote do:
-    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM", global.}: ProgramMemoryArray[size, `v`] = `v`
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM = " & ($`v`).replace("[", "{").replace("]", "}"), global, noinit.}: 
+      ProgramMemoryArray[`v`.len, `v`[0].typeof]
+
+macro progmemArray*(n: untyped; t: type; s: static[int]): untyped =
+  quote do:
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM", global, noinit.}: ProgramMemoryArray[`s`, `t`]
 
 macro progmemString*(n: untyped; val: static[string]): untyped =
   quote do:
-    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM = \"" & `val` & "\"", global.}: ProgramMemoryArray[`val`.len, uint8]
+    let `n` {.importc, codegenDecl: "static const $# $# PROGMEM = \"" & `val` & "\"", global, noinit.}: ProgramMemoryArray[`val`.len, uint8]
