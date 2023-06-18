@@ -14,7 +14,10 @@ requires "nim >= 1.6.8"
 requires "https://github.com/Abathargh/avr_io >= 0.1.0"
 
 after build:
-  mvFile(bin[0], bin[0] & ".elf")
+  when defined(windows):
+    mvFile(bin[0] & ".exe", bin[0] & ".elf")
+  else:
+    mvFile(bin[0], bin[0] & ".elf")
   exec("avr-objcopy -O ihex " & bin[0] & ".elf " & bin[0] & ".hex")
   exec("avr-objcopy -O binary " & bin[0] & ".elf " & bin[0] & ".bin")
 
