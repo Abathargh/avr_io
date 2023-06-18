@@ -7,7 +7,7 @@ This library has the objective of collecting memory mappings of the IO hardware 
 - [avr\_io - nim mappings for AVR IO registers and ISRs](#avr_io---nim-mappings-for-avr-io-registers-and-isrs)
   - [Support](#support)
   - [Setup](#setup)
-    - [nim.cfg](#nimcfg)
+    - [config.nims](#confignims)
     - [panicoverride.nim](#panicoverridenim)
   - [Usage](#usage)
     - [Accessing IO registers](#accessing-io-registers)
@@ -39,37 +39,38 @@ Optionally you may want to:
 - pass ```none``` as the gc (if you do not want to deal with dynamic memory, otherwise ```--gc:arc```, ```--gc:orc``` and ```-d:useMalloc``` are not a bad choice);
 
 
-### nim.cfg
+### config.nims
 
-The following is a template nim.cfg file containing various flags that you can use a s a reference to set up a project
+The following is a template config.nims file containing various flags that you can use as a reference to set up a project
 
 Note that you should pass the ```-mmcu``` and ```-DF_CPU``` flags according to the MCU you are using and the clock frequncy that you have set up.
 
 You must also define the symbol ```USING_XXX``` where ```XXX``` is the name of the MCU you want to use.
 
-For example, if I am using an atmega644 MCU, I would define the ```USING_ATMEGA664``` symbol in the nim.cfg file. 
+For example, if I am using an atmega644 MCU, I would define the ```USING_ATMEGA664``` symbol in the config.nims file (**NOTE: This syntax could change in the future**).
  
- **NOTE: This syntax could change in the future.**
 
+```nim
+switch("os", "standalone")
+switch("cpu", "avr")
+switch("gc", "none")
+switch("stackTrace", "off")
+switch("lineTrace", "off")
+switch("define", "release")
+switch("define", "USING_ATMEGA328P")
+switch("passC", "-mmcu=atmega328p -DF_CPU=16000000")
+switch("passL", "-mmcu=atmega328p -DF_CPU=16000000")
+switch("nimcache", ".nimcache")
 
-```cfg
-os = "standalone"
-cpu = "avr"
-gc = "none" 
-stackTrace = "off" 
-lineTrace = "off" 
-define = "release"
-define = "USING_ATMEGA644"
-passC = "-mmcu=atmega644 -DF_CPU=16000000"
-passL = "-mmcu=atmega644 -DF_CPU=16000000"
-nimcache=.nimcache
+switch("avr.standalone.gcc.options.linker", "-static")
+switch("avr.standalone.gcc.exe", "avr-gcc")
+switch("avr.standalone.gcc.linkerexe", "avr-gcc")
 
-avr.standalone.gcc.options.linker = "-static" 
-avr.standalone.gcc.exe = "avr-gcc"
-avr.standalone.gcc.linkerexe = "avr-gcc"
+when defined(windows):
+  switch("gcc.options.always", "")
 ```
 
-When cross-compiling for AVR MCUs on Windows, the following option may be required:
+There's currently a bug in nim when cross-compiling for AVR systemsthat requires the following option to be specified:
 ```cfg
 gcc.options.always = ""
 ```
