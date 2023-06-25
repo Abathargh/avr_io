@@ -1,4 +1,5 @@
 include mapped_io
+include usart
 
 const
     PINA*   = MappedIoRegister[uint8](0x20)
@@ -106,3 +107,5 @@ const
   portB* = Port(direction: DDRB, output: PORTB, input: PINB)
   portC* = Port(direction: DDRC, output: PORTC, input: PINC)
   portD* = Port(direction: DDRD, output: PORTD, input: PIND)
+
+  usart0* = Usart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
