@@ -7,8 +7,8 @@ import strutils
 #   - [ ] add atmega1284 support (registers/interrupts) once we're at it?
 # - [x] unify types? memcpy_P/PF may be used to solve pm[] accesses for sizes > 4B
 #   - [ ] unify progmem defs and allow 1+ defs in one block
-#   - [ ] compile time replace in progmem objects (fields -> .fields in C)
-# - [ ]wrap other _P and _PF functions in pgmspace.h
+#   - [x] compile time replace in progmem objects (fields -> .fields in C)
+# - [ ] wrap other _P and _PF functions in pgmspace.h
 
 type ProgramMemory*[T] = distinct T
 
@@ -23,7 +23,6 @@ template pgmPtrOffset[S; T](pm: ProgramMemory[array[S, T]]; offset: int): ptr T 
 
 template pgmPtrOffsetU16[S; T](pm: ProgramMemory[array[S, T]], offset: int): uint16 =
   cast[uint16](unsafeAddr array[S, T](pm)[offset])
-
 
 proc readByteNear(a: uint16): uint8 {.importc: "pgm_read_byte", header:"<avr/pgmspace.h>".}
 proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<avr/pgmspace.h>".}
@@ -77,20 +76,80 @@ iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
+proc escapeStrseq(s: string): string =
+  # Escape special chars so that they will still apear as such
+  # in the generated c code
+  var r: string = ""
+  for ch in s:
+    case ch:
+      of char(0) .. char(31):
+        r.addEscapedChar(ch)
+      else:
+        r.add(ch)
+  r
+
 template wrapC(s: static[string] = "", equal: bool = true): static[string] =
   when equal:
-    "static const $# $# PROGMEM = " & s
+    "static const $# $# __attribute__((__progmem__)) = " & escapeStrseq(s)
   else:
-    "static const $# $# PROGMEM"
+    "static const $# $# __attribute__((__progmem__))"
+  
+proc substStructFields(s: string): string =
+  # Hand-rolled FSM-based struct parsing proc, since it is not
+  # possible to use the 're' module at compile-time
+  type
+    stateEnum = enum
+      spaceParsing
+      nameParsing
+      colonParsing
+      valueParsing
+
+  var state = spaceParsing
+  var output = ""
+
+  for ch in s[1 .. ^2]:
+    case state:
+      of spaceParsing:
+        case ch:
+          of ' ':
+            continue
+          else:
+            output &= "." & ch
+            state = nameParsing
+      of nameParsing:
+        case ch:
+          of ':':
+            state = colonParsing
+          else:
+            output &= ch
+      of colonParsing:
+        case ch:
+          of ' ':
+            continue
+          else:
+            output &= "="
+            output &= ch
+            state = valueParsing
+      of valueParsing:
+        case ch:
+          of ',':
+            output &= ", "
+            state = spaceParsing
+          else:
+            output &= ch
+
+  "{" & output & "}"
     
 macro progmem*(n, v: untyped): untyped =
   quote do:
     when typeOf(`v`) is SomeNumber:
       const s = $`v`
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
+    elif typeof(`v`) is string:
+      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len, uint8]]
     else:
-      const s = multiReplace(($`v`), ("(", "{"), (")", "}"))
-    let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
-      ProgramMemory[`v`.typeof]
+      const s = substStructFields(($`v`))
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
 
 macro progmemArray*(n, v: untyped): untyped =
   quote do:
@@ -100,7 +159,3 @@ macro progmemArray*(n, v: untyped): untyped =
 macro progmemArray*(n: untyped; t: type; s: static[int]): untyped =
   quote do:
     let `n` {.importc, codegenDecl: wrapC("", false), global, noinit.}: ProgramMemory[array[`s`, `t`]]
-
-macro progmemString*(n: untyped; val: static[string]): untyped =
-  quote do:
-    let `n` {.importc, codegenDecl: wrapC("\""&`val`&"\""), global, noinit.}: ProgramMemory[array[`val`.len, uint8]]
