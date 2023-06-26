@@ -1,5 +1,3 @@
-
-
 import avr_io
 import avr_io/interrupt
 
