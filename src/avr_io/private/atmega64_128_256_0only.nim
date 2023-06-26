@@ -32,3 +32,6 @@ const
   portJ* = Port(direction: DDRJ, output: PORTJ, input: PINJ)
   portK* = Port(direction: DDRK, output: PORTK, input: PINK)
   portL* = Port(direction: DDRL, output: PORTL, input: PINL)
+
+  usart2* = Usart(baudLo: UBRR2L, baudHi: UBRR2H, ctlA: UCSR2A, ctlB: UCSR2B, ctlC: UCSR2C, udr: UDR2) 
+  usart3* = Usart(baudLo: UBRR3L, baudHi: UBRR3H, ctlA: UCSR3A, ctlB: UCSR3B, ctlC: UCSR3C, udr: UDR3)
