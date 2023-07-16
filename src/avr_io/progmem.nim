@@ -29,8 +29,8 @@ proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<avr/pg
 proc readDWordNear(a: uint16): uint32 {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
 proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 proc memCompare[T](s1, s2: ptr T, s: int): int {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
-proc memCountCopy() {.importc: "memccpy_P", header: "<avr/pgmspace.h>".}
-proc memCopy[T](dest, src: ptr T; len: csize_t) {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
+proc memCountCopy[T](s1, s2: ptr T; val: int; len: csize_t): T {.importc: "memccpy_P", header: "<avr/pgmspace.h>".}
+proc memCopy[T](dest, src: ptr T; len: csize_t): T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 proc strCat() {.importc: "strcat_P", header: "<avr/pgmspace.h>".}
 proc strCompare() {.importc: "strcmp_P", header: "<avr/pgmspace.h>".} 
 proc strCopy() {.importc: "strcpy_P", header: "<avr/pgmspace.h>".}
@@ -38,6 +38,8 @@ proc strNCompare() {.importc: "strncmp_P", header: "<avr/pgmspace.h>".}
 proc strNCat() {.importc: "strncat_P", header: "<avr/pgmspace.h>".}
 proc strNCopy() {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 proc strStr() {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
+
+template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
 
 template `[]`*[T](pm: ProgramMemory[T]): T =
   when typeof(T) is float32:
@@ -50,10 +52,9 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     readDWordNear(pgmPtrU16(pm))
   else:
     var e: T
-    memCopy(addr e, pgmPtr(pm), csize_t(sizeof(T)))
+    # is this bugged for strings since it does not copy the null term?
+    discard memCopy(addr e, pgmPtr(pm), csize_t(sizeof(T))) 
     e
-
-template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
 
 template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
   when typeof(T) is float32:
@@ -70,11 +71,20 @@ template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
       memCopy(addr e, pgmPtrOffset(pm, offset), sizeof(T))
       e
 
+# should cstring be used inside here?
+template `==`*[T](s: T; t: ProgramMemory[T]): bool =
+  memCompare(addr s, pgmPtr(t), sizeof(T)) == 0
+
+template `!=`*[T](s: T; t: ProgramMemory[T]): bool =
+  return not s == t
+
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
   var i = 0
   while i < S:
     yield pm[i]
     inc i
+
+
 
 proc escapeStrseq(s: string): string =
   # Escape special chars so that they will still apear as such
@@ -141,6 +151,7 @@ proc substStructFields(s: string): string =
   "{" & output & "}"
     
 macro progmem*(n, v: untyped): untyped =
+  ##
   quote do:
     when typeOf(`v`) is SomeNumber:
       const s = $`v`
