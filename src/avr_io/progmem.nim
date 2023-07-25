@@ -31,13 +31,10 @@ proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr
 proc memCompare[T](s1, s2: ptr T, s: int): int {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
 proc memCountCopy[T](s1, s2: ptr T; val: int; len: csize_t): T {.importc: "memccpy_P", header: "<avr/pgmspace.h>".}
 proc memCopy[T](dest, src: ptr T; len: csize_t): T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
-proc strCat() {.importc: "strcat_P", header: "<avr/pgmspace.h>".}
-proc strCompare() {.importc: "strcmp_P", header: "<avr/pgmspace.h>".} 
-proc strCopy() {.importc: "strcpy_P", header: "<avr/pgmspace.h>".}
-proc strNCompare() {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
-proc strNCat() {.importc: "strncat_P", header: "<avr/pgmspace.h>".}
-proc strNCopy() {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
-proc strStr() {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
+proc strNCompare[T](dest, src: ptr T; len: csize_t): int {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
+proc strNCat[T](dest, src: ptr T; len: csize_t) {.importc: "strncat_P", header: "<avr/pgmspace.h>".}
+proc strNCopy[T](dest, src: ptr T; len: csize_t) {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
+proc strStr[T](dest, src: ptr T) {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
 
@@ -52,7 +49,6 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     readDWordNear(pgmPtrU16(pm))
   else:
     var e: T
-    # is this bugged for strings since it does not copy the null term?
     discard memCopy(addr e, pgmPtr(pm), csize_t(sizeof(T))) 
     e
 
@@ -71,11 +67,23 @@ template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
       memCopy(addr e, pgmPtrOffset(pm, offset), sizeof(T))
       e
 
-# should cstring be used inside here?
+template `$`*[S](t: ProgramMemory[array[S, char]]): string =
+  var s: string
+  strNCopy(addr s, pgmPtr(t), S*sizeof())
+
 template `==`*[T](s: T; t: ProgramMemory[T]): bool =
   memCompare(addr s, pgmPtr(t), sizeof(T)) == 0
 
+template `==`*[S, T](s: array[S, T]; t: ProgramMemory[array[S, T]]): bool =
+  memCompare(addr s, pgmPtr(t), S * sizeof(T)) == 0
+
+template `==`*[S](s: string; t: ProgramMemory[array[S, char]]): bool =
+  strNCompare(addr s, pgmPtr(t), sizeof(T)) == 0
+
 template `!=`*[T](s: T; t: ProgramMemory[T]): bool =
+  return not s == t
+
+template `!=`*(s: string; t: ProgramMemory[char]): bool = 
   return not s == t
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
@@ -83,8 +91,6 @@ iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
   while i < S:
     yield pm[i]
     inc i
-
-
 
 proc escapeStrseq(s: string): string =
   # Escape special chars so that they will still apear as such
@@ -151,13 +157,12 @@ proc substStructFields(s: string): string =
   "{" & output & "}"
     
 macro progmem*(n, v: untyped): untyped =
-  ##
   quote do:
     when typeOf(`v`) is SomeNumber:
       const s = $`v`
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
     elif typeof(`v`) is string:
-      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len, uint8]]
+      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len, char]] # use cchar?
     else:
       const s = substStructFields(($`v`))
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
