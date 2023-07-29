@@ -70,6 +70,8 @@ template toBitSet*[T: Flags](u: uint8): T =
   ## value to a bit field.
   cast[T](u)
 
+type character = uint8 | char | cchar
+
 proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctlC: CtlCFlags) =
   ## Initializes the Usart peripheral to be used with the specified flags and baud rate.
   ## USe the `baudRate` template to generate a valid input for that parameter.
@@ -79,17 +81,25 @@ proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctl
   usart.ctlB[] = toBitMask(ctlB)
   usart.ctlC[] = toBitMask(ctlC)
 
-proc sendByte*(usart: Usart; c: uint8) =
+proc sendByte*(usart: Usart; c: character) =
   ## Sends a single byte via Usart.
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[] = uint8(c)
 
-proc sendBytes*(usart: Usart; s: openArray[uint8]) =
+proc sendBytes*(usart: Usart; s: openArray[character]) =
   ## Sends an array of bytes via Usart.
   for ch in s:
     usart.sendByte(ch)
 
-proc sendString*(usart: Usart; s: string) =
-  ## Sends a string-encoded array of bytes via Usart.
+proc sendString*(usart: Usart; s: cstring|string) =
+  ## Sends a string via Usart.
   for ch in s:
     usart.sendByte(uint8(ch))
+
+proc sendString*[S](usart: Usart; s: array[S, character]) = 
+  ## Sends a string-encoded array of bytes via Usart.
+  for ch in s:
+    if ch == '\0':
+      break
+    usart.sendByte(uint8(ch))
+    
