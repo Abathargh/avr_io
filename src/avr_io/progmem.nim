@@ -61,15 +61,16 @@ template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
     elif sizeof(T) == 2:
       readWordNear(pgmPtrOffsetU16(pm, offset))
     elif sizeof(T) == 4:
-      readDWordNear(pgmPtrOffsetU16(pm, offset))
+      readDWordNear(pgmPtrOffsetU16(pm, offset))      
     else:
       var e: T
-      memCopy(addr e, pgmPtrOffset(pm, offset), sizeof(T))
-      e
+      discard memCopy(addr e, pgmPtrOffset(pm, offset), csize_t(sizeof(T)))
+      e  
 
-template `$`*[S](t: ProgramMemory[array[S, char]]): string =
-  var s: string
-  strNCopy(addr s, pgmPtr(t), S*sizeof())
+template `[]`*[S](t: ProgramMemory[array[S, cchar]]): array[S, cchar] =
+  var s: array[S, cchar]
+  strNCopy(cast[ptr cchar](addr s), pgmPtrOffset(t, 0), csize_t(s.len))
+  s
 
 template `==`*[T](s: T; t: ProgramMemory[T]): bool =
   memCompare(addr s, pgmPtr(t), sizeof(T)) == 0
@@ -162,7 +163,7 @@ macro progmem*(n, v: untyped): untyped =
       const s = $`v`
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
     elif typeof(`v`) is string:
-      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len, char]] # use cchar?
+      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len + 1, cchar]]
     else:
       const s = substStructFields(($`v`))
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
