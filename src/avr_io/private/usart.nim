@@ -58,7 +58,7 @@ type
 template baudRate*(baud: int, freq: int = 16000000): uint16 =
   ## Generates the correct value to feed to the Usart initializers
   ## starting from the baud rate.
-  (freq div (16 * baud)) - 1
+  uint16(freq div (16 * baud)) - 1
 
 template toBitMask*(f: Flags): uint8 =
   ## Converts a bit field containing flags to be used with a control 
