@@ -29,12 +29,10 @@ proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<avr/pg
 proc readDWordNear(a: uint16): uint32 {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
 proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 proc memCompare[T](s1, s2: ptr T, s: int): int {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
-proc memCountCopy[T](s1, s2: ptr T; val: int; len: csize_t): T {.importc: "memccpy_P", header: "<avr/pgmspace.h>".}
 proc memCopy[T](dest, src: ptr T; len: csize_t): T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 proc strNCompare[T](dest, src: ptr T; len: csize_t): int {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
-proc strNCat[T](dest, src: ptr T; len: csize_t) {.importc: "strncat_P", header: "<avr/pgmspace.h>".}
 proc strNCopy[T](dest, src: ptr T; len: csize_t) {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
-proc strStr[T](dest, src: ptr T) {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
+proc strStr[T](dest, src: ptr T): int {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
 
@@ -63,29 +61,11 @@ template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
     elif sizeof(T) == 4:
       readDWordNear(pgmPtrOffsetU16(pm, offset))      
     else:
+      # TODO using this as a temporary causes a problem in code generation
+      # where a variable gets generated within the function calls to memcpy_P
       var e: T
       discard memCopy(addr e, pgmPtrOffset(pm, offset), csize_t(sizeof(T)))
       e  
-
-template `[]`*[S](t: ProgramMemory[array[S, cchar]]): array[S, cchar] =
-  var s: array[S, cchar]
-  strNCopy(cast[ptr cchar](addr s), pgmPtrOffset(t, 0), csize_t(s.len))
-  s
-
-template `==`*[T](s: T; t: ProgramMemory[T]): bool =
-  memCompare(addr s, pgmPtr(t), sizeof(T)) == 0
-
-template `==`*[S, T](s: array[S, T]; t: ProgramMemory[array[S, T]]): bool =
-  memCompare(addr s, pgmPtr(t), S * sizeof(T)) == 0
-
-template `==`*[S](s: string; t: ProgramMemory[array[S, char]]): bool =
-  strNCompare(addr s, pgmPtr(t), sizeof(T)) == 0
-
-template `!=`*[T](s: T; t: ProgramMemory[T]): bool =
-  return not s == t
-
-template `!=`*(s: string; t: ProgramMemory[char]): bool = 
-  return not s == t
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
   var i = 0
@@ -93,10 +73,16 @@ iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
+iterator progmemIter*[S](pm: ProgramMemory[array[S, cchar]]): cchar =
+  var i = 0
+  while i < S and pm[i] != '\0':
+    yield pm[i]
+    inc i
+
 proc escapeStrseq(s: string): string =
-  # Escape special chars so that they will still apear as such
+  # Escape special chars so that they will still appear as such
   # in the generated c code
-  var r: string = ""
+  var r: string = newStringOfCap(s.len) # use newstringOfCap?
   for ch in s:
     case ch:
       of char(0) .. char(31):
@@ -114,6 +100,7 @@ template wrapC(s: static[string] = "", equal: bool = true): static[string] =
 proc substStructFields(s: string): string =
   # Hand-rolled FSM-based struct parsing proc, since it is not
   # possible to use the 're' module at compile-time
+  # TODO modify to accept objects as params to objects
   type
     stateEnum = enum
       spaceParsing
