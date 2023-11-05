@@ -29,7 +29,7 @@ proc readWordNear(a: uint16): uint16 {.importc: "pgm_read_word", header:"<avr/pg
 proc readDWordNear(a: uint16): uint32 {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
 proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 proc memCompare[T](s1, s2: ptr T, s: int): int {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
-proc memCopy[T](dest, src: ptr T; len: csize_t): T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
+proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 proc strNCompare[T](dest, src: ptr T; len: csize_t): int {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
 proc strNCopy[T](dest, src: ptr T; len: csize_t) {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 proc strStr[T](dest, src: ptr T): int {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
@@ -46,11 +46,11 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
   elif sizeof(T) == 4:
     readDWordNear(pgmPtrU16(pm))
   else:
-    var e: T
+    var e {.noInit.} : T 
     discard memCopy(addr e, pgmPtr(pm), csize_t(sizeof(T))) 
     e
-
-template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
+    
+template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
   when typeof(T) is float32:
     readFloatNear(pgmPtrOffsetU16(pm, offset))
   else:
@@ -63,9 +63,9 @@ template `[]`*[S; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
     else:
       # TODO using this as a temporary causes a problem in code generation
       # where a variable gets generated within the function calls to memcpy_P
-      var e: T
+      var e {.noInit.} : T 
       discard memCopy(addr e, pgmPtrOffset(pm, offset), csize_t(sizeof(T)))
-      e  
+      e
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
   var i = 0
@@ -73,7 +73,7 @@ iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
-iterator progmemIter*[S](pm: ProgramMemory[array[S, cchar]]): cchar =
+iterator progmemIter*[S: static[int]](pm: ProgramMemory[array[S, cchar]]): cchar =
   var i = 0
   while i < S and pm[i] != '\0':
     yield pm[i]
@@ -82,7 +82,7 @@ iterator progmemIter*[S](pm: ProgramMemory[array[S, cchar]]): cchar =
 proc escapeStrseq(s: string): string =
   # Escape special chars so that they will still appear as such
   # in the generated c code
-  var r: string = newStringOfCap(s.len) # use newstringOfCap?
+  var r: string = newStringOfCap(s.len)
   for ch in s:
     case ch:
       of char(0) .. char(31):
