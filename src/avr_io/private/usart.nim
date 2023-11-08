@@ -55,7 +55,7 @@ type
 
   Flags = CtlAFlags | CtlBFlags | CtlCFlags
 
-template baudRate*(baud: int, freq: int = 16000000): uint16 =
+template baudRate*(baud: uint32, freq: uint32 = 16000000'u32): uint16 =
   ## Generates the correct value to feed to the Usart initializers
   ## starting from the baud rate.
   uint16(freq div (16 * baud)) - 1
