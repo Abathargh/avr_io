@@ -1,3 +1,6 @@
+## A simple blink application running on an ATMega328P-based Arduino Uno
+## which uses some basic avr_io features.
+
 import avr_io
 import avr_io/interrupt
 
@@ -23,13 +26,17 @@ proc initTimer0() =
   TIMSK0.setBit(1)
 
 
+# You can create an interrupt service routine for a specific interrupt signal 
+# by just using the `isr` macro attribute, passing the specific interrupt 
+# signal to it. The signals are of the `VectorInterrupt` type and are 
+# device-specific.
 proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
   inc ctr
 
 proc loop = 
-  sei()
-  initTimer0()
-  portB.asOutputPin(builtinLed)
+  sei() # Let us enable the interrupts
+  initTimer0() 
+  portB.asOutputPin(builtinLed) # Pin 5 of PORTB is the Arduino Uno builtin led 
   
   while true:
     if ctr.checkThreshold():
