@@ -91,6 +91,11 @@ proc sendBytes*(usart: Usart; s: openArray[character]) =
   for ch in s:
     usart.sendByte(ch)
 
+proc sendString*[S: static[int]](usart: Usart; s: array[S, cchar]) =
+  ## Sends a string via Usart.
+  for i in 0..S-1:
+    usart.sendByte(uint8(s[i]))
+
 proc sendString*(usart: Usart; s: cstring|string) =
   ## Sends a string via Usart.
   for ch in s:
