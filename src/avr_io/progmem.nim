@@ -61,8 +61,6 @@ template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; offset: int): 
     elif sizeof(T) == 4:
       readDWordNear(pgmPtrOffsetU16(pm, offset))      
     else:
-      # TODO using this as a temporary causes a problem in code generation
-      # where a variable gets generated within the function calls to memcpy_P
       var e {.noInit.} : T 
       discard memCopy(addr e, pgmPtrOffset(pm, offset), csize_t(sizeof(T)))
       e
