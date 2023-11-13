@@ -73,8 +73,9 @@ template toBitSet*[T: Flags](u: uint8): T =
 type character = uint8 | char | cchar
 
 proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctlC: CtlCFlags) =
-  ## Initializes the Usart peripheral to be used with the specified flags and baud rate.
-  ## USe the `baudRate` template to generate a valid input for that parameter.
+  ## Initializes the Usart peripheral to be used with the specified flags and 
+  ## baud rate. Use the `baudRate` template to generate a valid input for that 
+  ## parameter.
   usart.baudHi[] = uint8(baud shr 8)
   usart.baudLo[] = uint8(baud)
   usart.ctlA[] = toBitMask(ctlA)
@@ -90,11 +91,6 @@ proc sendBytes*(usart: Usart; s: openArray[character]) =
   ## Sends an array of bytes via Usart.
   for ch in s:
     usart.sendByte(ch)
-
-proc sendString*[S: static[int]](usart: Usart; s: array[S, cchar]) =
-  ## Sends a string via Usart.
-  for i in 0..S-1:
-    usart.sendByte(uint8(s[i]))
 
 proc sendString*(usart: Usart; s: cstring|string) =
   ## Sends a string via Usart.
