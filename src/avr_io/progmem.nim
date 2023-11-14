@@ -144,21 +144,35 @@ proc substStructFields(s: string): string =
   "{" & output & "}"
     
 macro progmem*(n, v: untyped): untyped =
+  ## Stores the value `v` in program memory, and creates a new symbol `n` 
+  ## through which it is possible to access it. 
   quote do:
     when typeOf(`v`) is SomeNumber:
       const s = $`v`
-      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[`v`.typeof]
     elif typeof(`v`) is string:
-      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: ProgramMemory[array[`v`.len + 1, cchar]]
+      let `n` {.importc, codegenDecl: wrapC("\""&`v`&"\""), global, noinit.}: 
+        ProgramMemory[array[`v`.len + 1, cchar]]
     else:
       const s = substStructFields(($`v`))
-      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[`v`.typeof]
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[`v`.typeof]
+
 
 macro progmemArray*(n, v: untyped): untyped =
+  ## Stores the array `v` in program memory, and creates a new symbol `n` 
+  ## through which it is possible to access it.
   quote do:
     const s = multiReplace(($`v`), ("[", "{"), ("]", "}"))
-    let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: ProgramMemory[array[`v`.len, `v`[0].typeof]]
+    let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+      ProgramMemory[array[`v`.len, `v`[0].typeof]]
+
 
 macro progmemArray*(n: untyped; t: type; s: static[int]): untyped =
+  ## Creates a new non-initialized program memory array, of size `s`, 
+  ## containing elements of type `t`, and creates a new symbol `n` through 
+  ## which it is possible to access it.
   quote do:
-    let `n` {.importc, codegenDecl: wrapC("", false), global, noinit.}: ProgramMemory[array[`s`, `t`]]
+    let `n` {.importc, codegenDecl: wrapC("", false), global, noinit.}: 
+      ProgramMemory[array[`s`, `t`]]
