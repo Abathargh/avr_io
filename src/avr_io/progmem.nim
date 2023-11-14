@@ -31,38 +31,39 @@ proc readFloatNear(a: uint16): float32 {.importc: "pgm_read_float", header:"<avr
 proc memCompare[T](s1, s2: ptr T, s: int): int {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
 proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 proc strNCompare[T](dest, src: ptr T; len: csize_t): int {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
-proc strNCopy[T](dest, src: ptr T; len: csize_t) {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
+proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 proc strStr[T](dest, src: ptr T): int {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
 
 template `[]`*[T](pm: ProgramMemory[T]): T =
-  when typeof(T) is float32:
-    readFloatNear(pgmPtrU16(pm))
-  elif sizeof(T) == 1:
-    readByteNear(pgmPtrU16(pm))
-  elif sizeof(T) == 2:
-    readWordNear(pgmPtrU16(pm))
-  elif sizeof(T) == 4:
-    readDWordNear(pgmPtrU16(pm))
+  when T is SomeNumber and sizeof(T) <= 4:
+    when typeof(T) is float32:
+      readFloatNear(pgmPtrU16(pm))
+    elif sizeof(T) == 1:
+      readByteNear(pgmPtrU16(pm))
+    elif sizeof(T) == 2:
+      readWordNear(pgmPtrU16(pm))
+    elif sizeof(T) == 4:
+      readDWordNear(pgmPtrU16(pm))   
   else:
     var e {.noInit.} : T 
     discard memCopy(addr e, pgmPtr(pm), csize_t(sizeof(T))) 
     e
-    
-template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; offset: int): T =
+
+template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
   when typeof(T) is float32:
-    readFloatNear(pgmPtrOffsetU16(pm, offset))
+    readFloatNear(pgmPtrOffsetU16(pm, i))
   else:
     when sizeof(T) == 1:
-      readByteNear(pgmPtrOffsetU16(pm, offset))
+      readByteNear(pgmPtrOffsetU16(pm, i))
     elif sizeof(T) == 2:
-      readWordNear(pgmPtrOffsetU16(pm, offset))
+      readWordNear(pgmPtrOffsetU16(pm, i))
     elif sizeof(T) == 4:
-      readDWordNear(pgmPtrOffsetU16(pm, offset))      
+      readDWordNear(pgmPtrOffsetU16(pm, i))      
     else:
       var e {.noInit.} : T 
-      discard memCopy(addr e, pgmPtrOffset(pm, offset), csize_t(sizeof(T)))
+      discard memCopy(addr e, pgmPtrOffset(pm, i), csize_t(sizeof(T)))
       e
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
