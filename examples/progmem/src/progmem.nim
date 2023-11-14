@@ -40,6 +40,11 @@ progmem(testObj2, bar(b1: true, b2: "test string in object\n"))
 # first element of the array, as normal.
 progmemArray(testArr, [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10])
 
+# To reserve a block of program memory of size `size`, containing objects of 
+# type `type`, use the `progmemArray(type, size)` macro. This is particularly 
+# useful when wanting to embed metadata within your  binaries.
+progmemArray(testNonInitArr, uint8, 10)
+
 
 proc initTimer0() =
   # Same as in the arduino_uno_blink example.
@@ -104,6 +109,8 @@ proc sendProgmemVar(usart: Usart) =
     
   # Or you can just dereference them and get a copy of the whole array.
   usart.sendBytes(testArr[])
+  usart.sendBytes(testNonInitArr[])
+  usart.sendByte('\n')
 
   # Note that this works for progmem strings too: dereferencing one will yield 
   # an array[S, cchar].
