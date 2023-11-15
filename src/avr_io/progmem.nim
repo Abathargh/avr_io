@@ -1,15 +1,18 @@
+## Utilities to interact with program memory in AVR chips. This module 
+## provides primites useful to store data in program memory, retrieve it and 
+## manipulate it.
 import macros
 
 # TODOs: 
 # - [ ] support for far operations
 #   - [ ] type FarProgramMemory*[T] = distinct T
 #   - [ ] add atmega1284 support (registers/interrupts) once we're at it?
-# - [x] unify types? memcpy_P/PF may be used to solve pm[] accesses for sizes > 4B
-#   - [ ] unify progmem defs and allow 1+ defs in one block
-#   - [x] compile time replace in progmem objects (fields -> .fields in C)
+#   - [] unify types? memcpy_P/PF may be used to solve pm[] accesses for sizes > 4B
+# - [x] compile time replace in progmem objects (fields -> .fields in C)
 # - [ ] wrap other _P and _PF functions in pgmspace.h
 
-type ProgramMemory*[T] = distinct T
+type ProgramMemory*[T] = distinct T ## \
+  ## An handle to data store in program memory.
 
 template pgmPtr[T](pm: ProgramMemory[T]): ptr T =
   unsafeAddr T(pm)
@@ -33,9 +36,15 @@ proc strNCompare[T](dest, src: ptr T; len: csize_t): int {.importc: "strncmp_P",
 proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 proc strStr[T](dest, src: ptr T): int {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
 
-template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S
+template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
+  ## Returns the length of a program memory array.
+
 
 template `[]`*[T](pm: ProgramMemory[T]): T =
+  ## Dereference operator used to access data stored in program memory. 
+  ## Note that this must generate a copy of said data, in order to make it 
+  ## available to the user. This can be used for numbers and for objects 
+  ## without loss of generality.
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
       readFloatNear(pgmPtrU16(pm))
@@ -51,6 +60,9 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     e
 
 template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
+  ## Dereference operator used to access elements of an array stored in 
+  ## program memory. Note that this must generate a copy of said data, in 
+  ## order to make it available to the user. 
   when typeof(T) is float32:
     readFloatNear(pgmPtrOffsetU16(pm, i))
   else:
@@ -66,12 +78,18 @@ template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
       e
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
+  ## Iterator that can be used to safely traverse program memory arrays.
+  ## Note that this must generate a copy of each element iterated, in order to 
+  ## make it available to the user. 
   var i = 0
   while i < S:
     yield pm[i]
     inc i
 
 iterator progmemIter*[S: static[int]](pm: ProgramMemory[array[S, cchar]]): cchar =
+  ## Iterator that can be used to safely traverse program memory cchar arrays.
+  ## Note that this must generate a copy of each element iterated, in order to 
+  ## make it available to the user. 
   var i = 0
   while i < S and pm[i] != '\0':
     yield pm[i]

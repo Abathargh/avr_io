@@ -4,7 +4,7 @@ An example application showcasing how to interact with progmem data.
 
 ## Dependencies
 
-- ```avr-gcc``
+- ```avr-gcc```
 - ```avr-libc```
 - ```avrdude```
 

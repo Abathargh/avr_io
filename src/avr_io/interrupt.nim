@@ -1,3 +1,6 @@
+## The interrupt module provides facilities to implement ISRs for AVR chips, 
+## and to easily interact with interrupt-related procedures.
+
 import macros
 
 when defined(USING_ATMEGA328P):
@@ -21,7 +24,10 @@ else:
 
 # TODO: IST attributes (block, non block, naked, aliasof)
 template vectorDecl(n: int): string =
-  "$1  __vector_" & $n & "$3 __attribute__((__signal__,__used__,__externally_visible__)); $1 __vector_" & $n & "$3"
+  "$1  __vector_" & $n & 
+  """
+    $3 __attribute__((__signal__,__used__,__externally_visible__)); 
+    $1 __vector_""" & $n & "$3"
 
 
 macro isr*(v: static[VectorInterrupt], p: untyped): untyped =
@@ -34,7 +40,11 @@ macro isr*(v: static[VectorInterrupt], p: untyped): untyped =
     pnode = p[0]
   expectKind(pnode, nnkProcDef)
   addPragma(pnode, newIdentNode("exportc"))
-  addPragma(pnode, newNimNode(nnkExprColonExpr).add(newIdentNode("codegenDecl"), newLit(vectorDecl(ord(v)))))
+  addPragma(pnode, 
+    newNimNode(nnkExprColonExpr).add(
+      newIdentNode("codegenDecl"), newLit(vectorDecl(ord(v)))
+    )
+  )
   pnode
 
 template sei*() =

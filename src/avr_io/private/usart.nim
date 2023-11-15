@@ -1,3 +1,6 @@
+## The usart module provides a series of utilities to interface with the USART 
+## peripherals on AVR chips.
+
 import mapped_io
 
 type
@@ -70,7 +73,8 @@ template toBitSet*[T: Flags](u: uint8): T =
   ## value to a bit field.
   cast[T](u)
 
-type character = uint8 | char | cchar
+type character* = uint8 | char | cchar ## A valid nim or c-compatible \
+  ## character type
 
 proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctlC: CtlCFlags) =
   ## Initializes the Usart peripheral to be used with the specified flags and 

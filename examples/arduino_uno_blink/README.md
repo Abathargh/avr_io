@@ -5,7 +5,7 @@ using a timer-based delay with an interrupt service routine.
 
 ## Dependencies
 
-- ```avr-gcc``
+- ```avr-gcc```
 - ```avr-libc```
 - ```avrdude```
 
