@@ -7,7 +7,6 @@ import avr_io/progmem
 import avr_io/interrupt
 
 import volatile
-import strutils
 
 
 # The `progmem` macro allows the user to define a new symbol containing many 
@@ -42,7 +41,7 @@ progmemArray(testArr, [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10])
 
 # To reserve a block of program memory of size `size`, containing objects of 
 # type `type`, use the `progmemArray(type, size)` macro. This is particularly 
-# useful when wanting to embed metadata within your  binaries.
+# useful when wanting to embed metadata within your binaries.
 progmemArray(testNonInitArr, uint8, 10)
 
 
