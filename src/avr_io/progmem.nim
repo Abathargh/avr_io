@@ -1,5 +1,4 @@
 import macros
-import strutils
 
 # TODOs: 
 # - [ ] support for far operations
@@ -142,7 +141,26 @@ proc substStructFields(s: string): string =
             output &= ch
 
   "{" & output & "}"
-    
+
+
+template substBraces(s: static[string]): string =
+  # Cannot use strutils.multiReplace; importing strutils causes the following
+  # error: 
+  #  `.choosenim/toolchains/nim-2.0.0/lib/pure/unicode.nim(849, 36) Error: 
+  #  type mismatch: got 'int32' for 'RuneImpl(toLower(ar)) - 
+  # RuneImpl(toLower(br))' but expected 'int'`
+  var r: string = newStringOfCap(s.len)
+  for c in s:
+    case c 
+      of '[':
+        r.add('{')
+      of ']':
+        r.add('}')
+      else:
+        r.add(c)
+  r
+
+
 macro progmem*(n, v: untyped): untyped =
   ## Stores the value `v` in program memory, and creates a new symbol `n` 
   ## through which it is possible to access it. 
@@ -164,7 +182,7 @@ macro progmemArray*(n, v: untyped): untyped =
   ## Stores the array `v` in program memory, and creates a new symbol `n` 
   ## through which it is possible to access it.
   quote do:
-    const s = multiReplace(($`v`), ("[", "{"), ("]", "}"))
+    const s = substBraces($`v`)
     let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
       ProgramMemory[array[`v`.len, `v`[0].typeof]]
 
