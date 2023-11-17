@@ -1,5 +1,5 @@
 ## Utilities to interact with program memory in AVR chips. This module 
-## provides primites useful to store data in program memory, retrieve it and 
+## provides primitives useful to store data in program memory, retrieve it and 
 ## manipulate it.
 
 import macros
