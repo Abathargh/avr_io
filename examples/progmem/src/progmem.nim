@@ -35,8 +35,8 @@ progmem(testObj2, bar(b1: true, b2: "test string in object\n"))
 
 
 # The `progmemArray` macro allows the user to define a new symbol containing 
-# an array of values. note that the type of the data is inferred from the 
-# first element of the array, as normal.
+# an array of values. Note that the type of the data is inferred from the 
+# first element of the array, as usual.
 progmemArray(testArr, [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10])
 
 # To reserve a block of program memory of size `size`, containing objects of 

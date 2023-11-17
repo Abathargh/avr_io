@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+"""
+Simple python script to read from the data sent from the Arduino Uno to the 
+serial port. 
+
+Note that pyserial is required, and that this script uses /dev/ttyACM0 as the 
+default port. Change it accordingly to your device/OS.
+"""
+
+import serial
+import struct
+
+
+def num_to_str(data):
+  try:
+    dt, bitstr = data.split(b" ")
+    dt_map = {
+      b"float": ("f", 4),
+      b"uint8": ("B", 1),
+      b"uint16": ("H", 2),
+      b"uint32": ("I", 4),
+    }
+
+    dt_pkstr = dt_map[dt][0]
+    dt_width = dt_map[dt][1]
+
+    # [:-1] to ignore the trailing newline
+    b = int(bitstr[:-1], 2).to_bytes(dt_width, "little")
+    return True, struct.unpack(dt_pkstr, b)[0]
+  except Exception as e:
+    return False, None
+
+
+def main():
+  s = serial.Serial(port="/dev/ttyACM0", baudrate=9600)
+
+  reading = True
+
+  while reading:
+    try:
+      d = s.readline()
+      isNum, n = num_to_str(d)
+      print(n if isNum else d)
+    except KeyboardInterrupt:
+      reading = False
+
+  print("bye")
+  s.close()
+
+if __name__ == "__main__":
+  main()

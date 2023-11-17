@@ -31,4 +31,4 @@ task flash, "Loads the compiled binary onto the MCU":
   exec("avrdude -c arduino -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & bin[0] & ".hex:i")
 
 task flash_debug, "Loads the elf binary onto the MCU":
-  exec("avrdude -c stk500v2 -D -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & bin[0] & ".elf:e")
+  exec("avrdude -c arduino -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & bin[0] & ".elf:e")
