@@ -21,8 +21,16 @@ template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
   volatile.volatileStore(ioPtr[T](p), v)
 
 template setBit*[T](p: MappedIoRegister[T]; b: uint8) =
-  ## Sets a single bit of the specified register,
-  p[] = 1'u8 shl b
+  ## Sets a single bit of the specified register.
+  p[] = bitor(p[], 1'u8 shl b)
+
+template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
+  ## Clears a single bit of the specified register.
+  p[] = bitand(p[], bitnot(1'u8 shl b))
+
+template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
+  ## Reads the value for specified pin in the port.
+  bitand(p.input[], 1'u8 shl b) shr b
 
 type
   Port* = object
