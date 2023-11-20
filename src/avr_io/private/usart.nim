@@ -93,6 +93,26 @@ proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctl
   usart.ctlC[] = toBitMask(ctlC)
 
 
+proc setCtlFlags*(usart: Usart; flags: Flags) =
+  ## Sets the passed flags of the specific Usart control register.  
+  when flags is CtlAFlags:
+    usart.ctlA.setMask(toBitMask(flags))
+  elif flags is CtlBFlags:
+    usart.ctlB.setMask(toBitMask(flags))
+  elif flags is CtlCFlags:
+    usart.ctlC.setMask(toBitMask(flags))
+
+
+proc clearCtlFlags*(usart: Usart; flags: Flags) =
+  ## Clears the passed flags of the specific Usart control register.  
+  when flags is CtlAFlags:
+    usart.ctlA.clearMask(toBitMask(flags))
+  elif flags is CtlBFlags:
+    usart.ctlB.clearMask(toBitMask(flags))
+  elif flags is CtlCFlags:
+    usart.ctlC.clearMask(toBitMask(flags))
+
+
 template sendByte*(usart: Usart; c: character) =
   ## Sends a single byte via Usart.
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
@@ -127,7 +147,7 @@ proc sendInt*(usart: Usart, data: uint16) =
 
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[] = uint8(bitand(data, 0x00ff))
-    
+
 
 template readByte*(usart: Usart): uint8 =
   while rxc notin toBitSet[CtlAFlags](usart.ctlA[]): discard
@@ -139,11 +159,11 @@ template readInt*(usart: Usart): uint16 =
   discard
 
 
-proc readLine*[S: static[int]](usart: Usart; buf: var array[S, cchar]): int =
+proc readLine*[S: static[int]](usart: Usart; buf: var array[S, character]): int =
   var c = 0
-  let b = usart.readByte()
-  while b != '\n' and c < S-1: 
-    buf[c] = b
+  var b = usart.readByte()
+  while char(b) != '\n' and c < S-1: 
+    buf[c] = cchar(b)
     b = usart.readByte()
     inc c
   buf[c] = '\0'

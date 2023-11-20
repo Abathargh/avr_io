@@ -29,8 +29,16 @@ template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
   p[] = bitand(p[], bitnot(1'u8 shl b))
 
 template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
-  ## Reads the value for specified pin in the port.
+  ## Reads the value for the specified bit in the register.
   bitand(p.input[], 1'u8 shl b) shr b
+
+template setMask*[T](p: MappedIoRegister[T]; mask: uint8) =
+  ## Sets the reister bits that are high in the passed mask.
+  p[] = setMasked(p[], mask)
+
+template clearMask*[T](p: MappedIoRegister[T]; mask: uint8) =
+  ## Clears the reister bits that are high in the passed mask.
+  p[] = clearMasked(p[], mask)
 
 type
   Port* = object
@@ -55,36 +63,36 @@ template asInputPort*(p: Port) =
   ## Sets the specified port as an input port.
   p.direction[] = 0x00
 
-template setupWithMask*(p: Port, mask: uint8) =
+template setupWithMask*(p: Port; mask: uint8) =
   ## Setups the port with the high bits in the passed mask.
   p.direction[] = setMasked(p.direction[], mask)
 
-template setupWithClearedMask*(p: Port, mask: uint8) =
+template setupWithClearedMask*(p: Port; mask: uint8) =
   ## Setups the port by clearing it with the high bits in the passed mask.
   p.direction[] = clearMasked(p.direction[], mask)
 
-template asInputPullupPin*(p: Port, pin: uint8) =
+template asInputPullupPin*(p: Port; pin: uint8) =
   ## Sets the specified pin in the port as an input pullup pin.
   p.asInputPin(pin)
   p.setPin(pin)
 
-template disablePullup*(p: Port, pin: uint8) =
+template disablePullup*(p: Port; pin: uint8) =
   ## Disables pullup mode for the spcified pin in the port.
   p.clearPin(pin)
 
-template setPin*(p: Port, pin: uint8) =
+template setPin*(p: Port; pin: uint8) =
   ## Sets the specified pin in the port to high.
   p.output[] = bitor(p.output[], 1'u8 shl pin) 
 
-template clearPin*(p: Port, pin: uint8) =
+template clearPin*(p: Port; pin: uint8) =
   ## Clears the specified pin in the port to low.
   p.output[] = bitand(p.output[], bitnot(1'u8 shl pin)) 
 
-template togglePin*(p: Port, pin: uint8) = 
+template togglePin*(p: Port; pin: uint8) = 
   ## Toggles the specified pin in the port.
   p.output[] = bitxor(p.output[], 1'u8 shl pin)
 
-template readPin*(p: Port, pin: uint8): uint8 =
+template readPin*(p: Port; pin: uint8): uint8 =
   ## Reads the value for specified pin in the port.
   bitand(p.input[], 1'u8 shl pin) shr pin
 
@@ -96,7 +104,7 @@ template clearPort*(p: Port) =
   ## Clears all the pins in the port to low.
   p.output[] = 0x00 
 
-template setPortValue*(p: Port, val: uint8) =
+template setPortValue*(p: Port; val: uint8) =
   ## Sets the port to the specified value.
   p.output[] = val 
 
@@ -104,14 +112,14 @@ template readPort*(p: Port): uint8 =
   ## Reads the value from the spcified port.
   p.input[]
 
-template setMask*(p: Port, mask: uint8) =
+template setMask*(p: Port; mask: uint8) =
   ## Sets the port to the high bits in the passed mask.
   p.output[] = setMasked(p.output[], mask)
 
-template clearMask*(p: Port, mask: uint8) =
+template clearMask*(p: Port; mask: uint8) =
   ## Clears the pin in the port with bits set to one in the mask.
   p.output[] = clearMasked(p.output[], mask)
 
-template readMask*(p: Port, mask: uint8): uint8 =
+template readMask*(p: Port; mask: uint8): uint8 =
   ## Reads the bits from the port with bits set to one in the mask.
   masked(p.input[], mask)
