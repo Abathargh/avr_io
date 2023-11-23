@@ -119,7 +119,7 @@ template sendByte*(usart: Usart; c: character) =
   usart.udr[] = uint8(c)
 
 
-proc sendBytes*(usart: Usart; s: openArray[character]) =
+proc sendBytes*[S: static[int]](usart: Usart; s: array[S, character]) =
   ## Sends an array of bytes via Usart.
   for ch in s:
     usart.sendByte(ch)
@@ -141,25 +141,34 @@ proc sendString*[S](usart: Usart; s: array[S, character]) =
 
 proc sendInt*(usart: Usart, data: uint16) =
   ## Sends up-to-9 bits of data via Usart.
+  while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.ctlB.clearBit(txb8.ord)
   if bitand(data, 0x0100) != 0:
     usart.ctlB.setBit(txb8.ord)
-
-  while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[] = uint8(bitand(data, 0x00ff))
 
 
 template readByte*(usart: Usart): uint8 =
+  ## Reads a single byte via Usart.
   while rxc notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[]
 
 
-template readInt*(usart: Usart): uint16 =
-  while rxc notin toBiteSet[CtlAFlags](usart.ctlA[]): discard
-  discard
+proc readInt*(usart: Usart): uint16 =
+  ## Reads up-to-0 bits of data via Usart. Note that this will return a 9-bit 
+  ## chunk of data encoded into a 16-bit unsigned integer. If an error raises 
+  ## while communicating, the 10-th bit of thie returned integer will be set 
+  ## to `1`.
+  while rxc notin toBitSet[CtlAFlags](usart.ctlA[]): discard
+  if {fe, dor, upe} <= toBitSet[CtlAFlags](usart.ctlA[]):
+    return 1'u16 shl 10
+  let msb = usart.ctlB.readBit(rxb8.ord)
+  bitor(uint16(msb) shl 8, uint16(usart.udr[]))
 
 
 proc readLine*[S: static[int]](usart: Usart; buf: var array[S, character]): int =
+  ## Reads bytes via Usart until a newline character (`\n`) is read. Returns 
+  ## the number of read bytes.
   var c = 0
   var b = usart.readByte()
   while char(b) != '\n' and c < S-1: 
@@ -169,22 +178,26 @@ proc readLine*[S: static[int]](usart: Usart; buf: var array[S, character]): int 
   buf[c] = '\0'
   c-1
 
-
-proc readNBytes*[S: static[int]](usart: Usart; n: int; buf: var array[S, cchar]): int =
+  
+proc readBytes*[S: static[int]](usart: Usart; n: int; buf: var array[S, character]): int =
+  ## Reads `n` bytes via Usart, truncated to the lenght of the buffer. Returns 
+  ## the number of read bytes.
   var c = 0
-  let b = usart.readByte()
+  var b = usart.readByte()
   while c < n and c < S:
-    buf[c] = b
+    buf[c] = cchar(b)
     b = usart.readByte()
     inc c
   c
 
-  
-proc readNBytesUnsafe*[S: static[int]](usart: Usart; n: int; buf: var array[S, cchar]) =
+proc readBytesUnsafe*[S: static[int]](usart: Usart; n: int; buf: var array[S, character]): int =
+  ## Reads `n` bytes via Usart, without bound-checking. Returns the number of 
+  ## read bytes.
   var c = 0
-  let b = usart.readByte()
+  var b = usart.readByte()
   while c < n:
-    buf[c] = b
+    buf[c] = cchar(b)
     b = usart.readByte()
     inc c
+  c
 

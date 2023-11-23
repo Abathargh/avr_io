@@ -30,7 +30,7 @@ template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
 
 template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
   ## Reads the value for the specified bit in the register.
-  bitand(p.input[], 1'u8 shl b) shr b
+  bitand(p[], 1'u8 shl b) shr b
 
 template setMask*[T](p: MappedIoRegister[T]; mask: uint8) =
   ## Sets the reister bits that are high in the passed mask.
