@@ -14,4 +14,4 @@ switch("avr.standalone.gcc.exe", "avr-gcc")
 switch("avr.standalone.gcc.linkerexe", "avr-gcc")
 
 when defined(windows):
-  switch("gcc.options.always", "")
+  switch("gcc.options.always", "-w -fmax-errors=3")
