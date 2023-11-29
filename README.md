@@ -33,7 +33,7 @@ The library currently supports the following chips:
 ## Install
 
 ```bash 
-nimble install https://github.com/Abathargh/avr_io
+nimble install avr_io
 ```
 
 ## Documentation
