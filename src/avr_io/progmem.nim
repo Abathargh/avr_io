@@ -54,6 +54,7 @@ proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
 proc strStr[T](dest, src: ptr T): int
  {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
 
+
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
   ## Returns the length of a program memory array.
 
@@ -89,11 +90,29 @@ template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
     elif sizeof(T) == 2:
       readWordNear(pmPtrOffU16(pm, i))
     elif sizeof(T) == 4:
-      readDWordNear(pmPtrOffU16(pm, i))      
+      readDWordNear(pmPtrOffU16(pm, i))
     else:
       var e {.noInit.} : T 
       discard memCopy(addr e, pmPtrOff(pm, i), csize_t(sizeof(T)))
       e
+
+
+proc readFromAddress*[T](a: uint16) : T =
+  let p = cast[ptr T](a)
+  when typeof(T) is float32:
+    readFloatNear(p)
+  else:
+    when sizeof(T) == 1:
+      readByteNear(p)
+    elif sizeof(T) == 2:
+      readWordNear(p)
+    elif sizeof(T) == 4:
+      readDWordNear(p)
+    else:
+      var e {.noInit.} : T 
+      discard memCopy(addr e, p, csize_t(sizeof(T)))
+      e
+
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
   ## Iterator that can be used to safely traverse program memory arrays.
@@ -104,6 +123,7 @@ iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
+
 iterator progmemIter*[S: static[int]](pm: ProgramMemory[array[S, cchar]]): cchar =
   ## Iterator that can be used to safely traverse program memory cchar arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
@@ -112,6 +132,7 @@ iterator progmemIter*[S: static[int]](pm: ProgramMemory[array[S, cchar]]): cchar
   while i < S and pm[i] != '\0':
     yield pm[i]
     inc i
+
 
 proc escapeStrseq(s: string): string =
   # Escape special chars so that they will still appear as such
@@ -125,12 +146,14 @@ proc escapeStrseq(s: string): string =
         r.add(ch)
   r
 
+
 template wrapC(s: static[string] = "", equal: bool = true): static[string] =
   when equal:
     "static const $# $# __attribute__((__progmem__)) = " & escapeStrseq(s)
   else:
     "static const $# $# __attribute__((__progmem__))"
-  
+
+
 proc substStructFields(s: string): string =
   # Hand-rolled FSM-based struct parsing proc, since it is not possible to 
   # use the 're' module at compile-time. TODO modify to accept objects as 
