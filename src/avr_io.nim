@@ -18,8 +18,8 @@
 ## for specific use cases.
 
 
-import avr_io/[interrupt, progmem]
-export interrupt, progmem
+import avr_io/[interrupt, progmem, system]
+export interrupt, progmem, system
 
 when defined(USING_ATMEGA328P):
   include avr_io/private/atmega328p

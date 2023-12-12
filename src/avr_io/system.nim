@@ -1,29 +1,32 @@
 import macros
 
+
 template jumpToApplication*() =
   asm """
     jmp 0000
   """
 
+
 template section_attr(s: string): string =
-  "$1 $2 $3 __attribute__((section(" & s & ")))"
+  "$# $# __attribute__((section(\"" & s & "\")))"
 
 
-macro section*(s: static[string]; c: untyped): untyped =
-  var cnode = c
-  if c.kind == nnkConstSection:
-    cnode = c[0]
-  expectKind(cnode, nnkConstDef)
+macro section*(s: static[string]; l: untyped): untyped =
+  var orig = l
+  var lnode = orig
+  if l.kind == nnkLetSection:
+    lnode = l[0]
+  expectKind(lnode, nnkIdentDefs)
 
-  # Two cases: either the const definition has no pragma or 
+  # Two cases: either the let definition has no pragma or 
   # it has some. Handle the two cases accordingly.
 
   # No pragma case
-  if cnode[0].kind == nnkIdent:
+  if lnode[0].kind == nnkIdent:
     var p = newNimNode(nnkPragmaExpr).add(
-      copyNimNode(cnode[0]),
+      copyNimNode(lnode[0]),
       newNimNode(nnkPragma).add(
-        newIdentNode("importc"),
+        newIdentNode("exportc"),
         newNimNode(nnkExprColonExpr).add(
           newIdentNode("codegenDecl"),
           newLit(section_attr(s))
@@ -31,5 +34,5 @@ macro section*(s: static[string]; c: untyped): untyped =
       )
     )
 
-    cnode[0] = p
-  cnode
+    lnode[0] = p
+  orig
