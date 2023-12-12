@@ -98,20 +98,24 @@ template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
 
 
 proc readFromAddress*[T](a: uint16) : T =
-  let p = cast[ptr T](a)
-  when typeof(T) is float32:
-    readFloatNear(p)
-  else:
-    when sizeof(T) == 1:
-      readByteNear(p)
-    elif sizeof(T) == 2:
-      readWordNear(p)
-    elif sizeof(T) == 4:
-      readDWordNear(p)
+  ## Reads from a program memory address directly-
+  ## To be used when in need of accessing progmem data that was not initialized 
+  ## by the current application.
+  when T is SomeNumber and sizeof(T) <= 4:
+    when typeof(T) is float32:
+      readFloatNear(a)
     else:
-      var e {.noInit.} : T 
-      discard memCopy(addr e, p, csize_t(sizeof(T)))
-      e
+      when sizeof(T) == 1:
+        readByteNear(a)
+      elif sizeof(T) == 2:
+        readWordNear(a)
+      elif sizeof(T) == 4:
+        readDWordNear(a)
+  else:
+    let p = cast[ptr T](a)
+    var e {.noInit.} : T 
+    discard memCopy(addr e, p, csize_t(sizeof(T)))
+    e
 
 
 iterator progmemIter*[S: static[int]; T](pm: ProgramMemory[array[S, T]]): T =
