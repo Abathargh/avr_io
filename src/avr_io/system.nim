@@ -33,6 +33,7 @@ macro section*(s: static[string]; l: untyped): untyped =
         )
       )
     )
-
     lnode[0] = p
+  else:
+    error("Cannot use this pragma with other pragmas")
   orig
