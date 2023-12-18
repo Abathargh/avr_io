@@ -1,3 +1,6 @@
+## Various utilities aimed at interacting with the system itself, like 
+## interacting with elf sections, or jumping to the application reset handler.
+
 import macros
 
 
