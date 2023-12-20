@@ -13,6 +13,8 @@
 ##   from user code.
 ## - `progmem`, containing a set of functionalities to store code in program 
 ##   memory and interact with it.
+## - `system`, containing utilities to interact the system and binaries 
+##   sections.
 ##
 ## Refer to the example applications contained within the `examples` directory 
 ## for specific use cases.
