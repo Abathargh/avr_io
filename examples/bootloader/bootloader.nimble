@@ -12,7 +12,6 @@ bin           = @["bootloader", "application"]
 
 requires "nim >= 2.0.0"
 requires "avr_io >= 0.2.0"
-requires "nimcrypto"
 
 after build:
   for b in bin: 

@@ -1,0 +1,56 @@
+// Helper/builder that creates a header in one go
+var make_header = fun(text_addr, text_size, cks) {
+	var word_size = 2
+	var t_base_arr  = try as_array(text_addr, word_size, "little")
+	var t_base_size = try as_array(text_size, word_size, "little")
+	ret t_base_arr + t_base_size + cks
+}
+
+// Get the project name
+var project = try args[1]
+
+// Default header section = '.metadata'; if the user passed a third argument, use that instead
+var text = ".text"
+var section = if len(args) == 3 { args[2] } else { ".metadata" }
+
+
+var hex_file = project + ".hex"
+var elf_file = project + ".elf"
+
+
+// Open the .elf file and extract section info from there
+var e = try open(elf_file, "elf")
+
+var text_addr = try e.section_address(text)
+var text_size = try e.section_size(text)
+
+var meta_addr = try e.section_address(section)
+var meta_size = try e.section_size(section)
+
+
+// Compute and write the application header
+var h = try open(hex_file, "hex")
+
+var text_hex = try h.read_at(text_addr, text_size)
+var cks_hex  = try hash(text_hex, "sha1")
+
+var header = try make_header(text_addr, text_size, cks_hex)
+try h.write_at(meta_addr, header)
+try save(h)
+
+// Do the same for the elf binary
+var text_elf = try e.read_section(text)
+var cks_elf  = try hash(text_elf, "sha1")
+
+var header2 = try make_header(text_addr, text_size, cks_elf)
+try e.write_section(section, header, 0)
+try save(e)
+
+// Print some info for the user
+print()
+print(text, "          -- addr: ", hex(text_addr), "  size: ", hex(text_size))
+print(section, "      -- addr: ", hex(meta_addr), "size: ", hex(meta_size))
+
+print("Digest (.hex): ", hex(cks_hex), "Length: ", len(cks_hex))
+print("Digest (.elf): ", hex(cks_elf), "Length: ", len(cks_elf))
+print("Application section: @" + hex(meta_addr) + "\n")
