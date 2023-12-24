@@ -20,7 +20,7 @@ nimble build
 Additional targets:
 
 ```bash
-nimble clean       # cleans the artifacts from a previous build
+nimble clear       # cleans the artifacts from a previous build
 nimble flash       # flashes the .hex file onto the Arduino Uno
 nimble flash_debug # flashes the .elf file onto the Arduino Uno
 ```
