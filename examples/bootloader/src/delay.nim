@@ -6,6 +6,7 @@ const
   # Our timer resolution
   timerRes = 8'u8 # ms
 
+
 var
   # Just used for counting in our delay routines.
   elapsed = 0'u8
