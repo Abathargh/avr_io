@@ -45,4 +45,4 @@ task flash, "Loads the compiled binary onto the MCU":
     exec("avrdude -c atmelice -p m644 -U flash:w:full_app.hex:i")
 
 task fuse, "Initialize the correct fuses to run the application":
-  exec("avrdude -c atmelice -p m644 -U lfuse:w:0xe2:m -U hfuse:w:0x18:m -U efuse:w:0xff:m
+  exec("avrdude -c atmelice -p m644 -U lfuse:w:0xe2:m -U hfuse:w:0x18:m -U efuse:w:0xff:m")
