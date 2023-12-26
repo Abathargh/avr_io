@@ -108,4 +108,4 @@ const
   portC* = Port(direction: DDRC, output: PORTC, input: PINC)
   portD* = Port(direction: DDRD, output: PORTD, input: PIND)
 
-  usart0* = Usart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
+  usart0* = BaseUsart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)

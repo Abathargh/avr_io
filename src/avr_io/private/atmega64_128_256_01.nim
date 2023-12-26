@@ -197,6 +197,6 @@ const
   portF* = Port(direction: DDRF, output: PORTF, input: PINF)
   portG* = Port(direction: DDRG, output: PORTG, input: PING)
 
-  usart0* = Usart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
-  usart1* = Usart(baudLo: UBRR1L, baudHi: UBRR1H, ctlA: UCSR1A, ctlB: UCSR1B, ctlC: UCSR1C, udr: UDR1)
+  usart0* = BaseUsart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
+  usart1* = BaseUsart(baudLo: UBRR1L, baudHi: UBRR1H, ctlA: UCSR1A, ctlB: UCSR1B, ctlC: UCSR1C, udr: UDR1)
   

@@ -4,8 +4,9 @@
 import mapped_io
 import bitops
 
+
 type
-  Usart* {.byref.} = object
+  BaseUsart* {.byref.} = object 
     ## The Usart object models a USART interface, 
     ## abstracting the registers away  
     baudLo: MappedIoRegister[uint8]
@@ -14,6 +15,19 @@ type
     ctlB: MappedIoRegister[uint8]
     ctlC: MappedIoRegister[uint8]
     udr:  MappedIoRegister[uint8]
+  
+  UsartFlow* {.byref.} = object 
+    ## The Usart object models a USART interface, 
+    ## abstracting the registers away  
+    baudLo: MappedIoRegister[uint8]
+    baudHi: MappedIoRegister[uint8]
+    ctlA: MappedIoRegister[uint8]
+    ctlB: MappedIoRegister[uint8]
+    ctlC: MappedIoRegister[uint8]
+    ctlD: MappedIoRegister[uint8]
+    udr:  MappedIoRegister[uint8]
+
+  Usart* = BaseUsart | UsartFlow
 
   CtlAFlag* = enum
     ## Valid flags for the 'A' control and status register 
@@ -57,7 +71,15 @@ type
 
   CtlCFlags* = set[CtlCFlag]
 
-  Flags = CtlAFlags | CtlBFlags | CtlCFlags
+  CtlDFlag* = enum
+    ## Valid flags for the 'D' control and status register 
+    ## of the USART peripheral. Use as a bit field.
+    rtsen
+    ctsen
+
+  CtlDFlags* = set[CtlDFlag]
+
+  Flags = CtlAFlags | CtlBFlags | CtlCFlags | CtlDFlags
 
 
 template baudRate*(baud: uint32, freq: uint32 = 16000000'u32): uint16 =
@@ -93,6 +115,18 @@ proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctl
   usart.ctlC[] = toBitMask(ctlC)
 
 
+proc initUart*(usart: UsartFlow; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctlC: CtlCFlags, ctlD: CtlDFlags) =
+  ## Initializes the Usart peripheral to be used with the specified flags and 
+  ## baud rate. Use the `baudRate` template to generate a valid input for that 
+  ## parameter.
+  usart.baudHi[] = uint8(baud shr 8)
+  usart.baudLo[] = uint8(baud)
+  usart.ctlA[] = toBitMask(ctlA)
+  usart.ctlB[] = toBitMask(ctlB)
+  usart.ctlC[] = toBitMask(ctlC)
+  usart.ctlD[] = toBitMask(ctlD)
+
+
 proc setCtlFlags*(usart: Usart; flags: Flags) =
   ## Sets the passed flags of the specific Usart control register.  
   when flags is CtlAFlags:
@@ -101,6 +135,8 @@ proc setCtlFlags*(usart: Usart; flags: Flags) =
     usart.ctlB.setMask(toBitMask(flags))
   elif flags is CtlCFlags:
     usart.ctlC.setMask(toBitMask(flags))
+  elif flags is CtlDFlags:
+    usart.ctlD.setMask(toBitMask(flags))
 
 
 proc clearCtlFlags*(usart: Usart; flags: Flags) =
@@ -111,6 +147,8 @@ proc clearCtlFlags*(usart: Usart; flags: Flags) =
     usart.ctlB.clearMask(toBitMask(flags))
   elif flags is CtlCFlags:
     usart.ctlC.clearMask(toBitMask(flags))
+  elif flags is CtlDFlags:
+    usart.ctlD.clearMask(toBitMask(flags))
 
 
 template sendByte*(usart: Usart; c: character) =
