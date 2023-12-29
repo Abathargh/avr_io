@@ -23,7 +23,11 @@
 import avr_io/[interrupt, progmem, system]
 export interrupt, progmem, system
 
-when defined(USING_ATMEGA328P):
+when defined(USING_ATMEGA16U4):
+  include avr_io/private/atmega16u4_32u4
+elif defined(USING_ATMEGA32U4):
+  include avr_io/private/atmega16u4_32u4
+elif  defined(USING_ATMEGA328P):
   include avr_io/private/atmega328p
 elif defined(USING_ATMEGA640):
   include avr_io/private/atmega64_128_256_01
