@@ -22,6 +22,8 @@ generated using the chips' datasheets as a reference.
 
 The library currently supports the following chips:
 
+- ATMega16U4
+- ATMega32U4
 - ATMega328P
 - ATMega640
 - ATMega644
