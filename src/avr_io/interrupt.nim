@@ -42,7 +42,13 @@ macro isr*(v: static[VectorInterrupt], p: untyped): untyped =
   var pnode = p
   if p.kind == nnkStmtList:
     pnode = p[0]
+
   expectKind(pnode, nnkProcDef)
+  for node in pnode:
+    if node.kind == nnkFormalParams:
+      if node.len != 1 or node[0].kind != nnkEmpty:
+          error "an ISR must have the following signature `proc f()`"
+
   addPragma(pnode, newIdentNode("exportc"))
   addPragma(pnode, 
     newNimNode(nnkExprColonExpr).add(
