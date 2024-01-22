@@ -4,7 +4,7 @@
 
 import macros
 
-# TODOs: 
+# TODOs:
 # - [ ] support for far operations
 #   - [ ] type FarProgramMemory*[T] = distinct T
 #   - [ ] add atmega1284 support (registers/interrupts) once we're at it?
@@ -81,7 +81,11 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
 template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
   ## Dereference operator used to access elements of an array stored in 
   ## program memory. Note that this must generate a copy of said data, in 
-  ## order to make it available to the user. 
+  ## order to make it available to the user.
+  when compileOption("rangeChecks"):
+    if i < 0 and i >= S:
+      quit(1)
+
   when typeof(T) is float32:
     readFloatNear(pmPtrOffU16(pm, i))
   else:
