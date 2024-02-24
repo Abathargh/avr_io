@@ -52,7 +52,7 @@ proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 
 proc strStr[T](dest, src: ptr T): int
- {.importc: "strstr_P", header: "<avr/pgmspace.h>".} 
+  {.importc: "strstr_P", header: "<avr/pgmspace.h>".}
 
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
@@ -79,8 +79,8 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     e
 
 template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
-  ## Dereference operator used to access elements of an array stored in 
-  ## program memory. Note that this must generate a copy of said data, in 
+  ## Dereference operator used to access elements of an array stored in
+  ## program memory. Note that this must generate a copy of said data, in
   ## order to make it available to the user.
   when compileOption("rangeChecks"):
     if i < 0 and i >= S:
@@ -96,7 +96,7 @@ template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
     elif sizeof(T) == 4:
       readDWordNear(pmPtrOffU16(pm, i))
     else:
-      var e {.noInit.} : T 
+      var e {.noInit.} : T
       discard memCopy(addr e, pmPtrOff(pm, i), csize_t(sizeof(T)))
       e
 
@@ -246,7 +246,7 @@ macro progmem*(n, v: untyped): untyped =
 
 
 macro progmemArray*(n, v: untyped): untyped =
-  ## Stores the array `v` in program memory, and creates a new symbol `n` 
+  ## Stores the array `v` in program memory, and creates a new symbol `n`
   ## through which it is possible to access it.
   quote do:
     const s = substBraces($`v`)
