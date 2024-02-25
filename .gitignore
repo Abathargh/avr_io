@@ -1,2 +1,5 @@
 .idea/
 .vscode/
+scripts/data
+scripts/*.py
+scripts/*.sh
