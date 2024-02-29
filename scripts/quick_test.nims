@@ -82,7 +82,6 @@ proc main() =
       of "target":  target  = val
       of "verbose": verbose = true
       of "help":    echo usage; quit(0)
-      of "hints":   discard
       else:
         echo "Unsupported long option $#" % opt
         quit(1)
@@ -96,7 +95,7 @@ proc main() =
       of "v": verbose = true
       of "h": echo usage; quit(0)
       else:
-        echo "Unsupported long option $#" % opt
+        echo "Unsupported short option $#" % opt
         quit(1)
 
     of cmdArgument:
