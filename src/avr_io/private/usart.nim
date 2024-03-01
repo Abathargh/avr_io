@@ -7,8 +7,8 @@ import bitops
 
 type
   BaseUsart* {.byref.} = object 
-    ## The Usart object models a USART interface, 
-    ## abstracting the registers away  
+    ## The BaseUsart object models a USART interface, abstracting the 
+    ## registers away.
     baudLo: MappedIoRegister[uint8]
     baudHi: MappedIoRegister[uint8]
     ctlA: MappedIoRegister[uint8]
@@ -17,8 +17,8 @@ type
     udr:  MappedIoRegister[uint8]
   
   UsartFlow* {.byref.} = object 
-    ## The Usart object models a USART interface, 
-    ## abstracting the registers away  
+    ## The UsartFlow object models a USART interface, abstracting the 
+    ## registers away.
     baudLo: MappedIoRegister[uint8]
     baudHi: MappedIoRegister[uint8]
     ctlA: MappedIoRegister[uint8]
@@ -30,8 +30,8 @@ type
   Usart* = BaseUsart | UsartFlow
 
   CtlAFlag* = enum
-    ## Valid flags for the 'A' control and status register 
-    ## of the USART peripheral. Use as a bit field. 
+    ## Valid flags for the 'A' control and status register of the USART 
+    ## peripheral. Use as a bit field.
     mpcm
     u2x
     upe
@@ -44,8 +44,8 @@ type
   CtlAFlags* = set[CtlAFlag]
 
   CtlBFlag* = enum
-    ## Valid flags for the 'B' control and status register 
-    ## of the USART peripheral. Use as a bit field.
+    ## Valid flags for the 'B' control and status register of the USART 
+    ## peripheral. Use as a bit field.
     txb8
     rxb8
     ucsz2
@@ -58,8 +58,8 @@ type
   CtlBFlags* = set[CtlBFlag]
 
   CtlCFlag* = enum
-    ## Valid flags for the 'C' control and status register 
-    ## of the USART peripheral. Use as a bit field.
+    ## Valid flags for the 'C' control and status register of the USART 
+    ## peripheral. Use as a bit field.
     ucpol
     ucsz0
     ucsz1
@@ -72,8 +72,8 @@ type
   CtlCFlags* = set[CtlCFlag]
 
   CtlDFlag* = enum
-    ## Valid flags for the 'D' control and status register 
-    ## of the USART peripheral. Use as a bit field.
+    ## Valid flags for the 'D' control and status register of the USART 
+    ## peripheral. Use as a bit field.
     rtsen
     ctsen
 
@@ -127,8 +127,8 @@ proc initUart*(usart: UsartFlow; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags;
   usart.ctlD[] = toBitMask(ctlD)
 
 
-proc setCtlFlags*(usart: Usart; flags: Flags) =
-  ## Sets the passed flags of the specific Usart control register.  
+template setCtlFlags*(usart: Usart; flags: Flags) =
+  ## Sets the passed flags of the specific Usart control register.
   when flags is CtlAFlags:
     usart.ctlA.setMask(toBitMask(flags))
   elif flags is CtlBFlags:
@@ -139,8 +139,8 @@ proc setCtlFlags*(usart: Usart; flags: Flags) =
     usart.ctlD.setMask(toBitMask(flags))
 
 
-proc clearCtlFlags*(usart: Usart; flags: Flags) =
-  ## Clears the passed flags of the specific Usart control register.  
+template clearCtlFlags*(usart: Usart; flags: Flags) =
+  ## Clears the passed flags of the specific Usart control register.
   when flags is CtlAFlags:
     usart.ctlA.clearMask(toBitMask(flags))
   elif flags is CtlBFlags:
