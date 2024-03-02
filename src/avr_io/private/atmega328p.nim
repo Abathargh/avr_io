@@ -1,5 +1,7 @@
 include mapped_io
 include usart
+include timer
+
 
 const
   PINB*   = MappedIoRegister[uint8](0x23)
@@ -102,4 +104,16 @@ const
   portC* = Port(direction: DDRC, output: PORTC, input: PINC)
   portD* = Port(direction: DDRD, output: PORTD, input: PIND)
 
-  usart0* = BaseUsart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
+  usart0* = BaseUsart(
+    baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, 
+    ctlC: UCSR0C, udr: UDR0)
+
+  timer0* = Timer8BitPwm(
+    tccra: TCCR0A, tccrb: TCCR0B, tcnt: TCNT0, ocra: OCR0A, ocrb: OCR0B, 
+    timsk: TIMSK0, tifr: TIFR0)
+  timer1* = Timer16BitPwm(tccra: TCCR1A, tccrb: TCCR1B, tccrc: TCCR1C,
+    tcnth: TCNT1H, tcntl: TCNT1L, ocrah: OCR1AH, ocral: OCR1AL, ocrbh: OCR1BH,
+    ocrbl: OCR1BL, icrh: ICR1H, icrl: ICR1L, timsk: TIMSK1, tifr: TIFR1)
+  timer2* = Timer8BitPwmAsync(tccra: TCCR2A, tccrb: TCCR2B, tcnt: TCNT2, 
+    ocra: OCR2A, ocrb: OCR2B, assr: ASSR, timsk: TIMSK2, tifr: TIFR2, 
+    gtccr: GTCCR)

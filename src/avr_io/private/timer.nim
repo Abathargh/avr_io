@@ -3,48 +3,49 @@
 
 import mapped_io
 
+
 type
   Timer8BitPwm* {.byref.} = object
     ## The Timer8BitPwm object models a timer interface for 8-bit timers, with 
     ## PWM support. 8-bit timers have 8-bit counter capabilities.
-    tccra: MappedIoRegister[uint8]
-    tccrb: MappedIoRegister[uint8]
-    tcnt:  MappedIoRegister[uint8]
-    ocra:  MappedIoRegister[uint8]
-    ocrb:  MappedIoRegister[uint8]
-    timsk: MappedIoRegister[uint8]
-    tifr:  MappedIoRegister[uint8]
+    tccra*: MappedIoRegister[uint8]
+    tccrb*: MappedIoRegister[uint8]
+    tcnt*:  MappedIoRegister[uint8]
+    ocra*:  MappedIoRegister[uint8]
+    ocrb*:  MappedIoRegister[uint8]
+    timsk*: MappedIoRegister[uint8]
+    tifr*:  MappedIoRegister[uint8]
 
   Timer16BitPwm* {.byref.} = object
     ## The Timer16BitPwm object models a timer interface for 16-bit timers, 
     ## with PWM support. 16-bit timers have 16-bit counter capabilities.
-    tccra: MappedIoRegister[uint8]
-    tccrb: MappedIoRegister[uint8]
-    tccrc: MappedIoRegister[uint8]
-    tcnth: MappedIoRegister[uint8]
-    tcntl: MappedIoRegister[uint8]
-    ocrah: MappedIoRegister[uint8]
-    ocral: MappedIoRegister[uint8]
-    ocrbh: MappedIoRegister[uint8]
-    ocrbl: MappedIoRegister[uint8]
-    icrh: MappedIoRegister[uint8]
-    icrl: MappedIoRegister[uint8]
-    timsk: MappedIoRegister[uint8]
-    tifr: MappedIoRegister[uint8]
+    tccra*: MappedIoRegister[uint8]
+    tccrb*: MappedIoRegister[uint8]
+    tccrc*: MappedIoRegister[uint8]
+    tcnth*: MappedIoRegister[uint8]
+    tcntl*: MappedIoRegister[uint8]
+    ocrah*: MappedIoRegister[uint8]
+    ocral*: MappedIoRegister[uint8]
+    ocrbh*: MappedIoRegister[uint8]
+    ocrbl*: MappedIoRegister[uint8]
+    icrh*: MappedIoRegister[uint8]
+    icrl*: MappedIoRegister[uint8]
+    timsk*: MappedIoRegister[uint8]
+    tifr*: MappedIoRegister[uint8]
 
   Timer8BitPwmAsync* {.byref.} = object
     ## The Timer8BitPwmAsync object models a timer interface for 8-bit timers, 
     ## with PWM and async support. 8-bit timers have 8-bit counter 
     ## capabilities.
-    tccra: MappedIoRegister[uint8]
-    tccrb: MappedIoRegister[uint8]
-    tcnt:  MappedIoRegister[uint8]
-    ocra:  MappedIoRegister[uint8]
-    ocrb:  MappedIoRegister[uint8]
-    assr:  MappedIoRegister[uint8]
-    timsk: MappedIoRegister[uint8]
-    tifr:  MappedIoRegister[uint8]
-    gtccr:  MappedIoRegister[uint8]
+    tccra*: MappedIoRegister[uint8]
+    tccrb*: MappedIoRegister[uint8]
+    tcnt*:  MappedIoRegister[uint8]
+    ocra*:  MappedIoRegister[uint8]
+    ocrb*:  MappedIoRegister[uint8]
+    assr*:  MappedIoRegister[uint8]
+    timsk*: MappedIoRegister[uint8]
+    tifr*:  MappedIoRegister[uint8]
+    gtccr*:  MappedIoRegister[uint8]
 
   Timer* = Timer8BitPwm | Timer16BitPwm | Timer8BitPwmAsync
 
@@ -182,3 +183,112 @@ type
     TimskFlags | Timsk16Flags | TifrFlags | Tifr16Flags | AssrFlag | GtccrFlag
 
 
+template toBitMask*(f: TFlags): uint8 =
+  ## Converts a bit field containing flags to be used with a control 
+  ## and status register to an 8-bit integer. 
+  cast[uint8](f)
+
+
+template setTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.setMask(toBitMask(flags))
+  elif flags is TimCtlBFlags:
+    timer.tccrb.setMask(toBitMask(flags))
+  elif flags is TimskFlags:
+    timer.timsk.setMask(toBitMask(flags))
+  elif flags is TifrFlags:
+    timer.tifr.setMask(toBitMask(flags))
+  else:
+    static: error "unsupported flagset for the passed timer"
+
+
+template setTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.setMask(toBitMask(flags))
+  elif flags is TimCtlB16Flags:
+    timer.tccrb.setMask(toBitMask(flags))
+  elif flags is TimCtlCFlags:
+    timer.tccrc.setMask(toBitMask(flags))
+  elif flags is Timsk16Flags:
+    timer.timsk.setMask(toBitMask(flags))
+  elif flags is Tifr16Flags:
+    timer.tifr.setMask(toBitMask(flags))
+  else:
+    static: error "unsupported flagset for the passed timer"
+
+
+template setTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.setMask(toBitMask(flags))
+  elif flags is TimCtlBFlags:
+    timer.tccrb.setMask(toBitMask(flags))
+  elif flags is AssrFlags:
+    timer.assr.setMask(toBitMask(flags))
+  elif flags is TimskFlags:
+    timer.timsk.setMask(toBitMask(flags))
+  elif flags is TifrFlags:
+    timer.tifr.setMask(toBitMask(flags))
+  elif flags is GtccrFlags:
+    timer.gtccr.setMask(toBitMask(flags))
+  else:
+    static: error "unsupported flagset for the passed timer"
+
+
+template clearTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.clearMask(toBitMask(flags))
+  elif flags is TimCtlBFlags:
+    timer.tccrb.clearMask(toBitMask(flags))
+  elif flags is TimskFlags:
+    timer.timsk.clearMask(toBitMask(flags))
+  elif flags is TifrFlags:
+    timer.tifr.clearMask(toBitMask(flags))
+  else:
+    static: error "unsupported flagset for the passed timer"
+
+
+template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.clearMask(toBitMask(flags))
+  elif flags is TimCtlB16Flags:
+    timer.tccrb.clearMask(toBitMask(flags))
+  elif flags is TimCtlCFlags:
+    timer.tccrc.clearMask(toBitMask(flags))
+  elif flags is Timsk16Flags:
+    timer.timsk.clearMask(toBitMask(flags))
+  elif flags is Tifr16Flags:
+    timer.tifr.clearMask(toBitMask(flags))
+  else:
+    static: 
+      echo "unsupported flagset for the passed timer"
+      quit(1)
+
+
+template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+  when flags is TimCtlAFlags:
+    timer.tccra.clearMask(toBitMask(flags))
+  elif flags is TimCtlBFlags:
+    timer.tccrb.clearMask(toBitMask(flags))
+  elif flags is AssrFlags:
+    timer.assr.clearMask(toBitMask(flags))
+  elif flags is TimskFlags:
+    timer.timsk.clearMask(toBitMask(flags))
+  elif flags is TifrFlags:
+    timer.tifr.clearMask(toBitMask(flags))
+  elif flags is GtccrFlags:
+    timer.gtccr.clearMask(toBitMask(flags))
+  else:
+    static: error "unsupported flagset for the passed timer"
+
+
+template actuatePwm*(timer: Timer; freq, pwmDuty, pwmFreq, prescaler: uint32) =
+  const f  = (freq div (prescaler * pwmFreq) - 1)
+  const dt = ((pwmDuty * f) div 100)
+  when timer is Timer8BitPwm or timer is Timer8BitPwmAsync:
+    timer.ocra[] = f.uint8
+    timer.ocrb[] = dt.uint8
+  else:
+    timer.ocrah[] = (f.uint16 shr 8).uint8
+    timer.ocral[] = f.uint8
+    timer.ocrbh[] = (dt.uint16 shr 8).uint8
+    timer.ocrbl[] = dt.uint8
