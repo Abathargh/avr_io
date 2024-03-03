@@ -2,7 +2,6 @@
 ## peripherals on AVR chips.
 
 import mapped_io
-import macros
 
 
 type
@@ -190,6 +189,10 @@ type
 
   GtccrFlags* = set[GtccrFlag]
 
+  T8PwmFlags* = TimCtlAFlags | TimCtlBFlags | TimskFlags | TifrFlags
+  T16PwmFlags* = TimCtlAFlags | TimCtlB16Flags | Timsk16Flags | Tifr16Flags
+  T8PwmAsyncFlags* = TimCtlAFlags | TimCtlBFlags | TimskFlags | TifrFlags |
+    AssrFlags | GtccrFlags
   TFlags* = TimCtlAFlags | TimCtlBFlags | TimCtlB16Flags | TimCtlCFlags | 
     TimskFlags | Timsk16Flags | TifrFlags | Tifr16Flags | AssrFlag | GtccrFlag
 
@@ -202,7 +205,7 @@ template toBitMask*(f: TFlags): uint8 =
 ## TODO add docstring here
 
 
-template setTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
+template setTimerFlag*(timer: Timer8BitPwm; flags: T8PwmFlags) =
   ## Sets the passed flags of the specific timer register for 8-bit PWM timers.
   when flags is TimCtlAFlags:
     timer.tccra.setMask(toBitMask(flags))
@@ -212,11 +215,9 @@ template setTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
     timer.timsk.setMask(toBitMask(flags))
   elif flags is TifrFlags:
     timer.tifr.setMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
-template setTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+template setTimerFlag*(timer: Timer16BitPwm; flags: T16PwmFlags) =
   ## Sets the passed flags of the specific timer register for 16-bit PWM 
   ## timers.
   when flags is TimCtlAFlags:
@@ -229,11 +230,9 @@ template setTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
     timer.timsk.setMask(toBitMask(flags))
   elif flags is Tifr16Flags:
     timer.tifr.setMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
-template setTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+template setTimerFlag*(timer: Timer8BitPwmAsync; flags: T8PwmAsyncFlags) =
   ## Sets the passed flags of the specific timer register for 8-bit PWM timers 
   ## with async support.
   when flags is TimCtlAFlags:
@@ -248,12 +247,11 @@ template setTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
     timer.tifr.setMask(toBitMask(flags))
   elif flags is GtccrFlags:
     timer.gtccr.setMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
-template clearTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
-  ## Clears the passed flags of the specific timer register for 8-bit PWM timers.
+template clearTimerFlag*(timer: Timer8BitPwm; flags: T8PwmFlags) =
+  ## Clears the passed flags of the specific timer register for 8-bit PWM 
+  ## timers.
   when flags is TimCtlAFlags:
     timer.tccra.clearMask(toBitMask(flags))
   elif flags is TimCtlBFlags:
@@ -262,11 +260,9 @@ template clearTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
     timer.timsk.clearMask(toBitMask(flags))
   elif flags is TifrFlags:
     timer.tifr.clearMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
-template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+template clearTimerFlag*(timer: Timer16BitPwm; flags: T16PwmFlags) =
   ## Clears the passed flags of the specific timer register for 16-bit PWM 
   ## timers.
   when flags is TimCtlAFlags:
@@ -283,7 +279,7 @@ template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
     static: error "unsupported flagset for the passed timer"
 
 
-template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: T8PwmAsyncFlags) =
   ## Clears the passed flags of the specific timer register for 8-bit PWM 
   ## timers with async support.
   when flags is TimCtlAFlags:
@@ -298,8 +294,6 @@ template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
     timer.tifr.clearMask(toBitMask(flags))
   elif flags is GtccrFlags:
     timer.gtccr.clearMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
 template actuatePwm*(timer: Timer; freq, pwmDuty, pwmFreq, prescaler: uint32) =
