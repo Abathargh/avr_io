@@ -2,6 +2,7 @@
 ## peripherals on AVR chips.
 
 import mapped_io
+import macros
 
 
 type
@@ -259,9 +260,7 @@ template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
   elif flags is Tifr16Flags:
     timer.tifr.clearMask(toBitMask(flags))
   else:
-    static: 
-      echo "unsupported flagset for the passed timer"
-      quit(1)
+    static: error "unsupported flagset for the passed timer"
 
 
 template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
