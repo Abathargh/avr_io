@@ -12,6 +12,7 @@ var
 const 
   builtinLed = 5'u8
 
+
 proc initTimer0() =
   # Timer0 in CTC mode, interrupt on compare match with OCR0A
   # Prescaling the clock of a factor of 256.
@@ -33,6 +34,7 @@ proc initTimer0() =
 proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
   inc ctr
 
+
 proc loop = 
   sei() # Let us enable the interrupts
   initTimer0() 
@@ -43,6 +45,6 @@ proc loop =
       portB.togglePin(builtinLed)
       ctr.reset()
 
-      
+
 when isMainModule:
   loop()
