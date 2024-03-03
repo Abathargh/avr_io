@@ -52,7 +52,7 @@ type
 
   TimCtlAFlag* = enum
     ## Valid flags for the 'A' control register of the timer peripheral. Use 
-    ## as a bit field. 
+    ## as a bit field.
     wgm0
     wgm1
     reserved1
@@ -66,7 +66,7 @@ type
 
   TimCtlBFlag* = enum
     ## Valid flags for the 'B' control register of the timer peripheral. Use 
-    ## as a bit field. 
+    ## as a bit field.
     cs0
     cs1
     cs2
@@ -80,7 +80,7 @@ type
 
   TimCtlB16Flag* = enum
     ## Valid flags for the 'B' control register of the 16-bit timer peripheral. 
-    ## Use as a bit field. 
+    ## Use as a bit field.
     cs0
     cs1
     cs2
@@ -94,7 +94,7 @@ type
 
   TimCtlCFlag* = enum
       ## Valid flags for the 'C' control register of the timer peripheral. Use 
-    ## as a bit field. 
+    ## as a bit field.
     reserved1
     reserved2
     reserved3
@@ -107,8 +107,8 @@ type
   TimCtlCFlags* = set[TimCtlCFlag]
 
   TimskFlag* = enum
-    ## Valid flags register of the timer peripheral. Use 
-    ## as a bit field. 
+    ## Valid flags register of the interrupt mask register of the timer 
+    ## peripheral. Use as a bit field.
     toie
     ociea
     ocieb
@@ -121,6 +121,8 @@ type
   TimskFlags* = set[TimskFlag]
 
   Timsk16Flag* = enum
+    ## Valid flags register of the interrupt mask register of the 16-bit timer 
+    ## peripheral. Use as a bit field.
     toie
     ociea
     ocieb
@@ -133,9 +135,11 @@ type
   Timsk16Flags* = set[Timsk16Flag]
 
   TifrFlag* = enum
-    toie
-    ociea
-    ocieb
+    ## Valid flags register of the interrupt flag register of the timer 
+    ## peripheral. Use as a bit field.
+    tov
+    ocfa
+    ocfb
     reserved1
     reserved2
     reserved3
@@ -145,9 +149,11 @@ type
   TifrFlags* = set[TifrFlag]
 
   Tifr16Flag* = enum
-    toie
-    ociea
-    ocieb
+    ## Valid flags register of the interrupt flag register of the 16-bit timer 
+    ## peripheral. Use as a bit field.
+    tov
+    ocfa
+    ocfb
     reserved1
     reserved2
     icf
@@ -157,6 +163,8 @@ type
   Tifr16Flags* = set[Tifr16Flag]
 
   AssrFlag* = enum
+    ## Valid flags register of the asynchronous status register of the timer 
+    ## peripheral. Use as a bit field.
     tcrbub
     tcraub
     ocrbub
@@ -169,6 +177,8 @@ type
   AssrFlags* = set[AssrFlag]
 
   GtccrFlag* = enum
+    ## Valid flags register of the general timer/counter control register of 
+    ## the timer peripheral. Use as a bit field.
     psrsync
     psrasy
     reserved1
@@ -189,8 +199,11 @@ template toBitMask*(f: TFlags): uint8 =
   ## and status register to an 8-bit integer. 
   cast[uint8](f)
 
+## TODO add docstring here
+
 
 template setTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
+  ## Sets the passed flags of the specific timer register for 8-bit PWM timers.
   when flags is TimCtlAFlags:
     timer.tccra.setMask(toBitMask(flags))
   elif flags is TimCtlBFlags:
@@ -204,6 +217,8 @@ template setTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
 
 
 template setTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+  ## Sets the passed flags of the specific timer register for 16-bit PWM 
+  ## timers.
   when flags is TimCtlAFlags:
     timer.tccra.setMask(toBitMask(flags))
   elif flags is TimCtlB16Flags:
@@ -219,6 +234,8 @@ template setTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
 
 
 template setTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+  ## Sets the passed flags of the specific timer register for 8-bit PWM timers 
+  ## with async support.
   when flags is TimCtlAFlags:
     timer.tccra.setMask(toBitMask(flags))
   elif flags is TimCtlBFlags:
@@ -236,6 +253,7 @@ template setTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
 
 
 template clearTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
+  ## Clears the passed flags of the specific timer register for 8-bit PWM timers.
   when flags is TimCtlAFlags:
     timer.tccra.clearMask(toBitMask(flags))
   elif flags is TimCtlBFlags:
@@ -249,6 +267,8 @@ template clearTimerFlag*(timer: Timer8BitPwm; flags: TFlags) =
 
 
 template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
+  ## Clears the passed flags of the specific timer register for 16-bit PWM 
+  ## timers.
   when flags is TimCtlAFlags:
     timer.tccra.clearMask(toBitMask(flags))
   elif flags is TimCtlB16Flags:
@@ -264,6 +284,8 @@ template clearTimerFlag*(timer: Timer16BitPwm; flags: TFlags) =
 
 
 template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
+  ## Clears the passed flags of the specific timer register for 8-bit PWM 
+  ## timers with async support.
   when flags is TimCtlAFlags:
     timer.tccra.clearMask(toBitMask(flags))
   elif flags is TimCtlBFlags:
@@ -281,6 +303,9 @@ template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: TFlags) =
 
 
 template actuatePwm*(timer: Timer; freq, pwmDuty, pwmFreq, prescaler: uint32) =
+  ## Actuates a PWM with the spcific frequency and duty cycle passed. 
+  ## Note that this uses both output compare registers for the timer in use, 
+  ## and that the duty cycle resolution is less the higher the frequency is.
   const f  = (freq div (prescaler * pwmFreq) - 1)
   const dt = ((pwmDuty * f) div 100)
   when timer is Timer8BitPwm or timer is Timer8BitPwmAsync:
