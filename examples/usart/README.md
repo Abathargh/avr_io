@@ -1,6 +1,6 @@
 # progmem
 
-An example application showcasing how to interact with progmem data.
+An example application showcasing how to interact the usart peripherals.
 This project actually includes two sub-application, one showcasing a basic 
 way to use the Usart peripheral, and another showing it in 9-bit mode.
 
