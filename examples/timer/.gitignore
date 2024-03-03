@@ -1,0 +1,4 @@
+/.nimcache
+*.elf
+*.hex
+*.bin
