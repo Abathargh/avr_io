@@ -18,7 +18,7 @@ proc initTimer0() =
   # Prescaling the clock of a factor of 256.
   # Considering:
   # f = 16 MHz; f_tim0 = f/256 = 16 MHz / 256 = 62,5 KHz
-  # t_tim0 = 1/t_tim0 = 16 us;
+  # t_tim0 = 1/f_tim0 = 16 us;
   # t_int = t_tim0 * OCR0A = 16 us * 250 = 4 ms
   # This configuration raises an interrupt every 4 ms
   OCR0A[]  = 250
