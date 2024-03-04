@@ -168,7 +168,7 @@ type
     tcraub
     ocrbub
     ocraub
-    tcnuub
+    tcnub
     as_flag
     exclk
     reserved1
