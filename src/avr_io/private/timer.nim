@@ -28,10 +28,28 @@ type
     ocral*: MappedIoRegister[uint8]
     ocrbh*: MappedIoRegister[uint8]
     ocrbl*: MappedIoRegister[uint8]
-    icrh*: MappedIoRegister[uint8]
-    icrl*: MappedIoRegister[uint8]
+    icrh*:  MappedIoRegister[uint8]
+    icrl*:  MappedIoRegister[uint8]
     timsk*: MappedIoRegister[uint8]
-    tifr*: MappedIoRegister[uint8]
+    tifr*:  MappedIoRegister[uint8]
+
+  Timer16Bit3ComparePwm* {.byref.} = object
+    ## The Timer16BitPwm object models a timer interface for 16-bit timers, 
+    ## with PWM support. 16-bit timers have 16-bit counter capabilities.
+    tccra*: MappedIoRegister[uint8]
+    tccrb*: MappedIoRegister[uint8]
+    tccrc*: MappedIoRegister[uint8]
+    tcnth*: MappedIoRegister[uint8]
+    tcntl*: MappedIoRegister[uint8]
+    ocrah*: MappedIoRegister[uint8]
+    ocral*: MappedIoRegister[uint8]
+    ocrbh*: MappedIoRegister[uint8]
+    ocrbl*: MappedIoRegister[uint8]
+    icrh*:  MappedIoRegister[uint8]
+    icrl*:  MappedIoRegister[uint8]
+    timsk*: MappedIoRegister[uint8]
+    tifr*:  MappedIoRegister[uint8]
+    gtccr*: MappedIoRegister[uint8]
 
   Timer8BitPwmAsync* {.byref.} = object
     ## The Timer8BitPwmAsync object models a timer interface for 8-bit timers, 
@@ -45,9 +63,10 @@ type
     assr*:  MappedIoRegister[uint8]
     timsk*: MappedIoRegister[uint8]
     tifr*:  MappedIoRegister[uint8]
-    gtccr*:  MappedIoRegister[uint8]
+    gtccr*: MappedIoRegister[uint8]
 
-  Timer* = Timer8BitPwm | Timer16BitPwm | Timer8BitPwmAsync
+  Timer* = Timer8BitPwm | Timer16BitPwm | Timer16Bit3ComparePwm | 
+    Timer8BitPwmAsync
 
   TimCtlAFlag* = enum
     ## Valid flags for the 'A' control register of the timer peripheral. Use 
@@ -62,6 +81,20 @@ type
     coma1
 
   TimCtlAFlags* = set[TimCtlAFlag]
+
+  TimCtlA3CompFlag* = enum
+    ## Valid flags for the 'A' control register of the 26-bit timer peripheral 
+    ## with 3 independent output compare units. Use as a bit field.
+    wgm0
+    wgm1
+    comc0
+    comc1
+    comb0
+    comb1
+    coma0
+    coma1
+
+  TimCtlA3CompFlags* = set[TimCtlA3CompFlag]
 
   TimCtlBFlag* = enum
     ## Valid flags for the 'B' control register of the timer peripheral. Use 
@@ -105,6 +138,20 @@ type
 
   TimCtlCFlags* = set[TimCtlCFlag]
 
+  TimCtlC3CompFlag* = enum
+      ## Valid flags for the 'C' control register of the timer peripheral. Use 
+    ## as a bit field.
+    reserved1
+    reserved2
+    reserved3
+    reserved4
+    reserved5
+    focc
+    focb
+    foca
+
+  TimCtlC3CompFlags* = set[TimCtlC3CompFlag]
+
   TimskFlag* = enum
     ## Valid flags register of the interrupt mask register of the timer 
     ## peripheral. Use as a bit field.
@@ -119,6 +166,7 @@ type
 
   TimskFlags* = set[TimskFlag]
 
+
   Timsk16Flag* = enum
     ## Valid flags register of the interrupt mask register of the 16-bit timer 
     ## peripheral. Use as a bit field.
@@ -132,6 +180,20 @@ type
     reserved4
 
   Timsk16Flags* = set[Timsk16Flag]
+
+  Timsk3CompFlag* = enum
+    ## Valid flags register of the interrupt mask register of the timer 
+    ## peripheral. Use as a bit field.
+    toie
+    ociea
+    ocieb
+    ociec
+    reserved1
+    icie
+    reserved2
+    reserved3
+
+  Timsk3CompFlags* = set[Timsk3CompFlag]
 
   TifrFlag* = enum
     ## Valid flags register of the interrupt flag register of the timer 
@@ -160,6 +222,20 @@ type
     reserved4
 
   Tifr16Flags* = set[Tifr16Flag]
+
+  Tifr3CompFlag* = enum
+    ## Valid flags register of the interrupt flag register of the 16-bit timer 
+    ## peripheral. Use as a bit field.
+    tov
+    ocfa
+    ocfb
+    ocfc
+    reserved1
+    icf
+    reserved2
+    reserved3
+
+  Tifr3CompFlags* = set[Tifr3CompFlag]
 
   AssrFlag* = enum
     ## Valid flags register of the asynchronous status register of the timer 
@@ -190,9 +266,12 @@ type
   GtccrFlags* = set[GtccrFlag]
 
   T8PwmFlags* = TimCtlAFlags | TimCtlBFlags | TimskFlags | TifrFlags
+  
   T16PwmFlags* = TimCtlAFlags | TimCtlB16Flags | Timsk16Flags | Tifr16Flags
+  
   T8PwmAsyncFlags* = TimCtlAFlags | TimCtlBFlags | TimskFlags | TifrFlags |
     AssrFlags | GtccrFlags
+  
   TFlags* = TimCtlAFlags | TimCtlBFlags | TimCtlB16Flags | TimCtlCFlags | 
     TimskFlags | Timsk16Flags | TifrFlags | Tifr16Flags | AssrFlag | GtccrFlag
 
@@ -201,8 +280,6 @@ template toBitMask*(f: TFlags): uint8 =
   ## Converts a bit field containing flags to be used with a control 
   ## and status register to an 8-bit integer. 
   cast[uint8](f)
-
-## TODO add docstring here
 
 
 template setTimerFlag*(timer: Timer8BitPwm; flags: T8PwmFlags) =
@@ -230,6 +307,23 @@ template setTimerFlag*(timer: Timer16BitPwm; flags: T16PwmFlags) =
     timer.timsk.setMask(toBitMask(flags))
   elif flags is Tifr16Flags:
     timer.tifr.setMask(toBitMask(flags))
+
+
+template setTimerFlag*(timer: Timer16Bit3ComparePwm; flags: T16) =
+  ## Sets the passed flags of the specific timer register for 16-bit PWM timers 
+  ## with 3 output channels.
+  when flags is TimCtlAFlags:
+    timer.tccra.setMask(toBitMask(flags))
+  elif flags is TimCtlBFlags:
+    timer.tccrb.setMask(toBitMask(flags))
+  elif flags is TimCtlCFlags:
+    timer.tccrc.setMask(toBitMask(flags))
+  elif flags is TimskFlags:
+    timer.timsk.setMask(toBitMask(flags))
+  elif flags is TifrFlags:
+    timer.tifr.setMask(toBitMask(flags))
+  elif flags is GtccrFlags:
+    timer.gtccr.setMask(toBitMask(flags))
 
 
 template setTimerFlag*(timer: Timer8BitPwmAsync; flags: T8PwmAsyncFlags) =
