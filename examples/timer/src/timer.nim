@@ -19,7 +19,7 @@ proc initCompareMatchTimer0  =
     ocrVal = ((mcuFreq div (2 * desFreq)) - 1)
   portD.asOutputPin(tim0Out)
   timer0.setTimerFlag({coma0, wgm1})
-  timer0.setTimerFlag({cs0})
+  timer0.setTimerFlag({TimCtlBFlag.cs0})
   timer0.ocra[] = ocrVal.uint8
 
 
@@ -41,8 +41,8 @@ proc initPwmTimer2 =
     pwmFreq = 1_000_000'u32
     pwmDuty = 20'u32
   portD.asOutputPin(tim2Out)
-  timer2.setTimerFlag({comb1, wgm1, wgm0})
-  timer2.setTimerFlag({wgm2, cs0})
+  timer2.setTimerFlag({TimCtlAFlag.comb1, wgm1, wgm0})
+  timer2.setTimerFlag({TimCtlBFlag.wgm2, cs0})
   timer2.actuatePwm(mcuFreq, pwmDuty, pwmFreq, pwmPre)
 
 
