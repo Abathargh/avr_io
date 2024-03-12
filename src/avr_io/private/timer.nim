@@ -272,8 +272,13 @@ type
   T8PwmAsyncFlags* = TimCtlAFlags | TimCtlBFlags | TimskFlags | TifrFlags |
     AssrFlags | GtccrFlags
   
+  T163ChanFlags* = TimCtlA3CompFlags | TimCtlBFlags | TimCtlC3CompFlags | 
+    Timsk3CompFlags | Tifr3CompFlags | GtccrFlags
+
   TFlags* = TimCtlAFlags | TimCtlBFlags | TimCtlB16Flags | TimCtlCFlags | 
-    TimskFlags | Timsk16Flags | TifrFlags | Tifr16Flags | AssrFlag | GtccrFlag
+    TimskFlags | Timsk16Flags | TifrFlags | Tifr16Flags | AssrFlag | 
+    GtccrFlag | TimCtlA3CompFlags | TimCtlC3CompFlags | Timsk3CompFlags | 
+    Tifr3CompFlags 
 
 
 template toBitMask*(f: TFlags): uint8 =
@@ -309,7 +314,7 @@ template setTimerFlag*(timer: Timer16BitPwm; flags: T16PwmFlags) =
     timer.tifr.setMask(toBitMask(flags))
 
 
-template setTimerFlag*(timer: Timer16Bit3ComparePwm; flags: T16) =
+template setTimerFlag*(timer: Timer16Bit3ComparePwm; flags: T163ChanFlags) =
   ## Sets the passed flags of the specific timer register for 16-bit PWM timers 
   ## with 3 output channels.
   when flags is TimCtlAFlags:
