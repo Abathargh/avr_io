@@ -2,7 +2,7 @@
 
 version       = "0.2.0"
 author        = "Gianmarco Marcello"
-description   = "A small library that exposes memory mapped IO registers definitons."
+description   = "AVR registers, interrupts, progmem and peripheral support in nim!"
 license       = "BSD-3-Clause"
 srcDir        = "src"
 
