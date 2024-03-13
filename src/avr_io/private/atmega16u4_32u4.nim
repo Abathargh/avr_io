@@ -1,5 +1,7 @@
 include mapped_io
 include usart
+include timer
+
 
 const
   UEINT*   = MappedIoRegister[uint8](0xF4)
@@ -160,4 +162,20 @@ const
   portE* = Port(direction: DDRE, output: PORTE, input: PINE)
   portF* = Port(direction: DDRF, output: PORTF, input: PINF)
 
-  usart1* = UsartFlow(baudLo: UBRR1L, baudHi: UBRR1H, ctlA: UCSR1A, ctlB: UCSR1B, ctlC: UCSR1C, udr: UDR1, ctlD: UCSR1D)
+  usart1* = UsartFlow(baudLo: UBRR1L, baudHi: UBRR1H, ctlA: UCSR1A, 
+    ctlB: UCSR1B, ctlC: UCSR1C, udr: UDR1, ctlD: UCSR1D)
+
+  timer0* = Timer8BitPwm(
+    tccra: TCCR0A, tccrb: TCCR0B, tcnt: TCNT0, ocra: OCR0A, ocrb: OCR0B, 
+    timsk: TIMSK0, tifr: TIFR0)
+  timer1* = Timer16Bit3ComparePwm(tccra: TCCR1A, tccrb: TCCR1B, tccrc: TCCR1C,
+    tcnth: TCNT1H, tcntl: TCNT1L, ocrah: OCR1AH, ocral: OCR1AL, ocrbh: OCR1BH,
+    ocrbl: OCR1BL, icrh: ICR1H, icrl: ICR1L, timsk: TIMSK1, tifr: TIFR1, 
+    gtccr: GTCCR)
+  timer3* = Timer16Bit3ComparePwm(tccra: TCCR3A, tccrb: TCCR3B, tccrc: TCCR3C,
+    tcnth: TCNT3H, tcntl: TCNT3L, ocrah: OCR3AH, ocral: OCR3AL, ocrbh: OCR3BH,
+    ocrbl: OCR3BL, icrh: ICR3H, icrl: ICR3L, timsk: TIMSK3, tifr: TIFR3,
+    gtccr: GTCCR)
+  timer4* = Timer10bitHiSpeed(tccra:TCCR4A, tccrb:TCCR4B, tccrc:TCCR4C, 
+    tccrd:TCCR4D, tccre:TCCR4E, tcnt:TCNT4, tch:TC4H, ocra:OCR4A, ocrb:OCR4B,
+    ocrc:OCR4C, ocrd:OCR4D, timsk:TIMSK4, tifr:TIFR4, dt:DT4)
