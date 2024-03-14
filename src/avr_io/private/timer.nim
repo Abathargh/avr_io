@@ -22,12 +22,16 @@ type
     tccra*: MappedIoRegister[uint8]
     tccrb*: MappedIoRegister[uint8]
     tccrc*: MappedIoRegister[uint8]
+    tcnt*:  MappedIoRegister[uint16]
     tcnth*: MappedIoRegister[uint8]
     tcntl*: MappedIoRegister[uint8]
+    ocra* : MappedIoRegister[uint16]
     ocrah*: MappedIoRegister[uint8]
     ocral*: MappedIoRegister[uint8]
+    ocrb* : MappedIoRegister[uint16]
     ocrbh*: MappedIoRegister[uint8]
     ocrbl*: MappedIoRegister[uint8]
+    icr* : MappedIoRegister[uint16]
     icrh*:  MappedIoRegister[uint8]
     icrl*:  MappedIoRegister[uint8]
     timsk*: MappedIoRegister[uint8]
@@ -39,12 +43,16 @@ type
     tccra*: MappedIoRegister[uint8]
     tccrb*: MappedIoRegister[uint8]
     tccrc*: MappedIoRegister[uint8]
+    tcnt*:  MappedIoRegister[uint16]
     tcnth*: MappedIoRegister[uint8]
     tcntl*: MappedIoRegister[uint8]
+    ocra* : MappedIoRegister[uint16]
     ocrah*: MappedIoRegister[uint8]
     ocral*: MappedIoRegister[uint8]
+    ocrb* : MappedIoRegister[uint16]
     ocrbh*: MappedIoRegister[uint8]
     ocrbl*: MappedIoRegister[uint8]
+    icr* : MappedIoRegister[uint16]
     icrh*:  MappedIoRegister[uint8]
     icrl*:  MappedIoRegister[uint8]
     timsk*: MappedIoRegister[uint8]
@@ -509,8 +517,6 @@ template clearTimerFlag*(timer: Timer16BitPwm; flags: T16PwmFlags) =
     timer.timsk.clearMask(toBitMask(flags))
   elif flags is Tifr16Flags:
     timer.tifr.clearMask(toBitMask(flags))
-  else:
-    static: error "unsupported flagset for the passed timer"
 
 
 template clearTimerFlag*(timer: Timer8BitPwmAsync; flags: T8PwmAsyncFlags) =
