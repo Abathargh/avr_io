@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.3.0"
 author        = "Gianmarco Marcello"
 description   = "AVR registers, interrupts, progmem and peripheral support in nim!"
 license       = "BSD-3-Clause"
