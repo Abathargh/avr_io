@@ -1,5 +1,5 @@
 ## A simple application running on an ATMega328P-based Arduino Uno using data 
-## in program memory. It shows hot to interact with said data, sending it via 
+## in program memory. It shows how to interact with said data, sending it via 
 ## USART to another device.
 
 import avr_io
@@ -19,7 +19,7 @@ progmem(testStr, "test progmem string\n") # or even strings
 
 
 # Objects can also be stored in program memory. Note that if strings are 
-# needed, the `cstring` type must be used, as the `string` type is  currently 
+# needed, the `cstring` type must be used, as the `string` type is currently 
 # not supported in progmem objects.
 type 
   foo = object
