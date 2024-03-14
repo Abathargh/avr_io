@@ -1,6 +1,7 @@
 switch("os", "standalone")
 switch("cpu", "avr")
 switch("gc", "none")
+switch("threads", "off")
 switch("stackTrace", "off")
 switch("lineTrace", "off")
 switch("define", "release")
