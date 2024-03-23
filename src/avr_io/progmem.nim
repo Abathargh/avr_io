@@ -323,6 +323,9 @@ proc eval(n: NimNode): (string, NimNode) {.compileTime.} =
 macro progmem*(l: untyped): untyped =
   ## Stores the value contained in the let expression tagged with this macro 
   ## pragma in program memory. Use only with literals.
+  
+  # First, let's check if we are in a let section and if everything checks out 
+  # with reference to where we are in the AST.
   var 
     orig = l
     lnode = if l.kind == nnkLetSection: 
@@ -333,13 +336,15 @@ macro progmem*(l: untyped): untyped =
   expectKind(lnode, nnkIdentDefs)
   expectKind(lnode[0], nnkIdent)
 
+  # Let's evaluate the string representation of the literal that we want, and 
+  # make it C-compliant, togethwer with the actual type of the nim node.
   let 
     rval = lnode[2]
     (str_val, node_type) = eval(rval)
     is_string = node_type.kind == nnkIdent and node_type.strVal == "string"
     wrapped = wrapC(str_val, true, is_string)
-  
 
+  # Adding the pragmas to the AST
   var p = newNimNode(nnkPragmaExpr).add(
     copyNimNode(lnode[0]),
     newNimNode(nnkPragma).add(
@@ -355,13 +360,13 @@ macro progmem*(l: untyped): untyped =
   lnode[0] = p
 
   if lnode[1].kind == nnkEmpty:
-    # no type provided 
+    # No type provided in the let statement, let's add it
     lnode[1] = newNimNode(nnkBracketExpr).add(
       newIdentNode("ProgramMemory"),
       node_type
     )
   else:
-    # TODO: check generics and do brackets trick
+    # Type provided in the let statement, let's use that
     lnode[1] = newNimNode(nnkBracketExpr).add(
       newIdentNode("ProgramMemory"),
       lnode[1]
