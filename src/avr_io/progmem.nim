@@ -295,9 +295,9 @@ const
     nnkUInt32Lit:    "uint32",
     nnkUInt64Lit:    "uint64",
     nnkFloatLit:     "float",
-    nnkFloat32Lit:   "float32", 
+    nnkFloat32Lit:   "float32",
     nnkFloat64Lit:   "float64",
-    nnkStrLit:       "string", 
+    nnkStrLit:       "string",
     nnkRStrLit:      "string",
     nnkTripleStrLit: "string"
   }.toTable
@@ -337,7 +337,7 @@ macro progmem*(l: untyped): untyped =
   expectKind(lnode[0], nnkIdent)
 
   # Let's evaluate the string representation of the literal that we want, and 
-  # make it C-compliant, togethwer with the actual type of the nim node.
+  # make it C-compliant, together with the actual type of the nim node.
   let 
     rval = lnode[2]
     (str_val, node_type) = eval(rval)
