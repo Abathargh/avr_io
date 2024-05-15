@@ -9,10 +9,27 @@ Any project using this library must use avr-gcc as its C backend.
 recomended for use in production code, APIs may break at any time!**
 
 - [avr\_io - nim register bindings and utilities for AVR microcontrollers](#avr_io---nim-register-bindings-and-utilities-for-avr-microcontrollers)
+  - [Requirements](#requirements)
   - [Support](#support)
   - [Install](#install)
   - [Documentation](#documentation)
   - [License](#license)
+
+
+## Requirements
+
+This library uses features that are bugged on the current nim 
+releases (2.0.x). 
+Their specific fixes will be merged into the devel branch 
+starting from nim 2.2.x. This means that up until nim 2.2.x 
+releases, using some of the avr_io feature requires a nim 
+devel installation.
+
+If you use choosenim just execute:
+
+```bash
+choosenim update devel
+```
 
 
 ## Support
