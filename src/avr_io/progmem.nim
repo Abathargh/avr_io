@@ -79,7 +79,7 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     discard memCopy(addr e, pmPtr(pm), csize_t(sizeof(T))) 
     e
 
-template `[]`*[S: static[int]; T](pm: ProgramMemory[array[S, T]]; i: int): T =
+template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
   ## Dereference operator used to access elements of an array stored in
   ## program memory. Note that this must generate a copy of said data, in
   ## order to make it available to the user.
@@ -216,7 +216,7 @@ proc substStructFields(s: string): string =
   "{" & output & "}"
 
 
-template substBraces(s: static[string]): string =
+proc substBraces(s: static string): static string =
   # Cannot use strutils.multiReplace; importing strutils causes the following
   # error: 
   #  `.choosenim/toolchains/nim-2.0.0/lib/pure/unicode.nim(849, 36) Error: 
@@ -402,7 +402,7 @@ macro progmemArray*(n, v: untyped): untyped =
       ProgramMemory[array[`v`.len, `v`[0].typeof]]
 
 
-macro progmemArray*(n: untyped; t: type; s: static[int]): untyped =
+macro progmemArray*(n: untyped; t: type; s: static int): untyped =
   ## Creates a new non-initialized program memory array, of size `s`, 
   ## containing elements of type `t`, and creates a new symbol `n` through 
   ## which it is possible to access it.
