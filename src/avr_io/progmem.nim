@@ -4,6 +4,7 @@
 
 import macros
 import tables
+import strutils
 
 # TODOs:
 # - [ ] support for far operations
@@ -303,7 +304,21 @@ const
   }.toTable
 
 
-proc eval(n: NimNode): (string, NimNode) {.compileTime.} =
+proc callToStr(n: NimNode): string =
+  n.expectKind(nnkCall)
+  result = "$#(" % $n[0]
+  for i in 1..<len(n):
+    case n[i].kind 
+    of nnkStrLit..nnkTripleStrLit:
+      result.add("\"$#\"" % $n[i])
+    else:
+      result.add($n[i])
+    if i != len(n) - 1:
+      result.add(", ")
+  result.add(")")
+
+
+proc eval(n: NimNode): (string, NimNode) =
   result = case n.kind
   of nnkCharLit..nnkUInt64Lit:   ($n.intVal, newIdentNode(nnkTable[n.kind]))
   of nnkFloatLit..nnkFloat64Lit: ($n.floatVal, newIdentNode(nnkTable[n.kind]))
@@ -316,6 +331,10 @@ proc eval(n: NimNode): (string, NimNode) {.compileTime.} =
         ValueError, 
         "Invalid value for eval: " & $n.kind & " (" & $n.strVal & ")")
     (n.strVal, newIdentNode("bool"))
+  of nnkCall:
+    let s = n.callToStr()
+    let st = parseStmt(s)
+    (s, st)
   else:
     raise newException(ValueError, "Invalid value for eval: " & $n.kind)
 
