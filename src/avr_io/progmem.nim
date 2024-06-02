@@ -345,54 +345,26 @@ macro progmem*(l: untyped): untyped =
   
   # First, let's check if we are in a let section and if everything checks out 
   # with reference to where we are in the AST.
-  var 
-    orig = l
-    lnode = if l.kind == nnkLetSection: 
-        l[0] 
-      else: 
-        orig
+  var lnode = if l.kind == nnkLetSection: l[0] else: l
   
   expectKind(lnode, nnkIdentDefs)
   expectKind(lnode[0], nnkIdent)
 
-  # Let's evaluate the string representation of the literal that we want, and 
-  # make it C-compliant, together with the actual type of the nim node.
-  let 
-    rval = lnode[2]
-    (str_val, node_type) = eval(rval)
-    is_string = node_type.kind == nnkIdent and node_type.strVal == "string"
-    wrapped = wrapC(str_val, true, is_string)
+  let name = lnode[0]
+  let rval = lnode[2]
 
-  # Adding the pragmas to the AST
-  var p = newNimNode(nnkPragmaExpr).add(
-    copyNimNode(lnode[0]),
-    newNimNode(nnkPragma).add(
-      newIdentNode("importc"),
-      newIdentNode("global"),
-      newIdentNode("noinit"),
-      newNimNode(nnkExprColonExpr).add(
-        newIdentNode("codegenDecl"),
-        newLit(wrapped)
-      )
-    )
-  )
-  lnode[0] = p
-
-  if lnode[1].kind == nnkEmpty:
-    # No type provided in the let statement, let's add it
-    lnode[1] = newNimNode(nnkBracketExpr).add(
-      newIdentNode("ProgramMemory"),
-      node_type
-    )
-  else:
-    # Type provided in the let statement, let's use that
-    lnode[1] = newNimNode(nnkBracketExpr).add(
-      newIdentNode("ProgramMemory"),
-      lnode[1]
-    )
-
-  lnode[2] = newNimNode(nnkEmpty)  
-  orig
+  result = quote do:
+    when typeOf(`rval`) is SomeNumber:
+      const s = $`rval`
+      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[`rval`.typeof]
+    elif typeof(`rval`) is string:
+      let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, noinit.}: 
+        ProgramMemory[array[`rval`.len + 1, cchar]]
+    else:
+      const s = substStructFields(($`rval`))
+      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[`rval`.typeof]
 
 
 macro progmem*(n, v: untyped): untyped =
