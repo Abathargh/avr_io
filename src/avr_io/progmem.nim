@@ -4,7 +4,6 @@
 
 import macros
 import tables
-import strutils
 
 # TODOs:
 # - [ ] support for far operations
@@ -74,7 +73,7 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     elif sizeof(T) == 2:
       readWordNear(pmPtrU16(pm))
     elif sizeof(T) == 4:
-      readDWordNear(pmPtrU16(pm))   
+      readDWordNear(pmPtrU16(pm))
   else:
     var e {.noInit.} : T 
     discard memCopy(addr e, pmPtr(pm), csize_t(sizeof(T))) 
@@ -235,110 +234,6 @@ proc substBraces(s: static string): static string =
   r
 
 
-proc eval(n: NimNode): (string, NimNode)
-
-
-proc eval_obj(nc: NimNode): (string, NimNode) =
-  var s = "{"
-  if nc.kind != nnkObjConstr:
-    error "Expected object construction, got: " & $nc.kind
-
-  for i in 1 ..< nc.len:
-    let 
-      nameNode = nc[i][0]
-      valNode  = nc[i][1]
-      (value, _) = eval(valNode)
-
-    s.add("." & nameNode.strVal() & "=" & value)
-    if i != nc.len - 1:
-      s.add(", ")
-  s.add("}")
-  (s, nc[0])
-
-
-proc eval_array(an: NimNode): (string, NimNode) =
-  var s = "{"
-  if an.kind != nnkBracket:
-    error "Expected array literal, got: " & $an.kind
-
-  var node_type: NimNode = nil
-
-  for i in 0 ..< an.len:
-    let valNode = an[i]
-    let (value, node_type_eval) = eval(valNode)
-
-    if node_type == nil:
-      node_type = node_type_eval
-
-    s.add(value)
-    if i != an.len - 1:
-      s.add(", ")
-  
-  s.add("}")
-  (s, newNimNode(nnkBracketExpr).add(
-      newIdentNode("array"),
-      newLit(an.len-1),
-      node_type
-  ))
-
-
-const
-  nnkTable = {
-    nnkCharLit:      "char",
-    nnkIntLit:       "int",
-    nnkInt8Lit:      "int8",
-    nnkInt16Lit:     "int16",
-    nnkInt32Lit:     "int32",
-    nnkInt64Lit:     "int64",
-    nnkUIntLit:      "uint",
-    nnkUInt8Lit:     "uint8",
-    nnkUInt16Lit:    "uint16",
-    nnkUInt32Lit:    "uint32",
-    nnkUInt64Lit:    "uint64",
-    nnkFloatLit:     "float",
-    nnkFloat32Lit:   "float32",
-    nnkFloat64Lit:   "float64",
-    nnkStrLit:       "string",
-    nnkRStrLit:      "string",
-    nnkTripleStrLit: "string"
-  }.toTable
-
-
-proc callToStr(n: NimNode): string =
-  n.expectKind(nnkCall)
-  result = "$#(" % $n[0]
-  for i in 1..<len(n):
-    case n[i].kind 
-    of nnkStrLit..nnkTripleStrLit:
-      result.add("\"$#\"" % $n[i])
-    else:
-      result.add($n[i])
-    if i != len(n) - 1:
-      result.add(", ")
-  result.add(")")
-
-
-proc eval(n: NimNode): (string, NimNode) =
-  result = case n.kind
-  of nnkCharLit..nnkUInt64Lit:   ($n.intVal, newIdentNode(nnkTable[n.kind]))
-  of nnkFloatLit..nnkFloat64Lit: ($n.floatVal, newIdentNode(nnkTable[n.kind]))
-  of nnkStrLit..nnkTripleStrLit: ("\"" & n.strVal & "\"", newIdentNode(nnkTable[n.kind]))
-  of nnkObjConstr: eval_obj(n)
-  of nnkBracket: eval_array(n)
-  of nnkIdent: 
-    if n.strVal != "true" and n.strVal != "false":
-      raise newException(
-        ValueError, 
-        "Invalid value for eval: " & $n.kind & " (" & $n.strVal & ")")
-    (n.strVal, newIdentNode("bool"))
-  of nnkCall:
-    let s = n.callToStr()
-    let st = parseStmt(s)
-    (s, st)
-  else:
-    raise newException(ValueError, "Invalid value for eval: " & $n.kind)
-
-
 macro progmem*(l: untyped): untyped =
   ## Stores the value contained in the let expression tagged with this macro 
   ## pragma in program memory.
@@ -354,14 +249,20 @@ macro progmem*(l: untyped): untyped =
   let name = lnode[0]
   let rval = lnode[2]
 
-  result = quote do:
+  if rval.kind == nnkBracket:
+    return quote do:
+      const s = substBraces($`rval`)
+      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
+
+  quote do:
     when typeOf(`rval`) is SomeNumber:
       const s = $`rval`
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`rval`.typeof]
     elif typeof(`rval`) is string:
-      let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, noinit.}: 
-        ProgramMemory[array[`rval`.len + 1, cchar]]
+      let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, 
+        noinit.}: ProgramMemory[array[`rval`.len + 1, cchar]]
     else:
       const s = substStructFields(($`rval`))
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
