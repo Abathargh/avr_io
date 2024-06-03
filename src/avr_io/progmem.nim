@@ -341,15 +341,16 @@ proc eval(n: NimNode): (string, NimNode) =
 
 macro progmem*(l: untyped): untyped =
   ## Stores the value contained in the let expression tagged with this macro 
-  ## pragma in program memory. Use only with literals.
+  ## pragma in program memory.
   
   # First, let's check if we are in a let section and if everything checks out 
   # with reference to where we are in the AST.
   var lnode = if l.kind == nnkLetSection: l[0] else: l
-  
+
   expectKind(lnode, nnkIdentDefs)
   expectKind(lnode[0], nnkIdent)
 
+  # Let us retrieve the name and the rval of the let statement
   let name = lnode[0]
   let rval = lnode[2]
 
