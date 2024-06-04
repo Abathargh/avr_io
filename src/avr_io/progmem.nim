@@ -249,20 +249,18 @@ macro progmem*(l: untyped): untyped =
   let name = lnode[0]
   let rval = lnode[2]
 
-  if rval.kind == nnkBracket:
-    return quote do:
-      const s = substBraces($`rval`)
-      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
-        ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
-
   quote do:
     when typeOf(`rval`) is SomeNumber:
       const s = $`rval`
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`rval`.typeof]
-    elif typeof(`rval`) is string:
+    elif typeOf(`rval`) is string:
       let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, 
         noinit.}: ProgramMemory[array[`rval`.len + 1, cchar]]
+    elif typeOf(`rval`) is array:
+      const s = substBraces($`rval`)
+      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+        ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
     else:
       const s = substStructFields(($`rval`))
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
