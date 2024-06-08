@@ -9,13 +9,16 @@ import avr_io/interrupt
 import volatile
 
 
-# The `progmem` macro allows the user to define a new symbol containing many 
-# kinds of data
-progmem(testFloat, 11.23'f32)             # like floats
-progmem(testInt1,  12'u8)                 # 8-bit integers
-progmem(testInt2,  13'u16)                # 16-bit integers
-progmem(testInt3,  14'u32)                # 32-bit integers
-progmem(testStr, "test progmem string\n") # or even strings
+# The `progmem` macro allows the user to store many kinds of data into program 
+# memory. Note that a let statement is required. The type of the data is 
+# inferred from the first element when using arrays.
+let 
+  testFloat {.progmem.} = 11.23'f32               # like floats
+  testInt1  {.progmem.} = 12'u8                   # 8-bit integers
+  testInt2  {.progmem.} = 13'u16                  # 16-bit integers
+  testInt3  {.progmem.} = 14'u32                  # 32-bit integers
+  testStr   {.progmem.} = "test progmem string\n" # or even strings
+  testArr {.progmem.} = [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10]
 
 
 # Objects can also be stored in program memory. Note that if strings are 
@@ -30,14 +33,10 @@ type
     b1: bool 
     b2: cstring 
 
-progmem(testObj1, foo(f1: 42'i16, f2: 45.67))
-progmem(testObj2, bar(b1: true, b2: "test string in object\n"))
+let 
+  testObj1 {.progmem.} = foo(f1: 42'i16, f2: 45.67)
+  testObj2 {.progmem.} = bar(b1: true, b2: "test string in object\n")
 
-
-# The `progmemArray` macro allows the user to define a new symbol containing 
-# an array of values. Note that the type of the data is inferred from the 
-# first element of the array, as usual.
-progmemArray(testArr, [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10])
 
 # To reserve a block of program memory of size `size`, containing objects of 
 # type `type`, use the `progmemArray(type, size)` macro. This is particularly 
