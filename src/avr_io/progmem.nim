@@ -4,6 +4,7 @@
 
 import macros
 import tables
+import strutils
 
 # TODOs:
 # - [ ] support for far operations
@@ -167,11 +168,10 @@ proc wrapC(s: string = "", equal: bool = true, is_str: bool = false): string =
     "static const $# $# __attribute__((__progmem__))"
 
 
-proc substStructFields(s: string): string =
-  # Hand-rolled FSM-based struct parsing proc, since it is not possible to 
-  # use the 're' module at compile-time. TODO modify to accept objects as 
-  # params to objects - this may requires some parsing action? 
-  # TODO if an open ( is met, go back to identifier and call recursively
+proc substStructFields(s: string): (string, int) =
+  # Hand-rolled FSM-based struct parsing proc, which turns an object literal 
+  # into its C struct-literal equivalent. This works with nested struct 
+  # literals too.
   type
     stateEnum = enum
       spaceParsing
@@ -179,10 +179,14 @@ proc substStructFields(s: string): string =
       colonParsing
       valueParsing
 
-  var state = spaceParsing
-  var output = ""
+  var 
+    state = spaceParsing
+    output = ""
+    idx = 0
 
-  for ch in s[1 .. ^2]:
+  while idx < (s.len() - 1):
+    inc idx
+    let ch = s[idx]
     case state:
       of spaceParsing:
         case ch:
@@ -201,19 +205,27 @@ proc substStructFields(s: string): string =
         case ch:
           of ' ':
             continue
+          of '(':
+            let (inner, size) = substStructFields(s[idx..^1])
+            output &= "="
+            output &= inner
+            inc idx, size - 1
+            state = valueParsing
           else:
             output &= "="
             output &= ch
             state = valueParsing
       of valueParsing:
         case ch:
+          of ')':
+            return ("{" & output & "}", idx)
           of ',':
             output &= ", "
             state = spaceParsing
           else:
             output &= ch
 
-  "{" & output & "}"
+  ("{" & output & "}", idx)
 
 
 proc substBraces(s: static string): static string =
@@ -262,7 +274,7 @@ macro progmem*(l: untyped): untyped =
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
     else:
-      const s = substStructFields(($`rval`))
+      const (s, _) = substStructFields(($`rval`))
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`rval`.typeof]
 
@@ -279,7 +291,7 @@ macro progmem*(n, v: untyped): untyped =
       let `n` {.importc, codegenDecl: wrapC(`v`, true, true), global, noinit.}: 
         ProgramMemory[array[`v`.len + 1, cchar]]
     else:
-      const s = substStructFields(($`v`))
+      const (s, _) = substStructFields(($`v`))
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`v`.typeof]
 
