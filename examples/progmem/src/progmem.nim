@@ -33,9 +33,14 @@ type
     b1: bool 
     b2: cstring 
 
+  foobar = object
+    fb1: bool 
+    fb2: foo 
+
 let 
   testObj1 {.progmem.} = foo(f1: 42'i16, f2: 45.67)
   testObj2 {.progmem.} = bar(b1: true, b2: "test string in object\n")
+  testObj3 {.progmem.} = foobar(fb1: false, fb2: foo(f1: 21, f2: 77.0))
 
 
 # To reserve a block of program memory of size `size`, containing objects of 
@@ -93,6 +98,9 @@ proc sendProgmemVar(usart: Usart) =
   usart.sendAsBitstring(testObj1[].f2)
   usart.sendAsBitstring(testObj2[].b1)
   usart.sendString(testObj2[].b2)
+  usart.sendAsBitstring(testObj3[].fb1)
+  usart.sendAsBitstring(testObj3[].fb2.f1)
+  usart.sendAsBitstring(testObj3[].fb2.f2)
 
   # Progmem arrays can also be indexed, passing an offset works too. 
   usart.sendByte(testArr[0])
