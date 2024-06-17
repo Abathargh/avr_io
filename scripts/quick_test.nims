@@ -38,17 +38,18 @@ var
   argn    = 0
 
 
-proc doBuild(projectDir, target: string, flash, verbose: bool) =
-  let output = gorge("nimble dump avr_io")
-  if "Error" notin output:
-    exec("nimble uninstall -i -y avr_io")
+proc doBuild(dir, target: string, flash, verbose, reinstall: bool) =
+  if reinstall:
+    let output = gorge("nimble dump avr_io")
+    if "Error" notin output:
+      exec("nimble uninstall -i -y avr_io")
 
-  exec("rm -rf ~/.nimble/pkgs2/avr_io*")
-  exec("nimble install -y")
+    exec("rm -rf ~/.nimble/pkgs2/avr_io*")
+    exec("nimble install -y")
 
   let v = if verbose: "--verbose" else: ""
 
-  withDir projectDir:
+  withDir dir:
     exec("nimble clear")
     exec("nimble $# build $#" % [v, target])
     if flash:
@@ -106,13 +107,18 @@ proc main() =
         quit(1)
 
   if all:
+    var first = true
     for kind, d in walkDir("./examples"):
       if kind != pcDir: continue
       if clean: 
         withDir d:
           exec("nimble clear")
       else:
-        doBuild(d, target, flash, verbose)
+        if first:
+          doBuild(d, target, flash, verbose, true)
+          first = false
+        else:
+          doBuild(d, target, flash, verbose, false)
     quit(0)
 
   if clean:
@@ -130,6 +136,6 @@ proc main() =
     quit(1)
 
   echo "Building project '$#'" % project
-  doBuild(projectDir, target, flash, verbose)
+  doBuild(projectDir, target, flash, verbose, true)
 
 main()
