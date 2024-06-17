@@ -86,11 +86,11 @@ proc processBlock(ctx: var Sha1Ctx) =
     B = A
     A = temp
   
-  inc(ctx.H[0], A)
-  inc(ctx.H[1], B)
-  inc(ctx.H[2], C)
-  inc(ctx.H[3], D)
-  inc(ctx.H[4], E)
+  ctx.H[0] += A
+  ctx.H[1] += B
+  ctx.H[2] += C
+  ctx.H[3] += D
+  ctx.H[4] += E
   ctx.bIdx = 0
 
 

@@ -25,7 +25,7 @@ proc initCompareMatchTimer0  =
     desFreq = 2e6.uint32 # The generated wave will have a frequency of 2MHz
     ocrVal = ((mcuFreq div (2 * desFreq)) - 1) # As per the description above
   portD.asOutputPin(tim0Out)
-  timer0.setTimerFlag({coma0, wgm1})
+  timer0.setTimerFlag({TimCtlAFlag.coma0, wgm1})
   timer0.setTimerFlag({TimCtlBFlag.cs0})
   timer0.ocra[] = ocrVal.uint8
 
