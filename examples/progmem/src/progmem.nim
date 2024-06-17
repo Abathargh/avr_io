@@ -21,9 +21,7 @@ let
   testArr {.progmem.} = [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10]
 
 
-# Objects can also be stored in program memory. Note that if strings are 
-# needed, the `cstring` type must be used, as the `string` type is currently 
-# not supported in progmem objects.
+# Objects can also be stored in program memory.
 type 
   foo = object
     f1: int16
@@ -31,7 +29,7 @@ type
 
   bar = object
     b1: bool 
-    b2: cstring 
+    b2: string 
 
   foobar = object
     fb1: bool 
