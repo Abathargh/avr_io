@@ -29,28 +29,28 @@ template pmPtrOff[S; T](pm: ProgramMemory[array[S, T]]; off: int): ptr T =
 template pmPtrOffU16[S; T](pm: ProgramMemory[array[S, T]], off: int): uint16 =
   cast[uint16](unsafeAddr array[S, T](pm)[off])
 
-proc readByteNear(a: uint16): uint8 
+proc readByteNear(a: uint16): uint8
   {.importc: "pgm_read_byte", header:"<avr/pgmspace.h>".}
 
 proc readWordNear(a: uint16): uint16
   {.importc: "pgm_read_word", header:"<avr/pgmspace.h>".}
 
-proc readDWordNear(a: uint16): uint32 
+proc readDWordNear(a: uint16): uint32
   {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
 
-proc readFloatNear(a: uint16): float32 
+proc readFloatNear(a: uint16): float32
   {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
 proc memCompare[T](s1, s2: ptr T, s: int): int
-  {.importc: "memcmp_P", header: "<avr/pgmspace.h>".} 
+  {.importc: "memcmp_P", header: "<avr/pgmspace.h>".}
 
-proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T 
+proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
 proc strNCompare[T](dest, src: ptr T; len: csize_t): int
-  {.importc: "strncmp_P", header: "<avr/pgmspace.h>".} 
+  {.importc: "strncmp_P", header: "<avr/pgmspace.h>".}
 
-proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T 
+proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 
 proc strStr[T](dest, src: ptr T): int
@@ -172,6 +172,17 @@ proc substStructFields(s: string): (string, int) =
   # Hand-rolled FSM-based struct parsing proc, which turns an object literal 
   # into its C struct-literal equivalent. This works with nested struct 
   # literals too.
+
+  # Given an object literal `t = foo(a: 1, b: "test")
+  # Calling $`t` in a quote do block will yield something like:
+  #   `(a: 1, b: 2)` 
+  # Which should be transposed in its C99 analogue using designated 
+  # initializers:
+  #   `{.a=1, .b=2}`
+  # Note that nested object literals will be of the following form:
+  #   `(a: 1, b: (c: 3, d: 4))`
+  # Which should become:
+  #   `{.a=1, .b={.c=3, .d=4}}`
   type
     stateEnum = enum
       spaceParsing
