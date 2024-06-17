@@ -273,11 +273,15 @@ macro progmem*(l: untyped): untyped =
       const s = substBraces($`rval`)
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
-    else:
+    elif typeOf(`rval`) is object:
       const (s, _) = substStructFields(($`rval`))
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`rval`.typeof]
-
+    else:
+      static:
+        error "'progmem' can only be used to annotate let statements " &
+          "containing literal rvalues, or compile-time function calls " &
+          "returning literal rvalues, got '$#'" % $`rval`.typeOf 
 
 macro progmem*(n, v: untyped): untyped =
   ## Stores the value `v` in program memory, and creates a new symbol `n` 
@@ -290,11 +294,15 @@ macro progmem*(n, v: untyped): untyped =
     elif typeof(`v`) is string:
       let `n` {.importc, codegenDecl: wrapC(`v`, true, true), global, noinit.}: 
         ProgramMemory[array[`v`.len + 1, cchar]]
-    else:
+    elif typeOf(`v`) is object:
       const (s, _) = substStructFields(($`v`))
       let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[`v`.typeof]
-
+    else:
+      static:
+        error "'progmem' can only be used to annotate let statements " &
+          "containing literal rvalues, or compile-time function calls " &
+          "returning literal rvalues, got '$#'" % $`rval`.typeOf 
 
 macro progmemArray*(n, v: untyped): untyped =
   ## Stores the array `v` in program memory, and creates a new symbol `n`
