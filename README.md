@@ -18,18 +18,7 @@ recomended for use in production code, APIs may break at any time!**
 
 ## Requirements
 
-This library uses features that are bugged on the current nim 
-releases (2.0.x). 
-Their specific fixes will be merged into the devel branch 
-starting from nim 2.2.x. This means that up until nim 2.2.x 
-releases, using some of the avr_io feature requires a nim 
-devel installation.
-
-If you use choosenim just execute:
-
-```bash
-choosenim update devel
-```
+nim >= 2.0.6
 
 
 ## Support
