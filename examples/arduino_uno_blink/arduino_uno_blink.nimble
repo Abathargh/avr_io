@@ -10,8 +10,8 @@ bin           = @["arduino_uno_blink"]
 
 # Dependencies
 
-requires "nim >= 1.6.8"
-requires "avr_io >= 0.2.0"
+requires "nim >= 2.0.6"
+requires "avr_io >= 0.3.0"
 
 after build:
   when defined(windows):

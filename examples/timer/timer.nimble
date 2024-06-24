@@ -10,7 +10,7 @@ bin           = @["timer"]
 
 # Dependencies
 
-requires "nim >= 2.0.0"
+requires "nim >= 2.0.6"
 requires "avr_io >= 0.3.0"
 
 after build:
