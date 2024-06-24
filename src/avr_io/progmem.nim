@@ -2,9 +2,9 @@
 ## provides primitives useful to store data in program memory, retrieve it and 
 ## manipulate it.
 
-import macros
-import tables
-import strutils
+import std/strutils
+import std/tables
+import std/macros
 
 # TODOs:
 # - [ ] support for far operations
@@ -238,25 +238,6 @@ proc substStructFields(s: string): (string, int) =
 
   ("{" & output & "}", idx)
 
-
-proc substBraces(s: static string): static string =
-  # Cannot use strutils.multiReplace; importing strutils causes the following
-  # error: 
-  #  `.choosenim/toolchains/nim-2.0.0/lib/pure/unicode.nim(849, 36) Error: 
-  #  type mismatch: got 'int32' for 'RuneImpl(toLower(ar)) - 
-  # RuneImpl(toLower(br))' but expected 'int'`
-  var r: string = newStringOfCap(s.len)
-  for c in s:
-    case c 
-      of '[':
-        r.add('{')
-      of ']':
-        r.add('}')
-      else:
-        r.add(c)
-  r
-
-
 macro progmem*(l: untyped): untyped =
   ## Stores the value contained in the let expression tagged with this macro 
   ## pragma in program memory.
@@ -281,7 +262,7 @@ macro progmem*(l: untyped): untyped =
       let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, 
         noinit.}: ProgramMemory[array[`rval`.len + 1, cchar]]
     elif typeOf(`rval`) is array:
-      const s = substBraces($`rval`)
+      const s = multiReplace($`rval`, ("[", "{"), ("]", "}"))
       let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
         ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
     elif typeOf(`rval`) is object:
@@ -313,13 +294,13 @@ macro progmem*(n, v: untyped): untyped =
       static:
         error "'progmem' can only be used to annotate let statements " &
           "containing literal rvalues, or compile-time function calls " &
-          "returning literal rvalues, got '$#'" % $`rval`.typeOf 
+          "returning literal rvalues, got '$#'" % $`v`.typeOf 
 
 macro progmemArray*(n, v: untyped): untyped =
   ## Stores the array `v` in program memory, and creates a new symbol `n`
   ## through which it is possible to access it.
   quote do:
-    const s = substBraces($`v`)
+    const s = multiReplace($`v`, ("[", "{"), ("]", "}"))
     let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
       ProgramMemory[array[`v`.len, `v`[0].typeof]]
 
