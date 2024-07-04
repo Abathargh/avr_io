@@ -18,7 +18,7 @@ let
   testInt2  {.progmem.} = 13'u16                  # 16-bit integers
   testInt3  {.progmem.} = 14'u32                  # 32-bit integers
   testStr   {.progmem.} = "test progmem string\n" # or even strings
-  testArr {.progmem.} = [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10]
+  testArr   {.progmem.} = [116'u8, 101, 115, 116, 32, 97, 114, 114, 97, 121, 10]
 
 
 # Objects can also be stored in program memory.

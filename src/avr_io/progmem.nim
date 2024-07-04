@@ -3,7 +3,6 @@
 ## manipulate it.
 
 import std/strutils
-import std/tables
 import std/macros
 
 # TODOs:
