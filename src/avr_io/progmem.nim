@@ -17,16 +17,16 @@ type ProgramMemory*[T] = distinct T ## \
   ## An handle to data store in program memory.
 
 template pmPtr[T](pm: ProgramMemory[T]): ptr T =
-  unsafeAddr T(pm)
+  addr T(pm)
 
 template pmPtrU16[T](pm: ProgramMemory[T]): uint16 =
-  cast[uint16](unsafeAddr pm)
+  cast[uint16](addr pm)
 
 template pmPtrOff[S; T](pm: ProgramMemory[array[S, T]]; off: int): ptr T =
-  unsafeAddr array[S, T](pm)[off]
+  addr array[S, T](pm)[off]
 
 template pmPtrOffU16[S; T](pm: ProgramMemory[array[S, T]], off: int): uint16 =
-  cast[uint16](unsafeAddr array[S, T](pm)[off])
+  cast[uint16](addr array[S, T](pm)[off])
 
 proc readByteNear(a: uint16): uint8
   {.importc: "pgm_read_byte", header:"<avr/pgmspace.h>".}
