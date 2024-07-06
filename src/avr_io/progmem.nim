@@ -40,17 +40,14 @@ proc readDWordNear(a: uint16): uint32
 proc readFloatNear(a: uint16): float32
   {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
-proc memCompare[T](s1, s2: ptr T, s: int): int
+proc memCompare[T](s1, s2: pointer, s: int): int
   {.importc: "memcmp_P", header: "<avr/pgmspace.h>".}
 
 proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
-proc strNCompare[T](dest, src: ptr T; len: csize_t): int
-  {.importc: "strncmp_P", header: "<avr/pgmspace.h>".}
-
-proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
-  {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
+proc strlen(src: ptr cchar): int
+  {.importc: "strlen_P", header: "<avr/pgmspace.h>".}
 
 proc strStr[T](dest, src: ptr T): int
   {.importc: "strstr_P", header: "<avr/pgmspace.h>".}
@@ -59,6 +56,8 @@ proc strStr[T](dest, src: ptr T): int
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
   ## Returns the length of a program memory array.
 
+template len*[T](pm: ProgramMemory[string|cstring]): untyped = pm.len ## \
+  ## Returns the length of a program memory array.
 
 template `[]`*[T](pm: ProgramMemory[T]): T =
   ## Dereference operator used to access data stored in program memory. 
@@ -74,6 +73,18 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
       readWordNear(pmPtrU16(pm))
     elif sizeof(T) == 4:
       readDWordNear(pmPtrU16(pm))
+  elif typeof(T) is array:
+    var e {.noInit.} : T 
+    discard memCopy(addr result, pmPtrOff(pm, 0), csize_t(sizeof(T))) 
+    e
+  elif typeof(T) is string:
+    var e {.noInit.} : T 
+    discard strNCopy(addr result, pmPtrOff(pm, 0), pm.len())
+    e
+  elif typeof(T) is cstring:
+    var e {.noInit.} : T 
+    discard strNCopy(addr result, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
+    e
   else:
     var e {.noInit.} : T 
     discard memCopy(addr e, pmPtr(pm), csize_t(sizeof(T))) 
@@ -101,6 +112,14 @@ template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
       discard memCopy(addr e, pmPtrOff(pm, i), csize_t(sizeof(T)))
       e
 
+template `==`*[T](d: T, pm: ProgramMemory[T]): bool =
+  memCompare(addr d, pmPtr(pm), sizeof(T)) == 0
+
+template `!=`*[T](d: T, pm: ProgramMemory[T]): bool =
+  memCompare(addr d, pmPtr(pm), sizeof(T)) != 0
+
+template `in`*[T](d: string|cstring, pm: ProgramMemory[string|cstring]): bool =
+  not strStr(addr cstring(d)[0], pm).isNil
 
 proc readFromAddress*[T](a: uint16) : T =
   ## Reads from a program memory address directly-
@@ -122,7 +141,6 @@ proc readFromAddress*[T](a: uint16) : T =
     discard memCopy(addr e, p, csize_t(sizeof(T)))
     e
 
-
 iterator progmemIter*[S: static int; T](pm: ProgramMemory[array[S, T]]): T =
   ## Iterator that can be used to safely traverse program memory arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
@@ -132,7 +150,6 @@ iterator progmemIter*[S: static int; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
-
 iterator progmemIter*[S: static int](pm: ProgramMemory[array[S, cchar]]): cchar =
   ## Iterator that can be used to safely traverse program memory cchar arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
@@ -141,7 +158,6 @@ iterator progmemIter*[S: static int](pm: ProgramMemory[array[S, cchar]]): cchar 
   while i < S and pm[i] != '\0':
     yield pm[i]
     inc i
-
 
 proc escapeStrseq(s: string): string =
   # Escape special chars so that they will still appear as such
@@ -155,7 +171,6 @@ proc escapeStrseq(s: string): string =
         r.add(ch)
   r
 
-
 proc wrapC(s: string = "", equal: bool = true, is_str: bool = false): string =
   var s = s
   if is_str:
@@ -165,7 +180,6 @@ proc wrapC(s: string = "", equal: bool = true, is_str: bool = false): string =
     "static const $# $# __attribute__((__progmem__)) = " & escapeStrseq(s)
   else:
     "static const $# $# __attribute__((__progmem__))"
-
 
 proc substStructFields(s: string): (string, int) =
   # Hand-rolled FSM-based struct parsing proc, which turns an object literal 
@@ -302,7 +316,6 @@ macro progmemArray*(n, v: untyped): untyped =
     const s = multiReplace($`v`, ("[", "{"), ("]", "}"))
     let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
       ProgramMemory[array[`v`.len, `v`[0].typeof]]
-
 
 macro progmemArray*(n: untyped; t: type; s: static int): untyped =
   ## Creates a new non-initialized program memory array, of size `s`, 
