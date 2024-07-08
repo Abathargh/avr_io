@@ -74,16 +74,17 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
     elif sizeof(T) == 4:
       readDWordNear(pmPtrU16(pm))
   elif typeof(T) is array:
-    var e {.noInit.} : T 
-    discard memCopy(addr result, pmPtrOff(pm, 0), csize_t(sizeof(T))) 
-    e
+    when T(pm).len != 0:
+      var e {.noInit.} : T 
+      discard memCopy(addr e[0], pmPtrOff(pm, 0), csize_t(sizeof(T))) 
+      e
   elif typeof(T) is string:
     var e {.noInit.} : T 
-    discard strNCopy(addr result, pmPtrOff(pm, 0), pm.len())
+    discard strNCopy(addr e, pmPtrOff(pm, 0), pm.len())
     e
   elif typeof(T) is cstring:
     var e {.noInit.} : T 
-    discard strNCopy(addr result, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
+    discard strNCopy(addr e, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
     e
   else:
     var e {.noInit.} : T 
