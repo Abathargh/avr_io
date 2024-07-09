@@ -20,8 +20,7 @@ const
 # Let us reserve a slot of program memory where to keep the hash of this 
 # application, together with its size and the .text section address. This will 
 # be filled up by a script in the post build phase. 
-let
-  header {.section(".metadata").} = constFill(headerSize, 0'u8)
+let header {.section(".metadata").} = static: constFill(headerSize, 0'u8)
 
 
 proc loop() =
