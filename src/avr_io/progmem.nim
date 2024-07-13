@@ -11,7 +11,7 @@ import std/macros
 #   - [ ] add atmega1284 support (registers/interrupts) once we're at it?
 #   - [ ] unify types? memcpy_P/PF may be used for pm[] accesses for S > 4B
 # - [x] compile time replace in progmem objects (fields -> .fields in C)
-# - [ ] wrap other _P and _PF functions in pgmspace.h
+# - [x] wrap other _P and _PF functions in pgmspace.h
 
 type ProgramMemory*[T] = distinct T ## \
   ## An handle to data store in program memory.
@@ -46,12 +46,14 @@ proc memCompare[T](s1, s2: pointer, s: int): int
 proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
+proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
+  {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
+
 proc strlen(src: ptr cchar): int
   {.importc: "strlen_P", header: "<avr/pgmspace.h>".}
 
 proc strStr[T](dest, src: ptr T): int
   {.importc: "strstr_P", header: "<avr/pgmspace.h>".}
-
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
   ## Returns the length of a program memory array.
@@ -59,7 +61,7 @@ template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
 template len*[T](pm: ProgramMemory[string|cstring]): untyped = pm.len ## \
   ## Returns the length of a program memory array.
 
-template `[]`*[T](pm: ProgramMemory[T]): T =
+proc `[]`*[T](pm: ProgramMemory[T]): T {.noInit.} =
   ## Dereference operator used to access data stored in program memory. 
   ## Note that this must generate a copy of said data, in order to make it 
   ## available to the user. This can be used for numbers and for objects 
@@ -75,21 +77,13 @@ template `[]`*[T](pm: ProgramMemory[T]): T =
       readDWordNear(pmPtrU16(pm))
   elif typeof(T) is array:
     when T(pm).len != 0:
-      var e {.noInit.} : T 
-      discard memCopy(addr e[0], pmPtrOff(pm, 0), csize_t(sizeof(T))) 
-      e
+      discard memCopy(addr result[0], pmPtrOff(pm, 0), csize_t(sizeof(T))) 
   elif typeof(T) is string:
-    var e {.noInit.} : T 
-    discard strNCopy(addr e, pmPtrOff(pm, 0), pm.len())
-    e
+    discard strNCopy(addr result, pmPtrOff(pm, 0), pm.len())
   elif typeof(T) is cstring:
-    var e {.noInit.} : T 
-    discard strNCopy(addr e, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
-    e
+    discard strNCopy(addr result, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
   else:
-    var e {.noInit.} : T 
-    discard memCopy(addr e, pmPtr(pm), csize_t(sizeof(T))) 
-    e
+    discard memCopy(addr result, pmPtr(pm), csize_t(sizeof(T))) 
 
 template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
   ## Dereference operator used to access elements of an array stored in
