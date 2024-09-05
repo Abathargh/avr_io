@@ -10,8 +10,8 @@ It showcases how to interact with the elf sections that will be generated
 within the final binary, how to upload a bootloader at the correct address, 
 and how to validate an application and jump to it.
 
-The application consist of just a single blink loop, that contains with its 
-own SHA1 hash within its program memory, that can be used by the bootloader to 
+The application consist of just a single blink loop, that contains its own 
+SHA1 hash within its program memory, that can be used by the bootloader to 
 check for its corruption.
 
 The application SHA1 hash, together with some additional information, is 
