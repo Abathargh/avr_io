@@ -1,8 +1,10 @@
 ## Various utilities aimed at interacting with the system itself, like 
 ## interacting with elf sections, or jumping to the application reset handler.
 
-import strutils
-import macros
+import std/strutils
+import std/macros
+
+import ./private/codegen
 
 
 template jumpToApplication*() =
@@ -14,23 +16,9 @@ template jumpToApplication*() =
   """
 
 
-template section_attr(s: string): string =
-  "$# $# __attribute__((section(\"" & s & "\")))"
-
-
-proc applySectionPragmas(node: NimNode, s: string): NimNode =
-  # Applies the specific pragmas to the let variable definition-
-  # It needs to be exportc and to have the proper attribute generated to 
-  # indicate the section where to store the data through the usage of
-  # __attribute__((section(...))) avr-gcc only.
-  expectKind(node, nnkPragma)
-  node.add(
-    newIdentNode("exportc"),
-    newNimNode(nnkExprColonExpr).add(
-      newIdentNode("codegenDecl"),
-      newLit(section_attr(s))
-    )
-  )
+template section_attr(sct, rval: string): string =
+  "static $# $# __attribute__((__used__, section(\"" & sct & "\"))) = " & 
+    escapeStrseq(rval)
 
 
 macro section*(s: static string; l: untyped): untyped =
@@ -46,17 +34,26 @@ macro section*(s: static string; l: untyped): untyped =
   if l.kind == nnkLetSection:
     lnode = l[0]
   expectKind(lnode, nnkIdentDefs)
+  expectKind(lnode[0], nnkIdent)
 
-  # Two cases: either the let definition has no pragma or 
-  # it has some. Handle the two cases accordingly.
-  if lnode[0].kind == nnkIdent:
-    var p = newNimNode(nnkPragmaExpr).add(
-      copyNimNode(lnode[0]),
-      newNimNode(nnkPragma).applySectionPragmas(s)
-    )
-    lnode[0] = p
-  elif lnode[0].kind == nnkPragmaExpr:
-    lnode[0] = lnode[0].applySectionPragmas(s)
-  else:
-    error("Unexpected node kind $#" % $lnode[0].kind)
-  orig
+  # Let us retrieve the name and the rval of the let statement
+  let name = lnode[0]
+  let rval = lnode[2]
+
+  quote do:
+    when typeOf(`rval`) is SomeNumber:
+      const s = $`rval`
+    elif typeOf(`rval`) is string:
+      const s = `rval`
+    elif typeOf(`rval`) is array:
+      const s = multiReplace($`rval`, ("[", "{"), ("]", "}"))
+    elif typeOf(`rval`) is object:
+      const (s, _) = substStructFields(($`rval`))
+    else:
+      static:
+        error "'section' can only be used to annotate let statements " &
+          "containing literal rvalues, or compile-time function calls " &
+          "returning literal rvalues, got '$#'" % $`rval`.typeOf 
+
+    let `name` {.importc, codegenDecl: section_attr(`s`, s)}: 
+      `rval`.typeof
