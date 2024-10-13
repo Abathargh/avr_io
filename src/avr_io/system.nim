@@ -16,6 +16,20 @@ template jumpToApplication*() =
   """
 
 
+template useIntBootTable* =
+  ## Switch the interrupt vectors location to the beginning of the bootloader
+  ## section within the flash memory.
+  MCUCR.setBit(0'u8)
+  MCUCR.setBit(1'u8)
+
+
+template useIntAppTable* =
+  ## Switch the interrupt vectors location to the beginning of the flash
+  ## memory.
+  MCUCR.setBit(0'u8)
+  MCUCR.clearMask(0x03)
+
+
 template section_attr(sct, rval: string): string =
   "static $# $# __attribute__((__used__, section(\"" & sct & "\"))) = " & 
     escapeStrseq(rval)
