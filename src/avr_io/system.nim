@@ -6,13 +6,25 @@ import std/macros
 
 import ./private/codegen
 
-
 template jumpToApplication*() =
   ## Jumps to the main application reset handler.
   ## AVR bootloaders are stored at the end of the program memory, 
   ## and applications are usually stored at the beginning.
   asm """
     jmp 0000
+  """
+
+
+proc jumpTo*(address: uint8) {.inline.} =
+  ## Jumps to the procedure stored in the passed address.
+  ## Useful when handling more than one applications in program memory.
+  asm """
+    mov ZH, %B0
+    mov ZL, %A0
+    ijmp
+    :
+    : "r" (`address`)
+    : "r30", "r31"
   """
 
 
