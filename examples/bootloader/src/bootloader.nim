@@ -53,8 +53,7 @@ proc checkHash(d: array[digestByteSize, uint8]): bool =
 proc loop() =
   # Since we are using interrupts within our bootloader, let us specify that 
   # we want to use the boot interrupt vector table. 
-  MCUCR.setBit(0'u8)
-  MCUCR.setBit(1'u8)
+  useIntBootTable()
 
   initDelayTimer()
   portA.asOutputPin(ledPin)
@@ -78,8 +77,7 @@ proc loop() =
 
   if checkHash(digest):
     # Switch back to the application interrupt vector table.
-    MCUCR.setBit(0'u8)
-    MCUCR.clearMask(0x03)
+    useIntAppTable()
     jumpToApplication()
  
   errorBlink()

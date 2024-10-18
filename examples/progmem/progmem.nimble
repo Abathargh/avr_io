@@ -11,7 +11,7 @@ bin           = @["progmem"]
 # Dependencies
 
 requires "nim >= 2.0.6"
-requires "avr_io >= 0.3.0"
+requires "avr_io >= 0.4.0"
 
 after build:
   when defined(windows):
