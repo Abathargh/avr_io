@@ -62,9 +62,9 @@ template sei*() =
   ## enabling interrupts.
   asm """
     sei 
-		:
-		:
-		: "memory"
+    :
+    :
+    : "memory"
   """
 
 template cli*() =
@@ -72,7 +72,7 @@ template cli*() =
   ## disabling interrupts.
   asm """
     cli
-		:
-		:
-		: "memory"
+    :
+    :
+    : "memory"
   """
