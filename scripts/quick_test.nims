@@ -23,6 +23,8 @@ Usage: quick_test [-a] [-c] [-h] [-f] [-v] [-t TARGET] PROJECT
       flashes the compiler output after building it
   -v, --verbose
       makes the build more verbose
+  -s, --skip=PROJECT
+      skips the specified project, use with `all`
   -t, --target=TARGET
       builds the specified target for multi-target projects
 """
@@ -33,6 +35,7 @@ var
   clean   = false
   flash   = false
   verbose = false
+  skip    = ""
   target  = ""
   project = ""
   argn    = 0
@@ -80,6 +83,7 @@ proc main() =
       of "all":     all     = true
       of "clean":   clean   = true
       of "flash":   flash   = true
+      of "skip":    skip    = val
       of "target":  target  = val
       of "verbose": verbose = true
       of "help":    echo usage; quit(0)
@@ -92,6 +96,7 @@ proc main() =
       of "a": all     = true
       of "c": clean   = true
       of "f": flash   = true
+      of "s": skip    = val
       of "t": target  = val
       of "v": verbose = true
       of "h": echo usage; quit(0)
@@ -110,6 +115,7 @@ proc main() =
     var first = true
     for kind, d in walkDir("./examples"):
       if kind != pcDir: continue
+      if skip == d.extractFilename(): continue
       if clean: 
         withDir d:
           exec("nimble clear")
