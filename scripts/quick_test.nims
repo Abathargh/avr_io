@@ -6,8 +6,8 @@ import std/os
 
 
 const 
-  shortFlags = {'a', 'c', 'h', 'f', 'v'}
-  longFlags  = @["all", "clean", "help", "flash", "verbose"]
+  shortFlags = {'a', 'c', 'r', 'h', 'f', 'v'}
+  longFlags  = @["all", "clean", "reinstall", "help", "flash", "verbose"]
   usage = """
 Builds and optionally uploads the example contained within the PROJECT 
 sub-directory, of the avr_io project.
@@ -19,6 +19,8 @@ Usage: quick_test [-a] [-c] [-h] [-f] [-v] [-t TARGET] PROJECT
       shows this help message
   -c, --clean
       cleans the project instead of building it
+  -r, --reinstall
+      remove and reinstall the avr_io library on the system
   -f, --flash
       flashes the compiler output after building it
   -v, --verbose
@@ -41,14 +43,18 @@ var
   argn    = 0
 
 
+proc install() =
+  let output = gorge("nimble dump avr_io")
+  if "Error" notin output:
+    exec("nimble uninstall -i -y avr_io")
+
+  exec("rm -rf ~/.nimble/pkgs2/avr_io*")
+  exec("nimble install -y")
+
+
 proc doBuild(dir, target: string, flash, verbose, reinstall: bool) =
   if reinstall:
-    let output = gorge("nimble dump avr_io")
-    if "Error" notin output:
-      exec("nimble uninstall -i -y avr_io")
-
-    exec("rm -rf ~/.nimble/pkgs2/avr_io*")
-    exec("nimble install -y")
+    install()
 
   let v = if verbose: "--verbose" else: ""
 
@@ -60,6 +66,7 @@ proc doBuild(dir, target: string, flash, verbose, reinstall: bool) =
 
 
 proc patchNimsArgs(): string =
+  # Needed pre-nim v2.2.2
   var nims = false
   var args: seq[string]
   for i in 0..paramCount():
@@ -80,13 +87,14 @@ proc main() =
       break
     of cmdLongOption:
       case opt 
-      of "all":     all     = true
-      of "clean":   clean   = true
-      of "flash":   flash   = true
-      of "skip":    skip    = val
-      of "target":  target  = val
-      of "verbose": verbose = true
-      of "help":    echo usage; quit(0)
+      of "all":       all     = true
+      of "clean":     clean   = true
+      of "reinstall": install(); quit(0)
+      of "flash":     flash   = true
+      of "skip":      skip    = val
+      of "target":    target  = val
+      of "verbose":   verbose = true
+      of "help":      echo usage; quit(0)
       else:
         echo "Unsupported long option $#" % opt
         quit(1)
@@ -95,6 +103,7 @@ proc main() =
       case opt 
       of "a": all     = true
       of "c": clean   = true
+      of "r": install(); quit(0)
       of "f": flash   = true
       of "s": skip    = val
       of "t": target  = val
