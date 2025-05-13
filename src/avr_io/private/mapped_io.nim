@@ -28,6 +28,10 @@ template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
   ## Clears a single bit of the specified register.
   p[] = bitand(p[], bitnot(1'u8 shl b))
 
+template toggleBit*[T](p: MappedIoRegister[T]; b: uint8) =
+  ## Toggles a single bit of the specified register.
+  p[] = bitxor(p[], 1'u8 shl b)
+
 template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
   ## Reads the value for the specified bit in the register.
   bitand(p[], 1'u8 shl b) shr b
