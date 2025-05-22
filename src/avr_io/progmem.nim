@@ -7,24 +7,16 @@ import std/macros
 
 import ./private/codegen
 
-# TODOs:
-# - [ ] support for far operations
-#   - [ ] type FarProgramMemory*[T] = distinct T
-#   - [ ] add atmega1284 support (registers/interrupts) once we're at it?
-#   - [ ] unify types? memcpy_P/PF may be used for pm[] accesses for S > 4B
-# - [x] compile time replace in progmem objects (fields -> .fields in C)
-# - [x] wrap other _P and _PF functions in pgmspace.h
-
-type ProgramMemory*[T] = distinct T ## \
+type ProgramMemory[T] = distinct T ## \
   ## An handle to data store in program memory.
 
-template pmPtr[T](pm: ProgramMemory[T]): ptr T =
+template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
   addr T(pm)
 
-template pmPtrU16[T](pm: ProgramMemory[T]): uint16 =
+template pm_ptr_u16[T](pm: ProgramMemory[T]): uint16 =
   cast[uint16](addr pm)
 
-template pmPtrOff[S; T](pm: ProgramMemory[array[S, T]]; off: int): ptr T =
+template pm_ptr_off[S; T](pm: ProgramMemory[array[S, T]]; off: int): ptr T =
   addr array[S, T](pm)[off]
 
 template pmPtrOffU16[S; T](pm: ProgramMemory[array[S, T]], off: int): uint16 =
@@ -42,19 +34,19 @@ proc readDWordNear(a: uint16): uint32
 proc readFloatNear(a: uint16): float32
   {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
-proc memCompare[T](s1, s2: pointer, s: int): int
+proc pm_memcmp[T](s1, s2: pointer, s: int): int
   {.importc: "memcmp_P", header: "<avr/pgmspace.h>".}
 
-proc memCopy[T](dest, src: ptr T; len: csize_t): ptr T
+proc pm_memcpy[T](dest, src: ptr T; len: csize_t)
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
-proc strNCopy[T](dest, src: ptr T; len: csize_t): ptr T
+proc pm_strncpy[T](dest, src: ptr T; len: csize_t): ptr T
   {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
 
-proc strlen(src: ptr cchar): int
+proc pm_strlen(src: ptr cchar): int
   {.importc: "strlen_P", header: "<avr/pgmspace.h>".}
 
-proc strStr[T](dest, src: ptr T): int
+proc pm_strstr[T](dest, src: ptr T): int
   {.importc: "strstr_P", header: "<avr/pgmspace.h>".}
 
 template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
@@ -63,29 +55,29 @@ template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
 template len*[T](pm: ProgramMemory[string|cstring]): untyped = pm.len ## \
   ## Returns the length of a program memory array.
 
-proc `[]`*[T](pm: ProgramMemory[T]): T {.noInit.} =
+template `[]`*[T](pm: ProgramMemory[T]): T = ## \
   ## Dereference operator used to access data stored in program memory. 
   ## Note that this must generate a copy of said data, in order to make it 
   ## available to the user. This can be used for numbers and for objects 
   ## without loss of generality.
+
+  var res {.noInit.}: T
+
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
-      readFloatNear(pmPtrU16(pm))
+      res = readFloatNear(pm_ptr_u16(pm))
     elif sizeof(T) == 1:
-      readByteNear(pmPtrU16(pm))
+      res = readByteNear(pm_ptr_u16(pm)).T
     elif sizeof(T) == 2:
-      readWordNear(pmPtrU16(pm))
+      res = readWordNear(pm_ptr_u16(pm)).T
     elif sizeof(T) == 4:
-      readDWordNear(pmPtrU16(pm))
-  elif typeof(T) is array:
-    when T(pm).len != 0:
-      discard memCopy(addr result[0], pmPtrOff(pm, 0), csize_t(sizeof(T))) 
-  elif typeof(T) is string:
-    discard strNCopy(addr result, pmPtrOff(pm, 0), pm.len())
-  elif typeof(T) is cstring:
-    discard strNCopy(addr result, pmPtrOff(pm, 0), strlen(pmPtrOff(pm, 0)))
+      res = readDWordNear(pm_ptr_u16(pm)).T
   else:
-    discard memCopy(addr result, pmPtr(pm), csize_t(sizeof(T))) 
+    when typeof(T) is array and sizeof(T) != 0:
+      pm_memcpy(addr res[0], pm_ptr_off(pm, 0), sizeof(T).csize_t)
+    else:
+      pm_memcpy(addr res, pm_ptr(pm), T.sizeof.csize_t)
+  res
 
 template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
   ## Dereference operator used to access elements of an array stored in
@@ -106,20 +98,20 @@ template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
       readDWordNear(pmPtrOffU16(pm, i))
     else:
       var e {.noInit.} : T
-      discard memCopy(addr e, pmPtrOff(pm, i), csize_t(sizeof(T)))
+      discard pm_memcpy(addr e, pm_ptr_off(pm, i), csize_t(sizeof(T)))
       e
 
 template `==`*[T](d: T, pm: ProgramMemory[T]): bool =
-  memCompare(addr d, pmPtr(pm), sizeof(T)) == 0
+  pm_memcmp(addr d, pm_ptr(pm), sizeof(T)) == 0
 
 template `!=`*[T](d: T, pm: ProgramMemory[T]): bool =
-  memCompare(addr d, pmPtr(pm), sizeof(T)) != 0
+  pm_memcmp(addr d, pm_ptr(pm), sizeof(T)) != 0
 
 template `in`*[T](d: string|cstring, pm: ProgramMemory[string|cstring]): bool =
-  not strStr(addr cstring(d)[0], pm).isNil
+  not pm_strstr(addr cstring(d)[0], pm).isNil
 
-proc readFromAddress*[T](a: uint16) : T =
-  ## Reads from a program memory address directly-
+template readFromAddress*[T](a: uint16) : T =
+  ## Reads from a program memory address directly.
   ## To be used when in need of accessing progmem data that was not initialized 
   ## by the current application.
   when T is SomeNumber and sizeof(T) <= 4:
@@ -127,15 +119,15 @@ proc readFromAddress*[T](a: uint16) : T =
       readFloatNear(a)
     else:
       when sizeof(T) == 1:
-        readByteNear(a)
+        readByteNear(a).T
       elif sizeof(T) == 2:
-        readWordNear(a)
+        readWordNear(a).T
       elif sizeof(T) == 4:
-        readDWordNear(a)
+        readDWordNear(a).T
   else:
     let p = cast[ptr T](a)
-    var e {.noInit.} : T 
-    discard memCopy(addr e, p, csize_t(sizeof(T)))
+    var e {.noInit.} : T
+    discard pm_memcpy(addr e, p, csize_t(sizeof(T)))
     e
 
 iterator progmemIter*[S: static int; T](pm: ProgramMemory[array[S, T]]): T =
@@ -182,49 +174,62 @@ macro progmem*(l: untyped): untyped =
   # Let us retrieve the name and the rval of the let statement
   let name = lnode[0]
   let rval = lnode[2]
+  let name_str = $name
 
   quote do:
-    when typeOf(`rval`) is SomeNumber:
-      const s = $`rval`
-      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+    const (msg, ok) = get_type_repr(`name_str`, `rval`)
+    when not ok and typeof(`rval`) is not string:
+      static: error msg
+
+    when typeof(`rval`) is SomeNumber:
+      let `name` {.importc, codegenDecl: wrapC(msg), global, noinit.}:
         ProgramMemory[`rval`.typeof]
-    elif typeOf(`rval`) is string:
-      let `name` {.importc, codegenDecl: wrapC(`rval`, true, true), global, 
+    elif typeof(`rval`) is string or typeof(`rval`) is cstring:
+      let `name` {.importc, codegenDecl: wrapC(msg, true, true), global,
         noinit.}: ProgramMemory[array[`rval`.len + 1, cchar]]
-    elif typeOf(`rval`) is array:
-      const s = multiReplace($`rval`, ("[", "{"), ("]", "}"))
-      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+    elif typeof(`rval`) is array:
+      let `name` {.importc, codegenDecl: wrapC(msg), global, noinit.}:
         ProgramMemory[array[`rval`.len, `rval`[0].typeof]]
-    elif typeOf(`rval`) is object:
-      const (s, _) = substStructFields(($`rval`))
-      let `name` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+    elif typeof(`rval`) is object:
+      let `name` {.importc, codegenDecl: wrapC(msg), global, noinit.}:
         ProgramMemory[`rval`.typeof]
+    elif typeof(`rval`) is ref object:
+      static:
+        error "'progmem' cannot be used with ref objects"
     else:
       static:
         error "'progmem' can only be used to annotate let statements " &
           "containing literal rvalues, or compile-time function calls " &
-          "returning literal rvalues, got '$#'" % $`rval`.typeOf 
+          "returning literal rvalues, got '$#'" % $`rval`.typeof
 
 macro progmem*(n, v: untyped): untyped =
-  ## Stores the value `v` in program memory, and creates a new symbol `n` 
-  ## through which it is possible to access it. 
+  ## Stores the value `v` in program memory, and creates a new symbol `n`
+  ## through which it is possible to access it.
+
+  let name = $n
+  template deprecation_warning(name, val: typed): string =
+    const pos = instantiationInfo()
+    "`progmem($#, $#)` used in " % [$name, $val] &
+    "$#($#:$#) " % [pos.filename, $pos.line, $pos.column] &
+    "is deprecated, use `let $# {.progmem.} = $#`" % [$name, $val]
+
   quote do:
-    when typeOf(`v`) is SomeNumber:
+    static: warning deprecation_warning(`name`, $`v`)
+    when typeof(`v`) is SomeNumber:
       const s = $`v`
-      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}:
         ProgramMemory[`v`.typeof]
     elif typeof(`v`) is string:
-      let `n` {.importc, codegenDecl: wrapC(`v`, true, true), global, noinit.}: 
+      let `n` {.importc, codegenDecl: wrapC(`v`, true, true), global, noinit.}:
         ProgramMemory[array[`v`.len + 1, cchar]]
-    elif typeOf(`v`) is object:
+    elif typeof(`v`) is object:
       const (s, _) = substStructFields(($`v`))
-      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}: 
+      let `n` {.importc, codegenDecl: wrapC(s), global, noinit.}:
         ProgramMemory[`v`.typeof]
     else:
-      static:
-        error "'progmem' can only be used to annotate let statements " &
+      static: error "'progmem' can only be used to annotate let statements " &
           "containing literal rvalues, or compile-time function calls " &
-          "returning literal rvalues, got '$#'" % $`v`.typeOf 
+          "returning literal rvalues, got '$#'" % $`v`.typeof
 
 macro progmemArray*(n, v: untyped): untyped =
   ## Stores the array `v` in program memory, and creates a new symbol `n`
