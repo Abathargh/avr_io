@@ -42,11 +42,12 @@ proc readFloatNear(a: uint16): float32
 proc pm_memcpy[T](dest, src: ptr T; len: csize_t)
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
-template len*[S; T](pm: ProgmemArray[S, T]): untyped = S ## \
+template len*[S; T](pm: ProgmemArray[S, T]): auto = ## \
   ## Returns the length of a program memory array.
-
-template len*[S](pm: ProgmemString[S]): untyped = S ## \
-  ## Returns the length of a program memory array.
+  when T is cchar:
+    S - 1
+  else:
+    S
 
 template `[]`*[T](pm: ProgramMemory[T]): T = ## \
   ## Dereference operator used to access data stored in program memory. 
@@ -118,9 +119,14 @@ template readFromAddress*[T](a: uint16) : T =
 iterator progmemIter*[S: static int; T](pm: ProgmemArray[S, T]): T =
   ## Iterator that can be used to safely traverse program memory arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
-  ## make it available to the user. 
+  ## make it available to the user.
+
+  template loop_condition(idx: int): bool =
+    when T is cchar: i < S and pm[i] != '\0'
+    else: i < S
+
   var i = 0
-  while i < S:
+  while loop_condition(i):
     yield pm[i]
     inc i
 
@@ -128,10 +134,7 @@ iterator progmemIter*[S: static int](pm: ProgmemString[S]): cchar =
   ## Iterator that can be used to safely traverse program memory cchar arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
   ## make it available to the user. 
-  var i = 0
-  while i < S and pm[i] != '\0':
-    yield pm[i]
-    inc i
+
 
 template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
   const
@@ -141,8 +144,10 @@ template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
   if cmp_len != pm_len:
     return false
 
-  for idx, elem in progmemIter(pm).pairs:
+  var idx = 0
+  for idx, elem in progmemIter(pm):
     if s[idx] != elem: return false
+    inc idx
   true
 
 proc `==`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
