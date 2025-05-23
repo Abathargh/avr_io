@@ -5,15 +5,18 @@ import std/macros
 template field_err(name, typ: string): string =
   "`$#` field of type `$#` not allowed" % [name, typ]
 
-proc get_type_repr_impl(name: string; val: auto): (string, bool)
+proc get_type_repr_impl(name: string; val: auto, string_ok: static bool):
+  (string, bool)
 
-template get_type_repr*(name: string; val: typed): (string, bool) =
-  get_type_repr_impl(name, val)
+template get_type_repr*(name: string; val: typed, string_ok: bool = false):
+  (string, bool) =
+  get_type_repr_impl(name, val, string_ok)
 
-proc get_type_repr_impl(name: string; val: auto): (string, bool) {.compiletime.} =
+proc get_type_repr_impl(name: string; val: auto, string_ok: static bool):
+  (string, bool) {.compiletime.} =
   ## Returns (value as a string, error msg, true if everything was ok)
 
-  when typeof(val) is string:
+  when typeof(val) is string and not string_ok:
     ("$#, use `cstring`" % field_err(name, $typeof(val)), false)
   elif typeof(val) is seq:
     ("$#, use arrays" % field_err(name, $typeof(val)), false)

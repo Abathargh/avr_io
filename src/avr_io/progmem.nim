@@ -224,8 +224,8 @@ macro progmem*(l: untyped): untyped =
   let name_str = $name
 
   quote do:
-    const (msg, ok) = get_type_repr(`name_str`, `rval`)
-    when not ok and typeof(`rval`) is not string:
+    const (msg, ok) = get_type_repr(`name_str`, `rval`, true)
+    when not ok:
       static: error msg
 
     when typeof(`rval`) is SomeNumber:
