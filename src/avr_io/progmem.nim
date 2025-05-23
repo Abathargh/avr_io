@@ -7,8 +7,13 @@ import std/macros
 
 import ./private/codegen
 
-type ProgramMemory[T] = distinct T ## \
-  ## An handle to data store in program memory.
+type
+  ProgramMemory[T] = distinct T ## \
+    ## An handle to data store in program memory.
+  ProgmemArray[S: static int; T] = ProgramMemory[array[S, T]] ## \
+    ## An handle to specifically store arrays program memory.
+  ProgmemString[S: static int] =  ProgramMemory[array[S, cchar]] ## \
+    ## An handle to specifically store array of cchars in program memory.
 
 template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
   addr T(pm)
@@ -16,10 +21,10 @@ template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
 template pm_ptr_u16[T](pm: ProgramMemory[T]): uint16 =
   cast[uint16](addr pm)
 
-template pm_ptr_off[S; T](pm: ProgramMemory[array[S, T]]; off: int): ptr T =
+template pm_ptr_off[S; T](pm: ProgmemArray[S, T]; off: int): ptr T =
   addr array[S, T](pm)[off]
 
-template pmPtrOffU16[S; T](pm: ProgramMemory[array[S, T]], off: int): uint16 =
+template pmPtrOffU16[S; T](pm: ProgmemArray[S, T], off: int): uint16 =
   cast[uint16](addr array[S, T](pm)[off])
 
 proc readByteNear(a: uint16): uint8
@@ -34,25 +39,13 @@ proc readDWordNear(a: uint16): uint32
 proc readFloatNear(a: uint16): float32
   {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
-proc pm_memcmp[T](s1, s2: pointer, s: int): int
-  {.importc: "memcmp_P", header: "<avr/pgmspace.h>".}
-
 proc pm_memcpy[T](dest, src: ptr T; len: csize_t)
   {.importc: "memcpy_P", header: "<avr/pgmspace.h>".}
 
-proc pm_strncpy[T](dest, src: ptr T; len: csize_t): ptr T
-  {.importc: "strncpy_P", header: "<avr/pgmspace.h>".}
-
-proc pm_strlen(src: ptr cchar): int
-  {.importc: "strlen_P", header: "<avr/pgmspace.h>".}
-
-proc pm_strstr[T](dest, src: ptr T): int
-  {.importc: "strstr_P", header: "<avr/pgmspace.h>".}
-
-template len*[S; T](pm: ProgramMemory[array[S, T]]): untyped = S ## \
+template len*[S; T](pm: ProgmemArray[S, T]): untyped = S ## \
   ## Returns the length of a program memory array.
 
-template len*[T](pm: ProgramMemory[string|cstring]): untyped = pm.len ## \
+template len*[S](pm: ProgmemString[S]): untyped = S ## \
   ## Returns the length of a program memory array.
 
 template `[]`*[T](pm: ProgramMemory[T]): T = ## \
@@ -65,7 +58,7 @@ template `[]`*[T](pm: ProgramMemory[T]): T = ## \
 
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
-      res = readFloatNear(pm_ptr_u16(pm))
+      res = readFloatNear(pm_ptr_u16(pm)).T
     elif sizeof(T) == 1:
       res = readByteNear(pm_ptr_u16(pm)).T
     elif sizeof(T) == 2:
@@ -79,7 +72,7 @@ template `[]`*[T](pm: ProgramMemory[T]): T = ## \
       pm_memcpy(addr res, pm_ptr(pm), T.sizeof.csize_t)
   res
 
-template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
+template `[]`*[S: static int; T](pm: ProgmemArray[S, T]; i: int): T =
   ## Dereference operator used to access elements of an array stored in
   ## program memory. Note that this must generate a copy of said data, in
   ## order to make it available to the user.
@@ -87,32 +80,24 @@ template `[]`*[S: static int; T](pm: ProgramMemory[array[S, T]]; i: int): T =
     if i < 0 and i >= S:
       quit(1)
 
+  var res {.noInit.}: T
+
   when typeof(T) is float32:
-    readFloatNear(pmPtrOffU16(pm, i))
+    res = readFloatNear(pmPtrOffU16(pm, i)).T
   else:
     when sizeof(T) == 1:
-      readByteNear(pmPtrOffU16(pm, i))
+      res = readByteNear(pmPtrOffU16(pm, i)).T
     elif sizeof(T) == 2:
-      readWordNear(pmPtrOffU16(pm, i))
+      res = readWordNear(pmPtrOffU16(pm, i)).T
     elif sizeof(T) == 4:
-      readDWordNear(pmPtrOffU16(pm, i))
+      res = readDWordNear(pmPtrOffU16(pm, i)).T
     else:
-      var e {.noInit.} : T
-      discard pm_memcpy(addr e, pm_ptr_off(pm, i), csize_t(sizeof(T)))
-      e
-
-template `==`*[T](d: T, pm: ProgramMemory[T]): bool =
-  pm_memcmp(addr d, pm_ptr(pm), sizeof(T)) == 0
-
-template `!=`*[T](d: T, pm: ProgramMemory[T]): bool =
-  pm_memcmp(addr d, pm_ptr(pm), sizeof(T)) != 0
-
-template `in`*[T](d: string|cstring, pm: ProgramMemory[string|cstring]): bool =
-  not pm_strstr(addr cstring(d)[0], pm).isNil
+      pm_memcpy(addr res, pm_ptr_off(pm, i), csize_t(sizeof(T)))
+  res
 
 template readFromAddress*[T](a: uint16) : T =
   ## Reads from a program memory address directly.
-  ## To be used when in need of accessing progmem data that was not initialized 
+  ## To be used when in need of accessing progmem data that was not initialized
   ## by the current application.
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
@@ -130,7 +115,7 @@ template readFromAddress*[T](a: uint16) : T =
     discard pm_memcpy(addr e, p, csize_t(sizeof(T)))
     e
 
-iterator progmemIter*[S: static int; T](pm: ProgramMemory[array[S, T]]): T =
+iterator progmemIter*[S: static int; T](pm: ProgmemArray[S, T]): T =
   ## Iterator that can be used to safely traverse program memory arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
   ## make it available to the user. 
@@ -139,7 +124,7 @@ iterator progmemIter*[S: static int; T](pm: ProgramMemory[array[S, T]]): T =
     yield pm[i]
     inc i
 
-iterator progmemIter*[S: static int](pm: ProgramMemory[array[S, cchar]]): cchar =
+iterator progmemIter*[S: static int](pm: ProgmemString[S]): cchar =
   ## Iterator that can be used to safely traverse program memory cchar arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
   ## make it available to the user. 
@@ -148,6 +133,68 @@ iterator progmemIter*[S: static int](pm: ProgramMemory[array[S, cchar]]): cchar 
     yield pm[i]
     inc i
 
+template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
+  const
+    cmp_len = d.len
+    pm_len  = pm.len
+
+  if cmp_len != pm_len:
+    return false
+
+  for idx, elem in progmemIter(pm).pairs:
+    if s[idx] != elem: return false
+  true
+
+proc `==`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
+  let
+    cmp_len = d.len
+    pm_len  = pm.len
+
+  if cmp_len != pm_len: return false
+
+  var idx = 0
+  for elem in progmemIter(pm):
+    if d[idx] != elem: return false
+    inc idx
+  true
+
+template `==`*[T](d: T, pm: ProgramMemory[T]): bool =
+  d == pm[]
+
+template `==`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
+  d == pm
+
+template `==`*[T](pm: ProgramMemory[T], d: T): bool =
+  d == pm
+
+template `!=`*[T](d: T, pm: ProgramMemory[T]): bool =
+  not (d == pm)
+
+template `!=`*[T](pm: ProgramMemory[T], d: T): bool =
+  not (d == pm)
+
+proc `in`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
+  let
+    tot_len = pm.len
+    sub_len = d.len
+
+  for idx in 0..(tot_len - sub_len):
+    var jdx = 0
+    while jdx < sub_len and pm[idx + jdx] == d[jdx]:
+      inc jdx
+
+    if jdx == sub_len:
+      return true
+  false
+
+template `in`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
+  d in pm
+
+template `notin`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
+  not (d in pm)
+
+template `notin`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
+  not (d in pm)
 
 proc wrapC*(s: string = "", equal: bool = true, is_str: bool = false): string =
   var s = s
