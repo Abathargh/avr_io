@@ -12,7 +12,7 @@ import volatile
 # The `progmem` macro allows the user to store many kinds of data into program 
 # memory. Note that a let statement is required. The type of the data is 
 # inferred from the first element when using arrays.
-let 
+let
   testFloat {.progmem.} = 11.23'f32               # like floats
   testInt1  {.progmem.} = 12'u8                   # 8-bit integers
   testInt2  {.progmem.} = 13'u16                  # 16-bit integers
@@ -28,21 +28,36 @@ type
     f2: float32
 
   bar = object
-    b1: bool 
-    b2: string 
+    b1: bool
+    b2: cstring # in objects, we must use cstring
 
   foobar = object
-    fb1: bool 
-    fb2: foo 
+    fb1: bool
+    fb2: foo
+
+  barfoo = object
+    bf1: int
+    bf2: bar
+
+  arr_elem = object
+    i: int
+    f: float
 
 let 
-  testObj1 {.progmem.} = foo(f1: 42'i16, f2: 45.67)
-  testObj2 {.progmem.} = bar(b1: true, b2: "test string in object\n")
-  testObj3 {.progmem.} = foobar(fb1: false, fb2: foo(f1: 21, f2: 77.0))
+  testObj1   {.progmem.} = foo(f1: 42'i16, f2: 45.67)
+  testObj2   {.progmem.} = bar(b1: true, b2: "test string in object\n")
+  testObj3   {.progmem.} = foobar(fb1: false, fb2: foo(f1: 21, f2: 77.0))
+  testObj4   {.progmem.} = barfoo(bf1: 69, bf2: bar(b1: false, b2: "inner\n"))
+  testArrObj {.progmem.} = [arr_elem(i: 1, f: 0.1), arr_elem(i: 2, f: 0.2)]
 
 
-# To reserve a block of program memory of size `size`, containing objects of 
-# type `type`, use the `progmemArray(type, size)` macro. This is particularly 
+# Note: usage of {.progmem.} are type-checked, and only plain value types are
+# accepted by the library. Try uncommenting the following line:
+# let pm_seq {.progmem.} = @[12]
+
+
+# To reserve a block of program memory of size `size`, containing objects of
+# type `type`, use the `progmemArray(type, size)` macro. This is particularly
 # useful when wanting to embed metadata within your binaries.
 progmemArray(testNonInitArr, uint8, 10)
 
@@ -86,21 +101,27 @@ proc sendProgmemVar(usart: Usart) =
   # To get the contents of a progmem variable, you just dereference said 
   # variable through the `[]` operator. Note that here, the values are used as  
   # temporaries.
-  usart.sendAsBitstring(testFloat[])
-  usart.sendAsBitstring(testInt1[])
-  usart.sendAsBitstring(testInt2[])
-  usart.sendAsBitstring(testInt3[])
+  usart.sendAsBitString(testFloat[])
+  usart.sendAsBitString(testInt1[])
+  usart.sendAsBitString(testInt2[])
+  usart.sendAsBitString(testInt3[])
 
   # Same thing for progmem objects! Dereference and then access the fields.
-  usart.sendAsBitstring(testObj1[].f1)
-  usart.sendAsBitstring(testObj1[].f2)
-  usart.sendAsBitstring(testObj2[].b1)
-  usart.sendString(testObj2[].b2)
-  usart.sendAsBitstring(testObj3[].fb1)
-  usart.sendAsBitstring(testObj3[].fb2.f1)
-  usart.sendAsBitstring(testObj3[].fb2.f2)
+  usart.sendAsBitString(testObj1[].f1)
+  usart.sendAsBitString(testObj1[].f2)
 
-  # Progmem arrays can also be indexed, passing an offset works too. 
+  usart.sendAsBitString(testObj2[].b1)
+  usart.sendString(testObj2[].b2)
+
+  usart.sendAsBitString(testObj3[].fb1)
+  usart.sendAsBitString(testObj3[].fb2.f1)
+  usart.sendAsBitString(testObj3[].fb2.f2)
+
+  usart.sendAsBitString(testObj4[].bf1)
+  usart.sendAsBitString(testObj4[].bf2.b1)
+  usart.sendString(testObj4[].bf2.b2)
+
+  # Progmem arrays can also be indexed, passing an offset works too.
   usart.sendByte(testArr[0])
   usart.sendByte(testArr[1])
   usart.sendByte(testArr[2])
@@ -110,21 +131,46 @@ proc sendProgmemVar(usart: Usart) =
   # They can also be iterated, which is easier and safer.
   for num in progmemIter(testArr):
     usart.sendByte(num)
-    
+
   # Or you can just dereference them and get a copy of the whole array.
   usart.sendBytes(testArr[])
   usart.sendBytes(testNonInitArr[])
   usart.sendByte('\n')
 
-  # Note that this works for progmem strings too: dereferencing one will yield 
+  # Note that this works for progmem strings too: dereferencing one will yield
   # an array[S, cchar].
   usart.sendString(testStr[])
 
+  # we can also use some notable procs and operators on progmem types
+
+  # you can use len on any valid progmem array (including strings)
+  usart.sendString("testArrObj.len = \n")
+  usart.sendAsBitString(testArrObj.len.uint8)
+
+  # and also use `==` and `!=`
+  if testInt1 == 12'u8:
+    usart.sendString("12 matches\n")
+
+  if testStr == "test progmem string\n":
+    usart.sendString("string match\n")
+
+  if testStr != "test wrong string\n":
+    usart.sendString("string not matching\n")
+
+  if testInt3 != 42'u32:
+    usart.sendString("testInt3 is not 42\n")
+
+  # you can also use `in` but only for progmem strings
+  if "string" in testStr:
+    usart.sendString("testStr contains the substring 'string'\n")
+
+  if "wrong" notin testStr:
+    usart.sendString("testStr does not contain the substring 'wrong'\n")
 
 proc loop =  
   sei()
   initTimer0()
-  const baud = baudRate(9600'u32)
+  const baud = baudRate(9600)
   usart0.initUart(baud, {}, {txen}, {ucsz1, ucsz0})
   
   while true:
