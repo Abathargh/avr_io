@@ -76,3 +76,14 @@ proc escapeStrseq*(s: string): string =
       else:
         r.add(ch)
   r
+
+proc wrapC*(s: string = "", equal: bool = true, is_str: bool = false): string =
+  # Wrap the nim data definition in a c static const progmem type.
+  var s = s
+  if is_str:
+    s = "\"" & s & "\""
+
+  if equal:
+    "static const $# $# __attribute__((__progmem__)) = " & escapeStrseq(s)
+  else:
+    "static const $# $# __attribute__((__progmem__))"

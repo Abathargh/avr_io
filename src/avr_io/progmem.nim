@@ -14,6 +14,7 @@ type
     ## An handle to specifically store arrays program memory.
   ProgmemString[S: static int] =  ProgramMemory[array[S, cchar]] ## \
     ## An handle to specifically store array of cchars in program memory.
+  StringType = string | cstring
 
 template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
   addr T(pm)
@@ -135,13 +136,12 @@ iterator progmemIter*[S: static int](pm: ProgmemString[S]): cchar =
   ## Note that this must generate a copy of each element iterated, in order to 
   ## make it available to the user. 
 
-
+# TODO add docstrings to all this junk
 template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
-  const
-    cmp_len = d.len
-    pm_len  = pm.len
+  ## Efficiently checks for equality between an in-memory array and one in
+  ## program memory.
 
-  if cmp_len != pm_len:
+  if d.len != pm.len:
     return false
 
   var idx = 0
@@ -150,12 +150,12 @@ template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
     inc idx
   true
 
-proc `==`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
-  let
-    cmp_len = d.len
-    pm_len  = pm.len
+proc `==`*[S: static int](d: StringType, pm: ProgmemString[S]): bool =
+  ## Efficiently checks for equality between an in-memory string and one in
+  ## program memory.
 
-  if cmp_len != pm_len: return false
+  if d.len != pm.len:
+    return false
 
   var idx = 0
   for elem in progmemIter(pm):
@@ -164,53 +164,56 @@ proc `==`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
   true
 
 template `==`*[T](d: T, pm: ProgramMemory[T]): bool =
+  ## Checks for equality between an in-memory datum and one in program memory.
   d == pm[]
 
-template `==`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
+template `==`*[S: static int](pm: ProgmemString[S], d: StringType): bool =
+  ## Efficiently checks for equality between an in-memory string and one in
+  ## program memory.
   d == pm
 
 template `==`*[T](pm: ProgramMemory[T], d: T): bool =
+  ## Checks for equality between an in-memory datum and one in program memory.
   d == pm
 
 template `!=`*[T](d: T, pm: ProgramMemory[T]): bool =
+  ## Checks for inequality between an in-memory datum and one in program memory.
   not (d == pm)
 
 template `!=`*[T](pm: ProgramMemory[T], d: T): bool =
+  ## Checks for inequality between an in-memory datum and one in program memory.
   not (d == pm)
 
-proc `in`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
+proc `in`*[S: static int](sub: StringType, pm: ProgmemString[S]): bool =
+  ## Efficiently checks that a substring is contained in the passed program
+  ## memory string.
   let
     tot_len = pm.len
-    sub_len = d.len
+    sub_len = sub.len
 
   for idx in 0..(tot_len - sub_len):
     var jdx = 0
-    while jdx < sub_len and pm[idx + jdx] == d[jdx]:
+    while jdx < sub_len and pm[idx + jdx] == sub[jdx]:
       inc jdx
 
     if jdx == sub_len:
       return true
   false
 
-template `in`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
-  d in pm
+template `in`*[S: static int](pm: ProgmemString[S], sub: StringType): bool =
+  ## Efficiently checks that a substring is contained in the passed program
+  ## memory string.
+  sub in pm
 
-template `notin`*[S: static int](d: string|cstring, pm: ProgmemString[S]): bool =
-  not (d in pm)
+template `notin`*[S: static int](sub: StringType, pm: ProgmemString[S]): bool =
+  ## Efficiently checks that a substring is not contained in the passed program
+  ## memory string.
+  not (sub in pm)
 
-template `notin`*[S: static int](pm: ProgmemString[S], d: string|cstring): bool =
-  not (d in pm)
-
-proc wrapC*(s: string = "", equal: bool = true, is_str: bool = false): string =
-  var s = s
-  if is_str:
-    s = "\"" & s & "\""
-
-  if equal:
-    "static const $# $# __attribute__((__progmem__)) = " & escapeStrseq(s)
-  else:
-    "static const $# $# __attribute__((__progmem__))"
-
+template `notin`*[S: static int](pm: ProgmemString[S], sub: StringType): bool =
+  ## Efficiently checks that a substring is not contained in the passed program
+  ## memory string.
+  not (sub in pm)
 
 macro progmem*(l: untyped): untyped =
   ## Stores the value contained in the let expression tagged with this macro 
