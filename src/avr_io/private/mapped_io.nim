@@ -1,19 +1,39 @@
 ## The mapped_io module implements datatypes for IO registers and a series of 
 ## basic operations on those registers.
+## Note: this operations are safe
 
-import bitops
-import volatile
+import std/volatile
+import std/bitops
+import std/macros
 
-type MappedIoRegister*[T: uint8|uint16] = distinct uint16 ## \
-  ## A register that can either contain a byte-sized or word-sized datum.
 
-template ioPtr[T](a: MappedIoRegister[T]): ptr T = 
+type
+  RegisterValue = uint8 | uint16
+  StaticPin = static int
+  PinInt = StaticPin | RegisterValue
+
+  MappedIoRegister*[T: RegisterValue] = distinct uint16 ## \
+    ## A register that can either contain a byte-sized or word-sized datum.
+
+
+template ioPtr[T](a: MappedIoRegister[T]): ptr T =
   cast[ptr T](a)
+
+template pin_value(n: PinInt): uint8 =
+  when n is static:
+    when not (n >= 0 and n <= 7):
+      static: error "index " & $n & " out of bounds, a pin must be 0 <= x <= 7"
+    n
+  else:
+    when not defined(danger): bitand(n, 0x07)
+    else: n
 
 template `[]`*[T](p: MappedIoRegister[T]): T =
   ## Dereference operator overload, that allows to read from a memory-mapped 
   ## register.
-  volatile.volatileLoad(ioPtr[T](p))
+  var res {.noinit.}: T
+  res = volatile.volatileLoad(ioPtr[T](p))
+  res
 
 template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
   ## Dereference and assignment operator overload, that allows to write into a 
@@ -22,19 +42,19 @@ template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
 
 template setBit*[T](p: MappedIoRegister[T]; b: uint8) =
   ## Sets a single bit of the specified register.
-  p[] = bitor(p[], 1'u8 shl b)
+  p[] = bitor(p[], 1'u8 shl pin_value(b))
 
 template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
   ## Clears a single bit of the specified register.
-  p[] = bitand(p[], bitnot(1'u8 shl b))
+  p[] = bitand(p[], bitnot(1'u8 shl pin_value(b)))
 
 template toggleBit*[T](p: MappedIoRegister[T]; b: uint8) =
   ## Toggles a single bit of the specified register.
-  p[] = bitxor(p[], 1'u8 shl b)
+  p[] = bitxor(p[], 1'u8 shl pin_value(b))
 
 template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
   ## Reads the value for the specified bit in the register.
-  bitand(p[], 1'u8 shl b) shr b
+  bitand(p[], 1'u8 shl b) shr pin_value(b)
 
 template setMask*[T](p: MappedIoRegister[T]; mask: uint8) =
   ## Sets the reister bits that are high in the passed mask.
@@ -53,11 +73,11 @@ type
 
 template asOutputPin*(p: Port, pin: uint8) =
   ## Sets the specified pin in the port as an output pin.
-  p.direction[] = bitor(p.direction[], 1'u8 shl pin) 
+  p.direction[] = bitor(p.direction[], 1'u8 shl pin_value(pin))
 
 template asInputPin*(p: Port, pin: uint8) =
   ## Sets the specified pin in the port as an input pin.
-  p.direction[] = bitand(p.direction[], bitnot(1'u8 shl pin)) 
+  p.direction[] = bitand(p.direction[], bitnot(1'u8 shl pin_value(pin)))
 
 template asOutputPort*(p: Port) =
   ## Sets the specified port as an output port.
@@ -86,19 +106,20 @@ template disablePullup*(p: Port; pin: uint8) =
 
 template setPin*(p: Port; pin: uint8) =
   ## Sets the specified pin in the port to high.
-  p.output[] = bitor(p.output[], 1'u8 shl pin) 
+  p.output[] = bitor(p.output[], 1'u8 shl pin_value(pin))
 
 template clearPin*(p: Port; pin: uint8) =
   ## Clears the specified pin in the port to low.
-  p.output[] = bitand(p.output[], bitnot(1'u8 shl pin)) 
+  p.output[] = bitand(p.output[], bitnot(1'u8 shl pin_value(pin)))
 
 template togglePin*(p: Port; pin: uint8) = 
   ## Toggles the specified pin in the port.
-  p.output[] = bitxor(p.output[], 1'u8 shl pin)
+  p.output[] = bitxor(p.output[], 1'u8 shl pin_value(pin))
 
 template readPin*(p: Port; pin: uint8): uint8 =
   ## Reads the value for specified pin in the port.
-  bitand(p.input[], 1'u8 shl pin) shr pin
+  const val = pin_value(pin)
+  bitand(p.input[], 1'u8 shl val) shr val
 
 template setPort*(p: Port) =
   ## Sets all the pins in the port to high.
