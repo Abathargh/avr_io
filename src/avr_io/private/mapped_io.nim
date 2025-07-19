@@ -19,14 +19,17 @@ type
 template ioPtr[T](a: MappedIoRegister[T]): ptr T =
   cast[ptr T](a)
 
-template pin_value(n: PinInt): uint8 =
+template pin_value[T](n: PinInt): T =
+  const hi = (sizeof(T) * 8) - 1
   when n is static:
-    when not (n >= 0 and n <= 7):
-      static: error "index " & $n & " out of bounds, a pin must be 0 <= x <= 7"
-    n
+    when not (n >= 0 and n <= hi):
+      static:
+        const name = if T.typeof is uint8: "8-bit" else: "16-bit"
+        error "index " & $n & " out of bounds, a "& name &" pin must be 0 <= x <= " & $hi
+    n.T
   else:
-    when not defined(danger): bitand(n, 0x07)
-    else: n
+    when not defined(danger): bitand(n.T, hi.T)
+    else: n.T
 
 template `[]`*[T](p: MappedIoRegister[T]): T =
   ## Dereference operator overload, that allows to read from a memory-mapped 
@@ -40,27 +43,28 @@ template `[]=`*[T](p: MappedIoRegister[T]; v: T) =
   ## memory-mapped register.
   volatile.volatileStore(ioPtr[T](p), v)
 
-template setBit*[T](p: MappedIoRegister[T]; b: uint8) =
+template setBit*[T](p: MappedIoRegister[T]; b: PinInt) =
   ## Sets a single bit of the specified register.
-  p[] = bitor(p[], 1'u8 shl pin_value(b))
+  p[] = bitor(p[], 1.T shl pin_value[T](b))
 
-template clearBit*[T](p: MappedIoRegister[T]; b: uint8) =
+template clearBit*[T](p: MappedIoRegister[T]; b: PinInt) =
   ## Clears a single bit of the specified register.
-  p[] = bitand(p[], bitnot(1'u8 shl pin_value(b)))
+  p[] = bitand(p[], bitnot(1.T shl pin_value[T](b)))
 
-template toggleBit*[T](p: MappedIoRegister[T]; b: uint8) =
+template toggleBit*[T](p: MappedIoRegister[T]; b: PinInt) =
   ## Toggles a single bit of the specified register.
-  p[] = bitxor(p[], 1'u8 shl pin_value(b))
+  p[] = bitxor(p[], 1.T shl pin_value[T](b))
 
-template readBit*[T](p: MappedIoRegister[T]; b: uint8): T =
+template readBit*[T](p: MappedIoRegister[T]; b: PinInt): T =
   ## Reads the value for the specified bit in the register.
-  bitand(p[], 1'u8 shl b) shr pin_value(b)
+  const bit = pin_value[T](b)
+  bitand(p[], 1'u8 shl bit) shr bit
 
-template setMask*[T](p: MappedIoRegister[T]; mask: uint8) =
+template setMask*[T](p: MappedIoRegister[T]; mask: T) =
   ## Sets the reister bits that are high in the passed mask.
   p[] = setMasked(p[], mask)
 
-template clearMask*[T](p: MappedIoRegister[T]; mask: uint8) =
+template clearMask*[T](p: MappedIoRegister[T]; mask: T) =
   ## Clears the reister bits that are high in the passed mask.
   p[] = clearMasked(p[], mask)
 
@@ -73,11 +77,11 @@ type
 
 template asOutputPin*(p: Port, pin: uint8) =
   ## Sets the specified pin in the port as an output pin.
-  p.direction[] = bitor(p.direction[], 1'u8 shl pin_value(pin))
+  p.direction[] = bitor(p.direction[], 1'u8 shl pin_value[uint8](pin))
 
 template asInputPin*(p: Port, pin: uint8) =
   ## Sets the specified pin in the port as an input pin.
-  p.direction[] = bitand(p.direction[], bitnot(1'u8 shl pin_value(pin)))
+  p.direction[] = bitand(p.direction[], bitnot(1'u8 shl pin_value[uint8](pin)))
 
 template asOutputPort*(p: Port) =
   ## Sets the specified port as an output port.
@@ -106,19 +110,19 @@ template disablePullup*(p: Port; pin: uint8) =
 
 template setPin*(p: Port; pin: uint8) =
   ## Sets the specified pin in the port to high.
-  p.output[] = bitor(p.output[], 1'u8 shl pin_value(pin))
+  p.output[] = bitor(p.output[], 1'u8 shl pin_value[uint8](pin))
 
 template clearPin*(p: Port; pin: uint8) =
   ## Clears the specified pin in the port to low.
-  p.output[] = bitand(p.output[], bitnot(1'u8 shl pin_value(pin)))
+  p.output[] = bitand(p.output[], bitnot(1'u8 shl pin_value[uint8](pin)))
 
 template togglePin*(p: Port; pin: uint8) = 
   ## Toggles the specified pin in the port.
-  p.output[] = bitxor(p.output[], 1'u8 shl pin_value(pin))
+  p.output[] = bitxor(p.output[], 1'u8 shl pin_value[uint8](pin))
 
 template readPin*(p: Port; pin: uint8): uint8 =
   ## Reads the value for specified pin in the port.
-  const val = pin_value(pin)
+  const val = pin_value[uint8](pin)
   bitand(p.input[], 1'u8 shl val) shr val
 
 template setPort*(p: Port) =
