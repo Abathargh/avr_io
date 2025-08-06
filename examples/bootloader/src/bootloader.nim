@@ -12,7 +12,7 @@ import sha1
 
 
 const 
-  ledPin = 0'u8
+  ledPin = 0
 
   # The application stores a series of data in program memory, at a specific
   # offset, which in this example is known in advance. This is located at the 
@@ -79,7 +79,7 @@ proc loop() =
     # Switch back to the application interrupt vector table.
     useIntAppTable()
     jumpToApplication()
- 
+
   errorBlink()
 
 when isMainModule:

@@ -6,10 +6,10 @@ import avr_io/interrupt
 
 import counter
 
-var 
+var
   ctr = newCounter(250)
 
-const 
+const
   builtinLed = 5'u8
 
 
@@ -37,7 +37,7 @@ proc timer0_compa_isr() {.isr(Timer0CompAVect).} =
 
 proc loop = 
   sei() # Let us enable the interrupts
-  initTimer0() 
+  initTimer0()
   portB.asOutputPin(builtinLed) # Pin 5 of PORTB is the Arduino Uno builtin led 
   
   while true:
