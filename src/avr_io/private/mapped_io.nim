@@ -25,7 +25,8 @@ template pin_value[T](n: PinInt): T =
     when not (n >= 0 and n <= hi):
       static:
         const name = if T.typeof is uint8: "8-bit" else: "16-bit"
-        error "index " & $n & " out of bounds, a "& name &" pin must be 0 <= x <= " & $hi
+        error "index " & $n & " out of bounds, a " & name &
+        " pin must be 0 <= x <= " & $hi
     n.T
   else:
     when not defined(danger): bitand(n.T, hi.T)

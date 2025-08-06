@@ -1,6 +1,8 @@
 ## Utilities to interact with program memory in AVR chips. This module 
 ## provides primitives useful to store data in program memory, retrieve it and 
 ## manipulate it.
+## Note: only non-managed value-types can be stored in progmem, this is
+## enforced and type-checked at compile-time.
 
 import std/strutils
 import std/macros
@@ -14,7 +16,8 @@ type
     ## An handle to specifically store arrays program memory.
   ProgmemString[S: static int] =  ProgramMemory[array[S, cchar]] ## \
     ## An handle to specifically store array of cchars in program memory.
-  StringType = string | cstring
+  StringType = string | cstring # \
+    ## Any string type
 
 template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
   addr T(pm)
