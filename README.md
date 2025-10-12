@@ -18,7 +18,8 @@ recomended for use in production code, APIs may break at any time!**
 
 ## Requirements
 
-nim >= 2.0.6
+- nim >= 2.0.6
+- Currently tested with avr-gcc 15.2.0, binutils 2.45, avr-libc 2.2.1.
 
 
 ## Support
