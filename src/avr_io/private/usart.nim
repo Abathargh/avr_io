@@ -82,10 +82,10 @@ type
   Flags = CtlAFlags | CtlBFlags | CtlCFlags | CtlDFlags
 
 
-template baudRate*(baud: uint32, freq: uint32 = 16000000'u32): uint16 =
+template baudRate*(baud: typed, freq: uint32 = 16000000'u32): uint16 =
   ## Generates the correct value to feed to the Usart initializers
   ## starting from the baud rate.
-  uint16(freq div (16 * baud)) - 1
+  uint16(freq div (16 * baud.uint32)) - 1'u16
 
 
 template toBitMask*(f: Flags): uint8 =
