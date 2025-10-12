@@ -11,7 +11,7 @@ bin           = @["progmem"]
 # Dependencies
 
 requires "nim >= 2.0.6"
-requires "avr_io >= 0.4.0"
+requires "avr_io >= 0.5.0"
 
 after build:
   when defined(windows):
@@ -28,7 +28,15 @@ task clear, "Deletes the previously built compiler artifacts":
   rmDir(".nimcache")
 
 task flash, "Loads the compiled binary onto the MCU":
-  exec("avrdude -c arduino -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & bin[0] & ".hex:i")
+  let (dev_port, code) = gorge_ex("avrman device -p UNO")
+  if code != 0:
+    echo dev_port
+    return
+  exec("avrdude -c arduino -p atmega328p -b 115200 -P " & dev_port & " -U flash:w:" & bin[0] & ".hex:i")
 
 task flash_debug, "Loads the elf binary onto the MCU":
-  exec("avrdude -c arduino -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & bin[0] & ".elf:e")
+  let (dev_port, code) = gorge_ex("avrman device -p UNO")
+  if code != 0:
+    echo dev_port
+    return
+  exec("avrdude -c arduino -p atmega328p -b 115200 -P " & dev_port & " -U flash:w:" & bin[0] & ".elf:e")

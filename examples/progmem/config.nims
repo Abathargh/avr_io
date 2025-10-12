@@ -9,6 +9,7 @@ switch("passC", "-mmcu=atmega328p -DF_CPU=16000000")
 switch("passL", "-mmcu=atmega328p -DF_CPU=16000000")
 switch("nimcache", ".nimcache")
 
+switch("cc", "gcc")
 switch("avr.standalone.gcc.options.linker", "-static")
 switch("avr.standalone.gcc.exe", "avr-gcc")
 switch("avr.standalone.gcc.linkerexe", "avr-gcc")

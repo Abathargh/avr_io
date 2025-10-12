@@ -11,7 +11,7 @@ bin           = @["usart", "usart9bits"]
 # Dependencies
 
 requires "nim >= 2.0.6"
-requires "avr_io >= 0.3.0"
+requires "avr_io >= 0.5.0"
 
 after build:
   for b in bin: 
@@ -36,11 +36,19 @@ task clear, "Deletes the previously built compiler artifacts":
 task flash, "Loads the compiled binary onto the MCU":
   for b in bin:
     if fileExists(b & ".hex"):
-      exec("avrdude -c arduino -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & b & ".hex:i")
+      let (dev_port, code) = gorge_ex("avrman device -p UNO")
+      if code != 0:
+        echo dev_port
+        return
+      exec("avrdude -c arduino -b 115200 -p m328p " & dev_port & " -U flash:w:" & b & ".hex:i")
       break
 
 task flash_debug, "Loads the elf binary onto the MCU":
   for b in bin:
     if fileExists(b & ".elf"):
-      exec("avrdude -c stk500v2 -D -b 115200 -P /dev/ttyACM0 -p m328p -U flash:w:" & b & ".elf:e")
+      let (dev_port, code) = gorge_ex("avrman device -p UNO")
+      if code != 0:
+        echo dev_port
+        return
+      exec("avrdude -c stk500v2 -D -b 115200 -p m328p " & dev_port & " -U flash:w:" & b & ".elf:e")
       break
