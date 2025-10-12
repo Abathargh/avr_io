@@ -100,18 +100,17 @@ template readFromAddress*[T](a: uint16) : T =
   ## by the current application.
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
-      readFloatNear(a)
+      readFloatNear(cast[pointer](a))
     else:
       when sizeof(T) == 1:
-        readByteNear(a).T
+        readByteNear(cast[pointer](a)).T
       elif sizeof(T) == 2:
-        readWordNear(a).T
+        readWordNear(cast[pointer](a)).T
       elif sizeof(T) == 4:
-        readDWordNear(a).T
+        readDWordNear(cast[pointer](a)).T
   else:
-    let p = cast[ptr T](a)
     var e {.noInit.} : T
-    discard pm_memcpy(addr e, p, csize_t(sizeof(T)))
+    discard pm_memcpy(addr e, cast[pointer](a), csize_t(sizeof(T)))
     e
 
 iterator progmemIter*[S: static int; T](pm: ProgmemArray[S, T]): T =
