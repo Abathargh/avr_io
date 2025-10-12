@@ -10,6 +10,7 @@ default port. Change it accordingly to your device/OS.
 
 import serial
 import struct
+import sys
 
 
 def num_to_str(data):
@@ -33,7 +34,12 @@ def num_to_str(data):
 
 
 def main():
-  s = serial.Serial(port="/dev/ttyACM0", baudrate=9600)
+  if len(sys.argv) == 2:
+    port = sys.argv[1]
+  else:
+    port = "/dev/ttyACM0"
+
+  s = serial.Serial(port=port, baudrate=9600)
 
   reading = True
 
