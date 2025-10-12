@@ -22,25 +22,19 @@ type
 template pm_ptr[T](pm: ProgramMemory[T]): ptr T =
   addr T(pm)
 
-template pm_ptr_u16[T](pm: ProgramMemory[T]): uint16 =
-  cast[uint16](addr pm)
-
 template pm_ptr_off[S; T](pm: ProgmemArray[S, T]; off: int): ptr T =
   addr array[S, T](pm)[off]
 
-template pmPtrOffU16[S; T](pm: ProgmemArray[S, T], off: int): uint16 =
-  cast[uint16](addr array[S, T](pm)[off])
-
-proc readByteNear(a: uint16): uint8
+proc readByteNear(a: pointer): uint8
   {.importc: "pgm_read_byte", header:"<avr/pgmspace.h>".}
 
-proc readWordNear(a: uint16): uint16
+proc readWordNear(a: pointer): uint16
   {.importc: "pgm_read_word", header:"<avr/pgmspace.h>".}
 
-proc readDWordNear(a: uint16): uint32
+proc readDWordNear(a: pointer): uint32
   {.importc: "pgm_read_dword", header:"<avr/pgmspace.h>".}
 
-proc readFloatNear(a: uint16): float32
+proc readFloatNear(a: pointer): float32
   {.importc: "pgm_read_float", header:"<avr/pgmspace.h>".}
 
 proc pm_memcpy[T](dest, src: ptr T; len: csize_t)
@@ -63,13 +57,13 @@ template `[]`*[T](pm: ProgramMemory[T]): T = ## \
 
   when T is SomeNumber and sizeof(T) <= 4:
     when typeof(T) is float32:
-      res = readFloatNear(pm_ptr_u16(pm)).T
+      res = readFloatNear(pm.addr).T
     elif sizeof(T) == 1:
-      res = readByteNear(pm_ptr_u16(pm)).T
+      res = readByteNear(pm.addr).T
     elif sizeof(T) == 2:
-      res = readWordNear(pm_ptr_u16(pm)).T
+      res = readWordNear(pm.addr).T
     elif sizeof(T) == 4:
-      res = readDWordNear(pm_ptr_u16(pm)).T
+      res = readDWordNear(pm.addr).T
   else:
     when typeof(T) is array and sizeof(T) != 0:
       pm_memcpy(addr res[0], pm_ptr_off(pm, 0), sizeof(T).csize_t)
@@ -88,14 +82,14 @@ template `[]`*[S: static int; T](pm: ProgmemArray[S, T]; i: int): T =
   var res {.noInit.}: T
 
   when typeof(T) is float32:
-    res = readFloatNear(pmPtrOffU16(pm, i)).T
+    res = readFloatNear(pm_ptr_off(pm, i)).T
   else:
     when sizeof(T) == 1:
-      res = readByteNear(pmPtrOffU16(pm, i)).T
+      res = readByteNear(pm_ptr_off(pm, i)).T
     elif sizeof(T) == 2:
-      res = readWordNear(pmPtrOffU16(pm, i)).T
+      res = readWordNear(pm_ptr_off(pm, i)).T
     elif sizeof(T) == 4:
-      res = readDWordNear(pmPtrOffU16(pm, i)).T
+      res = readDWordNear(pm_ptr_off(pm, i)).T
     else:
       pm_memcpy(addr res, pm_ptr_off(pm, i), csize_t(sizeof(T)))
   res
