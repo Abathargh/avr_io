@@ -58,7 +58,7 @@ template toggleBit*[T](p: MappedIoRegister[T]; b: PinInt) =
 
 template readBit*[T](p: MappedIoRegister[T]; b: PinInt): T =
   ## Reads the value for the specified bit in the register.
-  const bit = pin_value[T](b)
+  let bit = pin_value[T](b)
   bitand(p[], 1'u8 shl bit) shr bit
 
 template setMask*[T](p: MappedIoRegister[T]; mask: T) =
@@ -123,7 +123,7 @@ template togglePin*(p: Port; pin: uint8) =
 
 template readPin*(p: Port; pin: uint8): uint8 =
   ## Reads the value for specified pin in the port.
-  const val = pin_value[uint8](pin)
+  let val = pin_value[uint8](pin)
   bitand(p.input[], 1'u8 shl val) shr val
 
 template setPort*(p: Port) =
