@@ -177,6 +177,18 @@ proc sendString*[S](usart: Usart; s: array[S, character]) =
     usart.sendByte(uint8(ch))
 
 
+proc sendStringLn*(usart: Usart; s: cstring|string) =
+  ## Sends a string-encoded array of bytes via Usart, adding a \n at the end.
+  usart.sendString(s)
+  usart.sendByte('\n')
+
+
+proc writeLine*[S](usart: Usart; s: array[S, character]) =
+  ## Sends a string-encoded array of bytes via Usart, adding a \n at the end.
+  usart.sendBytes(s)
+  usart.sendByte('\n')
+
+
 proc sendInt*(usart: Usart, data: uint16) =
   ## Sends up-to-9 bits of data via Usart.
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
@@ -189,6 +201,11 @@ proc sendInt*(usart: Usart, data: uint16) =
 template readByte*(usart: Usart): uint8 =
   ## Reads a single byte via Usart.
   while rxc notin toBitSet[CtlAFlags](usart.ctlA[]): discard
+  usart.udr[]
+
+
+template readByteIsr*(usart: Usart): uint8 =
+  ## Reads a single byte via Usart, can be called in an ISR.
   usart.udr[]
 
 
