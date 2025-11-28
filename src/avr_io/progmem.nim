@@ -130,7 +130,11 @@ iterator progmemIter*[S: static int; T](pm: ProgmemArray[S, T]): T =
 iterator progmemIter*[S: static int](pm: ProgmemString[S]): cchar =
   ## Iterator that can be used to safely traverse program memory cchar arrays.
   ## Note that this must generate a copy of each element iterated, in order to 
-  ## make it available to the user. 
+  ## make it available to the user.
+  var i = 0
+  while i < S and pm[i] != '\0':
+    yield pm[i]
+    inc i
 
 template `==`*[S: static int; T](d: array[S, T], pm: ProgmemArray[S, T]): bool =
   ## Efficiently checks for equality between an in-memory array and one in
