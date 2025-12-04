@@ -6,7 +6,9 @@ peripherals, and many other functionalities related to AVR microcontrollers.
 Any project using this library must use avr-gcc as its C backend.
 
 **NOTE: the contents of the library are highly experimental, they are not 
-recomended for use in production code, APIs may break at any time!**
+recommended for use in production code, APIs may break at any time!**
+
+![LED blinking at 1Hz](blink.gif)
 
 - [avr\_io - nim register bindings and utilities for AVR microcontrollers](#avr_io---nim-register-bindings-and-utilities-for-avr-microcontrollers)
   - [Requirements](#requirements)
