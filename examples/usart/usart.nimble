@@ -11,7 +11,7 @@ bin           = @["usart", "usart9bits"]
 # Dependencies
 
 requires "nim >= 2.0.6"
-requires "avr_io >= 0.5.0"
+requires "avr_io >= 0.6.1"
 
 after build:
   for b in bin: 
