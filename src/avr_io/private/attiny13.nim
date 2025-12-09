@@ -1,0 +1,43 @@
+include mapped_io
+include usart
+include timer
+
+const
+  ADCSRB* = MappedIoRegister[uint8](0x23)
+  ADC*    = MappedIoRegister[uint16](0x24)
+  ADCL*   = MappedIoRegister[uint8](0x24)
+  ADCH*   = MappedIoRegister[uint8](0x25)
+  ADCSRA* = MappedIoRegister[uint8](0x26)
+  ADMUX*  = MappedIoRegister[uint8](0x27)
+  ACSR*   = MappedIoRegister[uint8](0x28)
+  DIDR0*  = MappedIoRegister[uint8](0x34)
+  PCMSK*  = MappedIoRegister[uint8](0x35)
+  PINB*   = MappedIoRegister[uint8](0x36)
+  DDRB*   = MappedIoRegister[uint8](0x37)
+  PORTB*  = MappedIoRegister[uint8](0x38)
+  EECR*   = MappedIoRegister[uint8](0x3C)
+  EEDR*   = MappedIoRegister[uint8](0x3D)
+  EEAR*   = MappedIoRegister[uint8](0x3E)
+  WDTCR*  = MappedIoRegister[uint8](0x41)
+  CLKPR*  = MappedIoRegister[uint8](0x46)
+  GTCCR*  = MappedIoRegister[uint8](0x48)
+  OCR0B*  = MappedIoRegister[uint8](0x49)
+  DWDR*   = MappedIoRegister[uint8](0x4E)
+  TCCR0A* = MappedIoRegister[uint8](0x4F)
+  OSCCAL* = MappedIoRegister[uint8](0x51)
+  TCNT0*  = MappedIoRegister[uint8](0x52)
+  TCCR0B* = MappedIoRegister[uint8](0x53)
+  MCUSR*  = MappedIoRegister[uint8](0x54)
+  MCUCR*  = MappedIoRegister[uint8](0x55)
+  OCR0A*  = MappedIoRegister[uint8](0x56)
+  SPMCSR* = MappedIoRegister[uint8](0x57)
+  TIFR0*  = MappedIoRegister[uint8](0x58)
+  TIMSK0* = MappedIoRegister[uint8](0x59)
+  GIFR*   = MappedIoRegister[uint8](0x5A)
+  GIMSK*  = MappedIoRegister[uint8](0x5B)
+  SPL*    = MappedIoRegister[uint8](0x5D)
+  SREG*   = MappedIoRegister[uint8](0x5F)
+
+const
+  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
+

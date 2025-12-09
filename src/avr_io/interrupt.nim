@@ -3,27 +3,8 @@
 
 import macros
 
-when defined(USING_ATMEGA16U4):
-  include interrupt/private/atmega16u4_32u4
-elif defined(USING_ATMEGA32U4):
-  include interrupt/private/atmega16u4_32u4
-elif  defined(USING_ATMEGA328P):
-  include interrupt/private/atmega328p
-elif defined(USING_ATMEGA644):
-  include interrupt/private/atmega644
-elif defined(USING_ATMEGA640):
-  include interrupt/private/atmega64_128_256_01
-elif defined(USING_ATMEGA1280):
-  include interrupt/private/atmega64_128_256_01
-elif defined(USING_ATMEGA1281): 
-  include interrupt/private/atmega64_128_256_01
-elif defined(USING_ATMEGA2560): 
-  include interrupt/private/atmega64_128_256_01
-elif defined(USING_ATMEGA2561):
-  include interrupt/private/atmega64_128_256_01
-else:
-  static:
-    error "undefined architecture"
+# device-dependent definitions, alongside with the VectorInterrupt def
+include interrupt/interrupt_inc
 
 type
   IsrFlag* = enum

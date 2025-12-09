@@ -1,0 +1,17 @@
+type
+  VectorInterrupt* = enum
+    Int0Vect      = 1,
+    PCInt0Vect    = 2,
+    PCInt1Vect    = 3,
+    Tim0CaptVect  = 4,
+    Tim0OvfVect   = 5,
+    Tim0CompAVect = 6,
+    Tim0CompBVect = 7,
+    AnaCompVect   = 8,
+    WdtVect       = 9,
+    VlmVect       = 10,
+    AdcVect       = 11,
+    UsartRxsVect  = 12,
+    UsartRxcVect  = 13,
+    UsartDreVect  = 14,
+    UsartTxcVect  = 15,

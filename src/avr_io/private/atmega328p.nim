@@ -2,7 +2,6 @@ include mapped_io
 include usart
 include timer
 
-
 const
   PINB*   = MappedIoRegister[uint8](0x23)
   DDRB*   = MappedIoRegister[uint8](0x24)
@@ -41,6 +40,7 @@ const
   MCUSR*  = MappedIoRegister[uint8](0x54)
   MCUCR*  = MappedIoRegister[uint8](0x55)
   SPMCSR* = MappedIoRegister[uint8](0x57)
+  SP*     = MappedIoRegister[uint16](0x5D)
   SPL*    = MappedIoRegister[uint8](0x5D)
   SPH*    = MappedIoRegister[uint8](0x5E)
   SREG*   = MappedIoRegister[uint8](0x5F)
@@ -100,9 +100,9 @@ const
   UDR0*   = MappedIoRegister[uint8](0xC6)
 
 const
-  portB* = Port(direction: DDRB, output: PORTB, input: PINB)
-  portC* = Port(direction: DDRC, output: PORTC, input: PINC)
-  portD* = Port(direction: DDRD, output: PORTD, input: PIND)
+  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
+  portc* = Port(direction: DDRC, output: PORTC, input: PINC)
+  portd* = Port(direction: DDRD, output: PORTD, input: PIND)
 
   usart0* = BaseUsart(
     baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, ctlB: UCSR0B, 
