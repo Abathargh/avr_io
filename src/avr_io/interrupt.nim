@@ -22,7 +22,20 @@ template vectorDecl(n: int, flags: IsrFlags): string =
   "$3 __attribute__((__signal__,__used__,__externally_visible__)); " &
    attrs & " $1 __vector_" & $n & "$3"
 
-macro isrIm(v: static VectorInterrupt, f: static IsrFlags, p: typed): untyped =
+macro isr_flags*(v: static VectorInterrupt, f: static IsrFlags, p: untyped): untyped =
+  ## Turns the passed procedure into an interrupt service routine, with the
+  ## specified ISR flags to alter its behaviour:
+  ## - IsrBlock: default behaviour, interrupts will be disabled for the
+  ##   duration of the ISR.
+  ## - IsrNoBlock: interrupts will still be enabled during the ISR handling;
+  ##   note that this adds minimal overhead; use when in need of nested
+  ##   interrupts.
+  ## - IsrNaked: no preamble or epilogue will be generated for the ISR.
+  ##   This means that the registers and return instruction must be manually
+  ##   handled.
+  ## This macro applies a series of pragmas to the procedure, that are
+  ## necessary to map it to the specified interrupt handle.
+  ## Use as a macro pragma.
   var pnode = p
   if p.kind == nnkStmtList:
     pnode = p[0]
@@ -41,28 +54,28 @@ macro isrIm(v: static VectorInterrupt, f: static IsrFlags, p: typed): untyped =
   )
   pnode
 
-template isr*(v: VectorInterrupt, p: typed): untyped =
+macro isr*(v: static VectorInterrupt, p: untyped): untyped =
   ## Turns the passed procedure into an interrupt service routine.
   ## This macro applies a series of pragmas to the procedure, that are
   ## necessary to map it to the specified interrupt handle.
   ## Use as a macro pragma.
-  isrIm(v, {}, p)
+  var pnode = p
+  if p.kind == nnkStmtList:
+    pnode = p[0]
 
-template isr*(v: VectorInterrupt, f: IsrFlags, p: typed): untyped =
-  ## Turns the passed procedure into an interrupt service routine, with the
-  ## specified ISR flags to alter its behaviour:
-  ## - IsrBlock: default behaviour, interrupts will be disabled for the
-  ##   duration of the ISR.
-  ## - IsrNoBlock: interrupts will still be enabled during the ISR handling;
-  ##   note that this adds minimal overhead; use when in need of nested
-  ##   interrupts.
-  ## - IsrNaked: no preamble or epilogue will be generated for the ISR.
-  ##   This means that the registers and return instruction must be manually
-  ##   handled.
-  ## This macro applies a series of pragmas to the procedure, that are
-  ## necessary to map it to the specified interrupt handle.
-  ## Use as a macro pragma.
-  isrIm(v, f, p)
+  expectKind(pnode, nnkProcDef)
+  for node in pnode:
+    if node.kind == nnkFormalParams:
+      if node.len != 1 or node[0].kind != nnkEmpty:
+        error "an ISR must have the following signature `proc f()`"
+
+  addPragma(pnode, newIdentNode("exportc"))
+  addPragma(pnode,
+    newNimNode(nnkExprColonExpr).add(
+      newIdentNode("codegenDecl"), newLit(vectorDecl(ord(v), {}.IsrFlags))
+    )
+  )
+  pnode
 
 template sei*() =
   ## Sets the global interrupt flag within the status register, 
