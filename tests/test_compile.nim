@@ -163,9 +163,6 @@ proc check_pms(args: seq[string]): (string, bool) =
 suite "compilation":
   test "simple main":
     for mcu in mcu_map.keys:
-      if mcu in ["attiny4", "attiny5", "attiny9"]: continue # TODO too small
-      if mcu in ["attiny104", "attiny102"]: continue # TODO E2END
-
       let outcome = compile_file(mcu, @[check_isr.FnCallback, check_pms],
                                  @[@[], @["pmtest"]])
 
