@@ -1,43 +1,55 @@
 # avr_io - nim register bindings and utilities for AVR microcontrollers
 
-This library provides a series of bindings for memory-mapped registers, 
-peripherals, and many other functionalities related to AVR microcontrollers.
+avr_io is a library written to make it easy to program AVR 
+microcontrollers in nim. 
+
+The library has a focus on low/no runtime costs, and it offers:
+
+- Type-safe register bindings for AVR microcontrollers and an ergonomic 
+  pin/port API.
+- Interrupt service routine tagging, and interrupt-related utilities.
+- Macro-based program memory storage support (aka `progmem`).
+- Utilities for embedding data in elf sections, writing bootloaders.
+- Partial support for peripherals for some chips (uart, timers, ports).
+
 
 Any project using this library must use avr-gcc as its C backend.
 
-**NOTE: the contents of the library are highly experimental, they are not 
-recomended for use in production code, APIs may break at any time!**
+**NOTE: the contents of the library are experimental, APIs may break before 
+a v1.0 release!**
 
-- [avr\_io - nim register bindings and utilities for AVR microcontrollers](#avr_io---nim-register-bindings-and-utilities-for-avr-microcontrollers)
-  - [Requirements](#requirements)
-  - [Support](#support)
-  - [Install](#install)
-  - [Documentation](#documentation)
-  - [License](#license)
-
+<!-- TOC -->
+* [avr_io - nim register bindings and utilities for AVR microcontrollers](#avr_io---nim-register-bindings-and-utilities-for-avr-microcontrollers)
+  * [Requirements](#requirements)
+  * [Support](#support)
+  * [Install](#install)
+  * [Documentation](#documentation)
+  * [License](#license)
+<!-- TOC -->
 
 ## Requirements
 
 - nim >= 2.0.6
-- Currently tested with avr-gcc 15.2.0, binutils 2.45, avr-libc 2.2.1.
+- avr-gcc and avr-libc installed on your machine and available in your path.
 
 
 ## Support
 
 The nim modules that offer IO register mappings and ISR definitions are 
-generated using the chips' datasheets as a reference. 
+generated using the chips' `atdf` description files as a reference. 
 
-The library currently supports the following chips:
+The library currently supports most `attiny` and `atmega` chips, except for 
+ones from the `avrxmega` and `avr1` families. The former uses the new Port API 
+which is not currently supported by this library, while the latter devices
+are only supported at the assembler-level by `avr-gcc`.
 
-- ATMega16U4
-- ATMega32U4
-- ATMega328P
-- ATMega640
-- ATMega644
-- ATMega1280
-- ATMega1281
-- ATMega2560
-- ATMega2561
+Since this `avr_io` makes heavy usage of c codegen, `avr1` devices are not 
+planned to be supported.
+
+The library is currently tested with:
+  - avr-gcc  15.2.0
+  - binutils 2.45
+  - avr-libc 2.2.1
 
 ## Install
 
@@ -49,7 +61,7 @@ nimble install avr_io
 
 There are three main documentation sources for this project:
 - [The wiki](https://github.com/Abathargh/avr_io/wiki) hosted within the 
-avr_io github page.
+avr_io GitHub page.
 - The examples contained within the `examples` directory, that hosts a series 
 of nimble projects ready to use and to be consulted, going quite thoroughly 
 in detail on how to use the library.
@@ -68,4 +80,4 @@ setting up the library.
 ## License
 
 This library is licensed under the [BSD 3-Clause "New" or "Revised" License](
-#LICENSE.md).
+LICENSE).
