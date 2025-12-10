@@ -1,8 +1,11 @@
 ## The usart module provides a series of utilities to interface with the USART 
 ## peripherals on AVR chips.
 
-import mapped_io
-import bitops
+when not declared(bitor):
+  import bitops
+
+when not declared(MappedIoRegister):
+  import mapped_io
 
 
 type
