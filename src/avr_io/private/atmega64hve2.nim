@@ -107,6 +107,6 @@ const
   VADAC3*   = MappedIoRegister[uint8](0xF6)
 
 const
-  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
   porta* = Port(direction: DDRA, output: PORTA, input: PINA)
+  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
 

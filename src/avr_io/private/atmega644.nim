@@ -110,16 +110,3 @@ const
   portc* = Port(direction: DDRC, output: PORTC, input: PINC)
   portd* = Port(direction: DDRD, output: PORTD, input: PIND)
 
-  usart0* = BaseUsart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A, 
-    ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
-
-  timer0* = Timer8BitPwm(
-    tccra: TCCR0A, tccrb: TCCR0B, tcnt: TCNT0, ocra: OCR0A, ocrb: OCR0B, 
-    timsk: TIMSK0, tifr: TIFR0)
-  timer1* = Timer16BitPwm(tccra: TCCR1A, tccrb: TCCR1B, tccrc: TCCR1C,
-    tcnt: TCNT1, tcnth: TCNT1H, tcntl: TCNT1L, ocra: OCR1A, ocrah: OCR1AH, 
-    ocral: OCR1AL, ocrb: OCR1B, ocrbh: OCR1BH, ocrbl: OCR1BL, icr: ICR1, 
-    icrh: ICR1H, icrl: ICR1L, timsk: TIMSK1, tifr: TIFR1)
-  timer2* = Timer8BitPwmAsync(tccra: TCCR2A, tccrb: TCCR2B, tcnt: TCNT2, 
-    ocra: OCR2A, ocrb: OCR2B, assr: ASSR, timsk: TIMSK2, tifr: TIFR2, 
-    gtccr: GTCCR)

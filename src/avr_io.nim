@@ -1,456 +1,340 @@
 ## AVR register bindings and utilities written in nim.
-## 
-## In order to use this library, you should define a `USING_X` symbol, where 
-## X is the capitalized name of the MCU you are targetting. Register 
-## definitions are conditionally included (not imported) depending on this 
+##
+## In order to use this library, you should define a `USING_X` symbol, where
+## X is the capitalized name of the MCU you are targetting. Register
+## definitions are conditionally included (not imported) depending on this
 ## symbol.
-## 
-## This is also valid for constants containing port and peripheral objects, 
+##
+## This is also valid for constants containing port and peripheral objects,
 ## which can be optionally used to have a smoother user-experience.
-## 
+##
 ## This module also exports the following submodules:
-## - `interrupt`, containing facilities to declare ISRs and use interrupts 
+## - `interrupt`, containing facilities to declare ISRs and use interrupts
 ##   from user code.
-## - `progmem`, containing a set of functionalities to store code in program 
+## - `progmem`, containing a set of functionalities to store code in program
 ##   memory and interact with it.
-## - `system`, containing utilities to interact the system and binaries 
+## - `system`, containing utilities to interact the system and binaries
 ##   sections.
 ##
-## Refer to the example applications contained within the `examples` directory 
+## Refer to the example applications contained within the `examples` directory
 ## for specific use cases.
-
 
 import avr_io/[interrupt, progmem, system]
 export interrupt, progmem, system
 
-
-when defined(USING_ATMEGA4808):
-  include avr_io/private/atmega4808
-elif defined(USING_ATTINY806):
-  include avr_io/private/attiny806
-elif defined(USING_ATMEGA3290A):
-  include avr_io/private/atmega3290a
-elif defined(USING_ATMEGA16HVBREVB):
-  include avr_io/private/atmega16hvbrevb
-elif defined(USING_ATTINY807):
-  include avr_io/private/attiny807
-elif defined(USING_ATMEGA4809):
-  include avr_io/private/atmega4809
-elif defined(USING_ATMEGA3209):
-  include avr_io/private/atmega3209
-elif defined(USING_ATMEGA1608):
-  include avr_io/private/atmega1608
-elif defined(USING_ATTINY43U):
-  include avr_io/private/attiny43u
-elif defined(USING_ATMEGA168):
-  include avr_io/private/atmega168
-elif defined(USING_ATMEGA128RFA1):
-  include avr_io/private/atmega128rfa1
-elif defined(USING_ATMEGA1609):
-  include avr_io/private/atmega1609
-elif defined(USING_ATTINY804):
-  include avr_io/private/attiny804
-elif defined(USING_ATMEGA3208):
-  include avr_io/private/atmega3208
-elif defined(USING_ATMEGA64):
-  include avr_io/private/atmega64
-elif defined(USING_ATMEGA165PA):
-  include avr_io/private/atmega165pa
-elif defined(USING_ATMEGA48PB):
-  include avr_io/private/atmega48pb
-elif defined(USING_ATMEGA48):
-  include avr_io/private/atmega48
-elif defined(USING_ATMEGA88PB):
-  include avr_io/private/atmega88pb
-elif defined(USING_ATTINY828):
-  include avr_io/private/attiny828
-elif defined(USING_ATMEGA3290P):
-  include avr_io/private/atmega3290p
-elif defined(USING_ATTINY814):
-  include avr_io/private/attiny814
-elif defined(USING_ATTINY424):
-  include avr_io/private/attiny424
-elif defined(USING_ATMEGA325PA):
-  include avr_io/private/atmega325pa
-elif defined(USING_ATTINY48):
-  include avr_io/private/attiny48
-elif defined(USING_AT90CAN128):
+when defined(USING_AT90CAN128):
   include avr_io/private/at90can128
-elif defined(USING_ATMEGA88):
-  include avr_io/private/atmega88
-elif defined(USING_ATMEGA48PA):
-  include avr_io/private/atmega48pa
-elif defined(USING_ATMEGA88PA):
-  include avr_io/private/atmega88pa
-elif defined(USING_ATTINY4313):
-  include avr_io/private/attiny4313
-elif defined(USING_ATTINY817):
-  include avr_io/private/attiny817
-elif defined(USING_ATTINY426):
-  include avr_io/private/attiny426
-elif defined(USING_ATTINY427):
-  include avr_io/private/attiny427
-elif defined(USING_ATTINY816):
-  include avr_io/private/attiny816
-elif defined(USING_ATTINY88):
-  include avr_io/private/attiny88
-elif defined(USING_ATTINY261A):
-  include avr_io/private/attiny261a
-elif defined(USING_ATMEGAS64M1):
-  include avr_io/private/atmegas64m1
-elif defined(USING_ATTINY10):
-  include avr_io/private/attiny10
-elif defined(USING_ATMEGA128A):
-  include avr_io/private/atmega128a
-elif defined(USING_ATMEGA324P):
-  include avr_io/private/atmega324p
-elif defined(USING_ATMEGA64A):
-  include avr_io/private/atmega64a
-elif defined(USING_ATMEGA169A):
-  include avr_io/private/atmega169a
-elif defined(USING_ATTINY441):
-  include avr_io/private/attiny441
-elif defined(USING_ATMEGA164P):
-  include avr_io/private/atmega164p
-elif defined(USING_ATMEGA329A):
-  include avr_io/private/atmega329a
-elif defined(USING_ATMEGA48A):
-  include avr_io/private/atmega48a
-elif defined(USING_ATTINY11):
-  include avr_io/private/attiny11
-elif defined(USING_ATTINY1634):
-  include avr_io/private/attiny1634
-elif defined(USING_ATTINY24A):
-  include avr_io/private/attiny24a
-elif defined(USING_ATMEGA3250PA):
-  include avr_io/private/atmega3250pa
-elif defined(USING_ATTINY13):
-  include avr_io/private/attiny13
-elif defined(USING_ATMEGA1284):
-  include avr_io/private/atmega1284
 elif defined(USING_AT90CAN32):
   include avr_io/private/at90can32
-elif defined(USING_ATMEGA128RFR2):
-  include avr_io/private/atmega128rfr2
-elif defined(USING_ATMEGA32C1):
-  include avr_io/private/atmega32c1
-elif defined(USING_ATTINY5):
-  include avr_io/private/attiny5
-elif defined(USING_ATMEGA328P):
-  include avr_io/private/atmega328p
-elif defined(USING_ATMEGA3290PA):
-  include avr_io/private/atmega3290pa
-elif defined(USING_AT90USB1286):
-  include avr_io/private/at90usb1286
-elif defined(USING_ATMEGA165A):
-  include avr_io/private/atmega165a
-elif defined(USING_ATMEGA644):
-  include avr_io/private/atmega644
-elif defined(USING_ATMEGA168P):
-  include avr_io/private/atmega168p
-elif defined(USING_ATMEGA645):
-  include avr_io/private/atmega645
-elif defined(USING_AT90USB1287):
-  include avr_io/private/at90usb1287
-elif defined(USING_ATMEGA64M1):
-  include avr_io/private/atmega64m1
-elif defined(USING_ATTINY4):
-  include avr_io/private/attiny4
-elif defined(USING_ATMEGA325A):
-  include avr_io/private/atmega325a
-elif defined(USING_ATMEGA6450A):
-  include avr_io/private/atmega6450a
-elif defined(USING_ATTINY12):
-  include avr_io/private/attiny12
-elif defined(USING_ATMEGA32HVBREVB):
-  include avr_io/private/atmega32hvbrevb
-elif defined(USING_ATMEGA2561):
-  include avr_io/private/atmega2561
-elif defined(USING_ATTINY1627):
-  include avr_io/private/attiny1627
-elif defined(USING_AT90USB162):
-  include avr_io/private/at90usb162
-elif defined(USING_ATTINY861A):
-  include avr_io/private/attiny861a
-elif defined(USING_ATTINY3226):
-  include avr_io/private/attiny3226
-elif defined(USING_ATMEGA1281):
-  include avr_io/private/atmega1281
-elif defined(USING_ATMEGA324A):
-  include avr_io/private/atmega324a
-elif defined(USING_ATMEGA325):
-  include avr_io/private/atmega325
-elif defined(USING_ATMEGA3290):
-  include avr_io/private/atmega3290
-elif defined(USING_ATTINY461A):
-  include avr_io/private/attiny461a
-elif defined(USING_ATMEGA169P):
-  include avr_io/private/atmega169p
-elif defined(USING_ATMEGA640):
-  include avr_io/private/atmega640
-elif defined(USING_ATTINY44A):
-  include avr_io/private/attiny44a
-elif defined(USING_ATMEGA164A):
-  include avr_io/private/atmega164a
-elif defined(USING_ATMEGA16HVA):
-  include avr_io/private/atmega16hva
-elif defined(USING_ATMEGA329P):
-  include avr_io/private/atmega329p
-elif defined(USING_ATTINY13A):
-  include avr_io/private/attiny13a
-elif defined(USING_ATMEGA48P):
-  include avr_io/private/atmega48p
-elif defined(USING_ATMEGA1280):
-  include avr_io/private/atmega1280
-elif defined(USING_ATMEGA16):
-  include avr_io/private/atmega16
-elif defined(USING_ATMEGA324PB):
-  include avr_io/private/atmega324pb
-elif defined(USING_ATTINY3227):
-  include avr_io/private/attiny3227
-elif defined(USING_ATMEGA8515):
-  include avr_io/private/atmega8515
-elif defined(USING_ATTINY2313):
-  include avr_io/private/attiny2313
-elif defined(USING_ATTINY1626):
-  include avr_io/private/attiny1626
-elif defined(USING_ATMEGA2560):
-  include avr_io/private/atmega2560
-elif defined(USING_ATTINY1624):
-  include avr_io/private/attiny1624
-elif defined(USING_ATMEGA32HVB):
-  include avr_io/private/atmega32hvb
-elif defined(USING_ATTINY15):
-  include avr_io/private/attiny15
-elif defined(USING_ATMEGA256RFR2):
-  include avr_io/private/atmega256rfr2
-elif defined(USING_ATMEGA164PA):
-  include avr_io/private/atmega164pa
-elif defined(USING_ATMEGA3250):
-  include avr_io/private/atmega3250
-elif defined(USING_ATMEGA165P):
-  include avr_io/private/atmega165p
-elif defined(USING_ATMEGA168A):
-  include avr_io/private/atmega168a
-elif defined(USING_ATMEGA16HVB):
-  include avr_io/private/atmega16hvb
-elif defined(USING_ATTINY861):
-  include avr_io/private/attiny861
-elif defined(USING_ATMEGA8U2):
-  include avr_io/private/atmega8u2
-elif defined(USING_ATMEGA32A):
-  include avr_io/private/atmega32a
-elif defined(USING_ATMEGA325P):
-  include avr_io/private/atmega325p
-elif defined(USING_ATMEGA6450P):
-  include avr_io/private/atmega6450p
-elif defined(USING_ATTINY3224):
-  include avr_io/private/attiny3224
-elif defined(USING_ATMEGA324PA):
-  include avr_io/private/atmega324pa
-elif defined(USING_ATTINY1614):
-  include avr_io/private/attiny1614
-elif defined(USING_ATTINY25):
-  include avr_io/private/attiny25
-elif defined(USING_ATTINY2313A):
-  include avr_io/private/attiny2313a
-elif defined(USING_ATMEGA64C1):
-  include avr_io/private/atmega64c1
-elif defined(USING_ATTINY461):
-  include avr_io/private/attiny461
-elif defined(USING_ATMEGA6490P):
-  include avr_io/private/atmega6490p
-elif defined(USING_ATMEGA128):
-  include avr_io/private/atmega128
-elif defined(USING_ATMEGA16M1):
-  include avr_io/private/atmega16m1
-elif defined(USING_ATMEGA168PA):
-  include avr_io/private/atmega168pa
-elif defined(USING_ATMEGA1284P):
-  include avr_io/private/atmega1284p
-elif defined(USING_ATMEGA32M1):
-  include avr_io/private/atmega32m1
-elif defined(USING_ATTINY104):
-  include avr_io/private/attiny104
-elif defined(USING_ATMEGA645A):
-  include avr_io/private/atmega645a
-elif defined(USING_ATTINY24):
-  include avr_io/private/attiny24
-elif defined(USING_ATMEGA328PB):
-  include avr_io/private/atmega328pb
-elif defined(USING_ATTINY1617):
-  include avr_io/private/attiny1617
-elif defined(USING_ATTINY26):
-  include avr_io/private/attiny26
-elif defined(USING_ATTINY3216):
-  include avr_io/private/attiny3216
-elif defined(USING_ATMEGA644P):
-  include avr_io/private/atmega644p
-elif defined(USING_ATMEGA16U4):
-  include avr_io/private/atmega16u4
-elif defined(USING_ATTINY84A):
-  include avr_io/private/attiny84a
-elif defined(USING_ATMEGA329):
-  include avr_io/private/atmega329
-elif defined(USING_AT90PWM2B):
-  include avr_io/private/at90pwm2b
-elif defined(USING_ATMEGA88P):
-  include avr_io/private/atmega88p
-elif defined(USING_ATMEGA32U4):
-  include avr_io/private/atmega32u4
-elif defined(USING_ATMEGA168PB):
-  include avr_io/private/atmega168pb
-elif defined(USING_ATMEGA328):
-  include avr_io/private/atmega328
-elif defined(USING_ATMEGA649A):
-  include avr_io/private/atmega649a
-elif defined(USING_ATTINY3217):
-  include avr_io/private/attiny3217
-elif defined(USING_ATMEGA32):
-  include avr_io/private/atmega32
-elif defined(USING_ATTINY1616):
-  include avr_io/private/attiny1616
-elif defined(USING_AT90PWM316):
-  include avr_io/private/at90pwm316
-elif defined(USING_ATTINY261):
-  include avr_io/private/attiny261
-elif defined(USING_ATTINY1606):
-  include avr_io/private/attiny1606
-elif defined(USING_ATMEGA8535):
-  include avr_io/private/atmega8535
-elif defined(USING_ATMEGA6450):
-  include avr_io/private/atmega6450
-elif defined(USING_ATMEGA1284RFR2):
-  include avr_io/private/atmega1284rfr2
-elif defined(USING_ATTINY9):
-  include avr_io/private/attiny9
-elif defined(USING_ATMEGA6490A):
-  include avr_io/private/atmega6490a
-elif defined(USING_ATMEGA649):
-  include avr_io/private/atmega649
-elif defined(USING_AT90PWM3B):
-  include avr_io/private/at90pwm3b
-elif defined(USING_ATMEGA645P):
-  include avr_io/private/atmega645p
-elif defined(USING_ATTINY102):
-  include avr_io/private/attiny102
-elif defined(USING_ATTINY1607):
-  include avr_io/private/attiny1607
-elif defined(USING_ATTINY20):
-  include avr_io/private/attiny20
-elif defined(USING_ATMEGA644A):
-  include avr_io/private/atmega644a
-elif defined(USING_ATMEGA644RFR2):
-  include avr_io/private/atmega644rfr2
-elif defined(USING_ATMEGA6490):
-  include avr_io/private/atmega6490
-elif defined(USING_ATMEGA16U2):
-  include avr_io/private/atmega16u2
-elif defined(USING_ATTINY841):
-  include avr_io/private/attiny841
-elif defined(USING_ATMEGA88A):
-  include avr_io/private/atmega88a
-elif defined(USING_ATMEGA32U2):
-  include avr_io/private/atmega32u2
-elif defined(USING_ATMEGA64HVE2):
-  include avr_io/private/atmega64hve2
-elif defined(USING_ATMEGA649P):
-  include avr_io/private/atmega649p
-elif defined(USING_ATTINY1604):
-  include avr_io/private/attiny1604
-elif defined(USING_ATTINY204):
-  include avr_io/private/attiny204
-elif defined(USING_AT90PWM161):
-  include avr_io/private/at90pwm161
-elif defined(USING_AT90PWM3):
-  include avr_io/private/at90pwm3
-elif defined(USING_ATTINY85):
-  include avr_io/private/attiny85
-elif defined(USING_ATTINY827):
-  include avr_io/private/attiny827
-elif defined(USING_ATTINY416):
-  include avr_io/private/attiny416
-elif defined(USING_ATTINY402):
-  include avr_io/private/attiny402
-elif defined(USING_ATMEGA162):
-  include avr_io/private/atmega162
-elif defined(USING_ATTINY417):
-  include avr_io/private/attiny417
-elif defined(USING_AT90PWM216):
-  include avr_io/private/at90pwm216
-elif defined(USING_ATMEGA406):
-  include avr_io/private/atmega406
-elif defined(USING_ATTINY826):
-  include avr_io/private/attiny826
-elif defined(USING_ATTINY167):
-  include avr_io/private/attiny167
-elif defined(USING_ATTINY84):
-  include avr_io/private/attiny84
-elif defined(USING_ATMEGA64RFR2):
-  include avr_io/private/atmega64rfr2
-elif defined(USING_ATTINY45):
-  include avr_io/private/attiny45
-elif defined(USING_ATMEGA8A):
-  include avr_io/private/atmega8a
 elif defined(USING_AT90CAN64):
   include avr_io/private/at90can64
-elif defined(USING_ATMEGAS128):
-  include avr_io/private/atmegas128
-elif defined(USING_AT90USB82):
-  include avr_io/private/at90usb82
-elif defined(USING_ATTINY824):
-  include avr_io/private/attiny824
-elif defined(USING_ATMEGA8HVA):
-  include avr_io/private/atmega8hva
-elif defined(USING_ATMEGA329PA):
-  include avr_io/private/atmega329pa
-elif defined(USING_ATMEGA809):
-  include avr_io/private/atmega809
-elif defined(USING_ATTINY414):
-  include avr_io/private/attiny414
-elif defined(USING_ATMEGA3250P):
-  include avr_io/private/atmega3250p
-elif defined(USING_ATMEGA808):
-  include avr_io/private/atmega808
-elif defined(USING_ATTINY87):
-  include avr_io/private/attiny87
 elif defined(USING_AT90PWM1):
   include avr_io/private/at90pwm1
-elif defined(USING_ATTINY44):
-  include avr_io/private/attiny44
-elif defined(USING_ATMEGA644PA):
-  include avr_io/private/atmega644pa
-elif defined(USING_ATMEGA169PA):
-  include avr_io/private/atmega169pa
-elif defined(USING_ATTINY212):
-  include avr_io/private/attiny212
-elif defined(USING_ATTINY202):
-  include avr_io/private/attiny202
-elif defined(USING_AT90USB646):
-  include avr_io/private/at90usb646
-elif defined(USING_ATMEGA2564RFR2):
-  include avr_io/private/atmega2564rfr2
-elif defined(USING_ATTINY40):
-  include avr_io/private/attiny40
-elif defined(USING_ATTINY404):
-  include avr_io/private/attiny404
+elif defined(USING_AT90PWM161):
+  include avr_io/private/at90pwm161
+elif defined(USING_AT90PWM216):
+  include avr_io/private/at90pwm216
+elif defined(USING_AT90PWM2B):
+  include avr_io/private/at90pwm2b
+elif defined(USING_AT90PWM3):
+  include avr_io/private/at90pwm3
+elif defined(USING_AT90PWM316):
+  include avr_io/private/at90pwm316
+elif defined(USING_AT90PWM3B):
+  include avr_io/private/at90pwm3b
 elif defined(USING_AT90PWM81):
   include avr_io/private/at90pwm81
+elif defined(USING_AT90USB1286):
+  include avr_io/private/at90usb1286
+elif defined(USING_AT90USB1287):
+  include avr_io/private/at90usb1287
+elif defined(USING_AT90USB162):
+  include avr_io/private/at90usb162
+elif defined(USING_AT90USB646):
+  include avr_io/private/at90usb646
 elif defined(USING_AT90USB647):
   include avr_io/private/at90usb647
-elif defined(USING_ATMEGA8):
-  include avr_io/private/atmega8
+elif defined(USING_AT90USB82):
+  include avr_io/private/at90usb82
+elif defined(USING_ATMEGA128):
+  include avr_io/private/atmega128
+elif defined(USING_ATMEGA1280):
+  include avr_io/private/atmega1280
+elif defined(USING_ATMEGA1281):
+  include avr_io/private/atmega1281
+elif defined(USING_ATMEGA1284):
+  include avr_io/private/atmega1284
+elif defined(USING_ATMEGA1284P):
+  include avr_io/private/atmega1284p
+elif defined(USING_ATMEGA1284RFR2):
+  include avr_io/private/atmega1284rfr2
+elif defined(USING_ATMEGA128A):
+  include avr_io/private/atmega128a
+elif defined(USING_ATMEGA128RFA1):
+  include avr_io/private/atmega128rfa1
+elif defined(USING_ATMEGA128RFR2):
+  include avr_io/private/atmega128rfr2
+elif defined(USING_ATMEGA16):
+  include avr_io/private/atmega16
+elif defined(USING_ATMEGA162):
+  include avr_io/private/atmega162
+elif defined(USING_ATMEGA164A):
+  include avr_io/private/atmega164a
+elif defined(USING_ATMEGA164P):
+  include avr_io/private/atmega164p
+elif defined(USING_ATMEGA164PA):
+  include avr_io/private/atmega164pa
+elif defined(USING_ATMEGA165A):
+  include avr_io/private/atmega165a
+elif defined(USING_ATMEGA165P):
+  include avr_io/private/atmega165p
+elif defined(USING_ATMEGA165PA):
+  include avr_io/private/atmega165pa
+elif defined(USING_ATMEGA168):
+  include avr_io/private/atmega168
+elif defined(USING_ATMEGA168A):
+  include avr_io/private/atmega168a
+elif defined(USING_ATMEGA168P):
+  include avr_io/private/atmega168p
+elif defined(USING_ATMEGA168PA):
+  include avr_io/private/atmega168pa
+elif defined(USING_ATMEGA168PB):
+  include avr_io/private/atmega168pb
+elif defined(USING_ATMEGA169A):
+  include avr_io/private/atmega169a
+elif defined(USING_ATMEGA169P):
+  include avr_io/private/atmega169p
+elif defined(USING_ATMEGA169PA):
+  include avr_io/private/atmega169pa
 elif defined(USING_ATMEGA16A):
   include avr_io/private/atmega16a
+elif defined(USING_ATMEGA16HVA):
+  include avr_io/private/atmega16hva
+elif defined(USING_ATMEGA16HVB):
+  include avr_io/private/atmega16hvb
+elif defined(USING_ATMEGA16HVBREVB):
+  include avr_io/private/atmega16hvbrevb
+elif defined(USING_ATMEGA16M1):
+  include avr_io/private/atmega16m1
+elif defined(USING_ATMEGA16U2):
+  include avr_io/private/atmega16u2
+elif defined(USING_ATMEGA16U4):
+  include avr_io/private/atmega16u4
+elif defined(USING_ATMEGA2560):
+  include avr_io/private/atmega2560
+elif defined(USING_ATMEGA2561):
+  include avr_io/private/atmega2561
+elif defined(USING_ATMEGA2564RFR2):
+  include avr_io/private/atmega2564rfr2
+elif defined(USING_ATMEGA256RFR2):
+  include avr_io/private/atmega256rfr2
+elif defined(USING_ATMEGA32):
+  include avr_io/private/atmega32
+elif defined(USING_ATMEGA324A):
+  include avr_io/private/atmega324a
+elif defined(USING_ATMEGA324P):
+  include avr_io/private/atmega324p
+elif defined(USING_ATMEGA324PA):
+  include avr_io/private/atmega324pa
+elif defined(USING_ATMEGA324PB):
+  include avr_io/private/atmega324pb
+elif defined(USING_ATMEGA325):
+  include avr_io/private/atmega325
+elif defined(USING_ATMEGA3250):
+  include avr_io/private/atmega3250
 elif defined(USING_ATMEGA3250A):
   include avr_io/private/atmega3250a
-elif defined(USING_ATTINY406):
-  include avr_io/private/attiny406
-elif defined(USING_ATTINY412):
-  include avr_io/private/attiny412
-elif defined(USING_ATTINY214):
-  include avr_io/private/attiny214
+elif defined(USING_ATMEGA3250P):
+  include avr_io/private/atmega3250p
+elif defined(USING_ATMEGA3250PA):
+  include avr_io/private/atmega3250pa
+elif defined(USING_ATMEGA325A):
+  include avr_io/private/atmega325a
+elif defined(USING_ATMEGA325P):
+  include avr_io/private/atmega325p
+elif defined(USING_ATMEGA325PA):
+  include avr_io/private/atmega325pa
+elif defined(USING_ATMEGA328):
+  include avr_io/private/atmega328
+elif defined(USING_ATMEGA328P):
+  include avr_io/private/atmega328p
+elif defined(USING_ATMEGA328PB):
+  include avr_io/private/atmega328pb
+elif defined(USING_ATMEGA329):
+  include avr_io/private/atmega329
+elif defined(USING_ATMEGA3290):
+  include avr_io/private/atmega3290
+elif defined(USING_ATMEGA3290A):
+  include avr_io/private/atmega3290a
+elif defined(USING_ATMEGA3290P):
+  include avr_io/private/atmega3290p
+elif defined(USING_ATMEGA3290PA):
+  include avr_io/private/atmega3290pa
+elif defined(USING_ATMEGA329A):
+  include avr_io/private/atmega329a
+elif defined(USING_ATMEGA329P):
+  include avr_io/private/atmega329p
+elif defined(USING_ATMEGA329PA):
+  include avr_io/private/atmega329pa
+elif defined(USING_ATMEGA32A):
+  include avr_io/private/atmega32a
+elif defined(USING_ATMEGA32C1):
+  include avr_io/private/atmega32c1
+elif defined(USING_ATMEGA32HVB):
+  include avr_io/private/atmega32hvb
+elif defined(USING_ATMEGA32HVBREVB):
+  include avr_io/private/atmega32hvbrevb
+elif defined(USING_ATMEGA32M1):
+  include avr_io/private/atmega32m1
+elif defined(USING_ATMEGA32U2):
+  include avr_io/private/atmega32u2
+elif defined(USING_ATMEGA32U4):
+  include avr_io/private/atmega32u4
+elif defined(USING_ATMEGA406):
+  include avr_io/private/atmega406
+elif defined(USING_ATMEGA48):
+  include avr_io/private/atmega48
+elif defined(USING_ATMEGA48A):
+  include avr_io/private/atmega48a
+elif defined(USING_ATMEGA48P):
+  include avr_io/private/atmega48p
+elif defined(USING_ATMEGA48PA):
+  include avr_io/private/atmega48pa
+elif defined(USING_ATMEGA48PB):
+  include avr_io/private/atmega48pb
+elif defined(USING_ATMEGA64):
+  include avr_io/private/atmega64
+elif defined(USING_ATMEGA640):
+  include avr_io/private/atmega640
+elif defined(USING_ATMEGA644):
+  include avr_io/private/atmega644
+elif defined(USING_ATMEGA644A):
+  include avr_io/private/atmega644a
+elif defined(USING_ATMEGA644P):
+  include avr_io/private/atmega644p
+elif defined(USING_ATMEGA644PA):
+  include avr_io/private/atmega644pa
+elif defined(USING_ATMEGA644RFR2):
+  include avr_io/private/atmega644rfr2
+elif defined(USING_ATMEGA645):
+  include avr_io/private/atmega645
+elif defined(USING_ATMEGA6450):
+  include avr_io/private/atmega6450
+elif defined(USING_ATMEGA6450A):
+  include avr_io/private/atmega6450a
+elif defined(USING_ATMEGA6450P):
+  include avr_io/private/atmega6450p
+elif defined(USING_ATMEGA645A):
+  include avr_io/private/atmega645a
+elif defined(USING_ATMEGA645P):
+  include avr_io/private/atmega645p
+elif defined(USING_ATMEGA649):
+  include avr_io/private/atmega649
+elif defined(USING_ATMEGA6490):
+  include avr_io/private/atmega6490
+elif defined(USING_ATMEGA6490A):
+  include avr_io/private/atmega6490a
+elif defined(USING_ATMEGA6490P):
+  include avr_io/private/atmega6490p
+elif defined(USING_ATMEGA649A):
+  include avr_io/private/atmega649a
+elif defined(USING_ATMEGA649P):
+  include avr_io/private/atmega649p
+elif defined(USING_ATMEGA64A):
+  include avr_io/private/atmega64a
+elif defined(USING_ATMEGA64C1):
+  include avr_io/private/atmega64c1
+elif defined(USING_ATMEGA64HVE2):
+  include avr_io/private/atmega64hve2
+elif defined(USING_ATMEGA64M1):
+  include avr_io/private/atmega64m1
+elif defined(USING_ATMEGA64RFR2):
+  include avr_io/private/atmega64rfr2
+elif defined(USING_ATMEGA8):
+  include avr_io/private/atmega8
+elif defined(USING_ATMEGA8515):
+  include avr_io/private/atmega8515
+elif defined(USING_ATMEGA8535):
+  include avr_io/private/atmega8535
+elif defined(USING_ATMEGA88):
+  include avr_io/private/atmega88
+elif defined(USING_ATMEGA88A):
+  include avr_io/private/atmega88a
+elif defined(USING_ATMEGA88P):
+  include avr_io/private/atmega88p
+elif defined(USING_ATMEGA88PA):
+  include avr_io/private/atmega88pa
+elif defined(USING_ATMEGA88PB):
+  include avr_io/private/atmega88pb
+elif defined(USING_ATMEGA8A):
+  include avr_io/private/atmega8a
+elif defined(USING_ATMEGA8HVA):
+  include avr_io/private/atmega8hva
+elif defined(USING_ATMEGA8U2):
+  include avr_io/private/atmega8u2
+elif defined(USING_ATMEGAS128):
+  include avr_io/private/atmegas128
+elif defined(USING_ATMEGAS64M1):
+  include avr_io/private/atmegas64m1
+elif defined(USING_ATTINY13):
+  include avr_io/private/attiny13
+elif defined(USING_ATTINY13A):
+  include avr_io/private/attiny13a
+elif defined(USING_ATTINY1634):
+  include avr_io/private/attiny1634
+elif defined(USING_ATTINY167):
+  include avr_io/private/attiny167
+elif defined(USING_ATTINY2313):
+  include avr_io/private/attiny2313
+elif defined(USING_ATTINY2313A):
+  include avr_io/private/attiny2313a
+elif defined(USING_ATTINY24):
+  include avr_io/private/attiny24
+elif defined(USING_ATTINY24A):
+  include avr_io/private/attiny24a
+elif defined(USING_ATTINY25):
+  include avr_io/private/attiny25
+elif defined(USING_ATTINY26):
+  include avr_io/private/attiny26
+elif defined(USING_ATTINY261):
+  include avr_io/private/attiny261
+elif defined(USING_ATTINY261A):
+  include avr_io/private/attiny261a
+elif defined(USING_ATTINY4313):
+  include avr_io/private/attiny4313
+elif defined(USING_ATTINY43U):
+  include avr_io/private/attiny43u
+elif defined(USING_ATTINY44):
+  include avr_io/private/attiny44
+elif defined(USING_ATTINY441):
+  include avr_io/private/attiny441
+elif defined(USING_ATTINY44A):
+  include avr_io/private/attiny44a
+elif defined(USING_ATTINY45):
+  include avr_io/private/attiny45
+elif defined(USING_ATTINY461):
+  include avr_io/private/attiny461
+elif defined(USING_ATTINY461A):
+  include avr_io/private/attiny461a
+elif defined(USING_ATTINY48):
+  include avr_io/private/attiny48
+elif defined(USING_ATTINY828):
+  include avr_io/private/attiny828
+elif defined(USING_ATTINY84):
+  include avr_io/private/attiny84
+elif defined(USING_ATTINY841):
+  include avr_io/private/attiny841
+elif defined(USING_ATTINY84A):
+  include avr_io/private/attiny84a
+elif defined(USING_ATTINY85):
+  include avr_io/private/attiny85
+elif defined(USING_ATTINY861):
+  include avr_io/private/attiny861
+elif defined(USING_ATTINY861A):
+  include avr_io/private/attiny861a
+elif defined(USING_ATTINY87):
+  include avr_io/private/attiny87
+elif defined(USING_ATTINY88):
+  include avr_io/private/attiny88
 else:
-  static:
-    import macros
-    error "undefined architecture"
+  static: error "undefined architecture"

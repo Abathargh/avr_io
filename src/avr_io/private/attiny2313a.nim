@@ -69,7 +69,7 @@ const
   SREG*   = MappedIoRegister[uint8](0x5F)
 
 const
+  porta* = Port(direction: DDRA, output: PORTA, input: PINA)
   portb* = Port(direction: DDRB, output: PORTB, input: PINB)
   portd* = Port(direction: DDRD, output: PORTD, input: PIND)
-  porta* = Port(direction: DDRA, output: PORTA, input: PINA)
 

@@ -87,8 +87,8 @@ const
   TWHSR*  = MappedIoRegister[uint8](0xBE)
 
 const
-  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
-  portd* = Port(direction: DDRD, output: PORTD, input: PIND)
-  portc* = Port(direction: DDRC, output: PORTC, input: PINC)
   porta* = Port(direction: DDRA, output: PORTA, input: PINA)
+  portb* = Port(direction: DDRB, output: PORTB, input: PINB)
+  portc* = Port(direction: DDRC, output: PORTC, input: PINC)
+  portd* = Port(direction: DDRD, output: PORTD, input: PIND)
 

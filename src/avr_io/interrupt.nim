@@ -22,7 +22,8 @@ template vectorDecl(n: int, flags: IsrFlags): string =
   "$3 __attribute__((__signal__,__used__,__externally_visible__)); " &
    attrs & " $1 __vector_" & $n & "$3"
 
-macro isr_flags*(v: static VectorInterrupt, f: static IsrFlags, p: untyped): untyped =
+macro isr_flags*(v: static VectorInterrupt, f: static IsrFlags, p: untyped):
+  untyped =
   ## Turns the passed procedure into an interrupt service routine, with the
   ## specified ISR flags to alter its behaviour:
   ## - IsrBlock: default behaviour, interrupts will be disabled for the

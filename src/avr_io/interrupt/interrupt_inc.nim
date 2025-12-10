@@ -1,428 +1,316 @@
-when defined(USING_ATMEGA4808):
-  include private/atmega4808
-elif defined(USING_ATTINY806):
-  include private/attiny806
-elif defined(USING_ATMEGA3290A):
-  include private/atmega3290a
-elif defined(USING_ATMEGA16HVBREVB):
-  include private/atmega16hvbrevb
-elif defined(USING_ATTINY807):
-  include private/attiny807
-elif defined(USING_ATMEGA4809):
-  include private/atmega4809
-elif defined(USING_ATMEGA3209):
-  include private/atmega3209
-elif defined(USING_ATMEGA1608):
-  include private/atmega1608
-elif defined(USING_ATTINY43U):
-  include private/attiny43u
-elif defined(USING_ATMEGA168):
-  include private/atmega168
-elif defined(USING_ATMEGA128RFA1):
-  include private/atmega128rfa1
-elif defined(USING_ATMEGA1609):
-  include private/atmega1609
-elif defined(USING_ATTINY804):
-  include private/attiny804
-elif defined(USING_ATMEGA3208):
-  include private/atmega3208
-elif defined(USING_ATMEGA64):
-  include private/atmega64
-elif defined(USING_ATMEGA165PA):
-  include private/atmega165pa
-elif defined(USING_ATMEGA48PB):
-  include private/atmega48pb
-elif defined(USING_ATMEGA48):
-  include private/atmega48
-elif defined(USING_ATMEGA88PB):
-  include private/atmega88pb
-elif defined(USING_ATTINY828):
-  include private/attiny828
-elif defined(USING_ATMEGA3290P):
-  include private/atmega3290p
-elif defined(USING_ATTINY814):
-  include private/attiny814
-elif defined(USING_ATTINY424):
-  include private/attiny424
-elif defined(USING_ATMEGA325PA):
-  include private/atmega325pa
-elif defined(USING_ATTINY48):
-  include private/attiny48
-elif defined(USING_AT90CAN128):
+when defined(USING_AT90CAN128):
   include private/at90can128
-elif defined(USING_ATMEGA88):
-  include private/atmega88
-elif defined(USING_ATMEGA48PA):
-  include private/atmega48pa
-elif defined(USING_ATMEGA88PA):
-  include private/atmega88pa
-elif defined(USING_ATTINY4313):
-  include private/attiny4313
-elif defined(USING_ATTINY817):
-  include private/attiny817
-elif defined(USING_ATTINY426):
-  include private/attiny426
-elif defined(USING_ATTINY427):
-  include private/attiny427
-elif defined(USING_ATTINY816):
-  include private/attiny816
-elif defined(USING_ATTINY88):
-  include private/attiny88
-elif defined(USING_ATTINY261A):
-  include private/attiny261a
-elif defined(USING_ATMEGAS64M1):
-  include private/atmegas64m1
-elif defined(USING_ATTINY10):
-  include private/attiny10
-elif defined(USING_ATMEGA128A):
-  include private/atmega128a
-elif defined(USING_ATMEGA324P):
-  include private/atmega324p
-elif defined(USING_ATMEGA64A):
-  include private/atmega64a
-elif defined(USING_ATMEGA169A):
-  include private/atmega169a
-elif defined(USING_ATTINY441):
-  include private/attiny441
-elif defined(USING_ATMEGA164P):
-  include private/atmega164p
-elif defined(USING_ATMEGA329A):
-  include private/atmega329a
-elif defined(USING_ATMEGA48A):
-  include private/atmega48a
-elif defined(USING_ATTINY11):
-  include private/attiny11
-elif defined(USING_ATTINY1634):
-  include private/attiny1634
-elif defined(USING_ATTINY24A):
-  include private/attiny24a
-elif defined(USING_ATMEGA3250PA):
-  include private/atmega3250pa
-elif defined(USING_ATTINY13):
-  include private/attiny13
-elif defined(USING_ATMEGA1284):
-  include private/atmega1284
 elif defined(USING_AT90CAN32):
   include private/at90can32
-elif defined(USING_ATMEGA128RFR2):
-  include private/atmega128rfr2
-elif defined(USING_ATMEGA32C1):
-  include private/atmega32c1
-elif defined(USING_ATTINY5):
-  include private/attiny5
-elif defined(USING_ATMEGA328P):
-  include private/atmega328p
-elif defined(USING_ATMEGA3290PA):
-  include private/atmega3290pa
-elif defined(USING_AT90USB1286):
-  include private/at90usb1286
-elif defined(USING_ATMEGA165A):
-  include private/atmega165a
-elif defined(USING_ATMEGA644):
-  include private/atmega644
-elif defined(USING_ATMEGA168P):
-  include private/atmega168p
-elif defined(USING_ATMEGA645):
-  include private/atmega645
-elif defined(USING_AT90USB1287):
-  include private/at90usb1287
-elif defined(USING_ATMEGA64M1):
-  include private/atmega64m1
-elif defined(USING_ATTINY4):
-  include private/attiny4
-elif defined(USING_ATMEGA325A):
-  include private/atmega325a
-elif defined(USING_ATMEGA6450A):
-  include private/atmega6450a
-elif defined(USING_ATTINY12):
-  include private/attiny12
-elif defined(USING_ATMEGA32HVBREVB):
-  include private/atmega32hvbrevb
-elif defined(USING_ATMEGA2561):
-  include private/atmega2561
-elif defined(USING_ATTINY1627):
-  include private/attiny1627
-elif defined(USING_AT90USB162):
-  include private/at90usb162
-elif defined(USING_ATTINY861A):
-  include private/attiny861a
-elif defined(USING_ATTINY3226):
-  include private/attiny3226
-elif defined(USING_ATMEGA1281):
-  include private/atmega1281
-elif defined(USING_ATMEGA324A):
-  include private/atmega324a
-elif defined(USING_ATMEGA325):
-  include private/atmega325
-elif defined(USING_ATMEGA3290):
-  include private/atmega3290
-elif defined(USING_ATTINY461A):
-  include private/attiny461a
-elif defined(USING_ATMEGA169P):
-  include private/atmega169p
-elif defined(USING_ATMEGA640):
-  include private/atmega640
-elif defined(USING_ATTINY44A):
-  include private/attiny44a
-elif defined(USING_ATMEGA164A):
-  include private/atmega164a
-elif defined(USING_ATMEGA16HVA):
-  include private/atmega16hva
-elif defined(USING_ATMEGA329P):
-  include private/atmega329p
-elif defined(USING_ATTINY13A):
-  include private/attiny13a
-elif defined(USING_ATMEGA48P):
-  include private/atmega48p
-elif defined(USING_ATMEGA1280):
-  include private/atmega1280
-elif defined(USING_ATMEGA16):
-  include private/atmega16
-elif defined(USING_ATMEGA324PB):
-  include private/atmega324pb
-elif defined(USING_ATTINY3227):
-  include private/attiny3227
-elif defined(USING_ATMEGA8515):
-  include private/atmega8515
-elif defined(USING_ATTINY2313):
-  include private/attiny2313
-elif defined(USING_ATTINY1626):
-  include private/attiny1626
-elif defined(USING_ATMEGA2560):
-  include private/atmega2560
-elif defined(USING_ATTINY1624):
-  include private/attiny1624
-elif defined(USING_ATMEGA32HVB):
-  include private/atmega32hvb
-elif defined(USING_ATTINY15):
-  include private/attiny15
-elif defined(USING_ATMEGA256RFR2):
-  include private/atmega256rfr2
-elif defined(USING_ATMEGA164PA):
-  include private/atmega164pa
-elif defined(USING_ATMEGA3250):
-  include private/atmega3250
-elif defined(USING_ATMEGA165P):
-  include private/atmega165p
-elif defined(USING_ATMEGA168A):
-  include private/atmega168a
-elif defined(USING_ATMEGA16HVB):
-  include private/atmega16hvb
-elif defined(USING_ATTINY861):
-  include private/attiny861
-elif defined(USING_ATMEGA8U2):
-  include private/atmega8u2
-elif defined(USING_ATMEGA32A):
-  include private/atmega32a
-elif defined(USING_ATMEGA325P):
-  include private/atmega325p
-elif defined(USING_ATMEGA6450P):
-  include private/atmega6450p
-elif defined(USING_ATTINY3224):
-  include private/attiny3224
-elif defined(USING_ATMEGA324PA):
-  include private/atmega324pa
-elif defined(USING_ATTINY1614):
-  include private/attiny1614
-elif defined(USING_ATTINY25):
-  include private/attiny25
-elif defined(USING_ATTINY2313A):
-  include private/attiny2313a
-elif defined(USING_ATMEGA64C1):
-  include private/atmega64c1
-elif defined(USING_ATTINY461):
-  include private/attiny461
-elif defined(USING_ATMEGA6490P):
-  include private/atmega6490p
-elif defined(USING_ATMEGA128):
-  include private/atmega128
-elif defined(USING_ATMEGA16M1):
-  include private/atmega16m1
-elif defined(USING_ATMEGA168PA):
-  include private/atmega168pa
-elif defined(USING_ATMEGA1284P):
-  include private/atmega1284p
-elif defined(USING_ATMEGA32M1):
-  include private/atmega32m1
-elif defined(USING_ATTINY104):
-  include private/attiny104
-elif defined(USING_ATMEGA645A):
-  include private/atmega645a
-elif defined(USING_ATTINY24):
-  include private/attiny24
-elif defined(USING_ATMEGA328PB):
-  include private/atmega328pb
-elif defined(USING_ATTINY1617):
-  include private/attiny1617
-elif defined(USING_ATTINY26):
-  include private/attiny26
-elif defined(USING_ATTINY3216):
-  include private/attiny3216
-elif defined(USING_ATMEGA644P):
-  include private/atmega644p
-elif defined(USING_ATMEGA16U4):
-  include private/atmega16u4
-elif defined(USING_ATTINY84A):
-  include private/attiny84a
-elif defined(USING_ATMEGA329):
-  include private/atmega329
-elif defined(USING_AT90PWM2B):
-  include private/at90pwm2b
-elif defined(USING_ATMEGA88P):
-  include private/atmega88p
-elif defined(USING_ATMEGA32U4):
-  include private/atmega32u4
-elif defined(USING_ATMEGA168PB):
-  include private/atmega168pb
-elif defined(USING_ATMEGA328):
-  include private/atmega328
-elif defined(USING_ATMEGA649A):
-  include private/atmega649a
-elif defined(USING_ATTINY3217):
-  include private/attiny3217
-elif defined(USING_ATMEGA32):
-  include private/atmega32
-elif defined(USING_ATTINY1616):
-  include private/attiny1616
-elif defined(USING_AT90PWM316):
-  include private/at90pwm316
-elif defined(USING_ATTINY261):
-  include private/attiny261
-elif defined(USING_ATTINY1606):
-  include private/attiny1606
-elif defined(USING_ATMEGA8535):
-  include private/atmega8535
-elif defined(USING_ATMEGA6450):
-  include private/atmega6450
-elif defined(USING_ATMEGA1284RFR2):
-  include private/atmega1284rfr2
-elif defined(USING_ATTINY9):
-  include private/attiny9
-elif defined(USING_ATMEGA6490A):
-  include private/atmega6490a
-elif defined(USING_ATMEGA649):
-  include private/atmega649
-elif defined(USING_AT90PWM3B):
-  include private/at90pwm3b
-elif defined(USING_ATMEGA645P):
-  include private/atmega645p
-elif defined(USING_ATTINY102):
-  include private/attiny102
-elif defined(USING_ATTINY1607):
-  include private/attiny1607
-elif defined(USING_ATTINY20):
-  include private/attiny20
-elif defined(USING_ATMEGA644A):
-  include private/atmega644a
-elif defined(USING_ATMEGA644RFR2):
-  include private/atmega644rfr2
-elif defined(USING_ATMEGA6490):
-  include private/atmega6490
-elif defined(USING_ATMEGA16U2):
-  include private/atmega16u2
-elif defined(USING_ATTINY841):
-  include private/attiny841
-elif defined(USING_ATMEGA88A):
-  include private/atmega88a
-elif defined(USING_ATMEGA32U2):
-  include private/atmega32u2
-elif defined(USING_ATMEGA64HVE2):
-  include private/atmega64hve2
-elif defined(USING_ATMEGA649P):
-  include private/atmega649p
-elif defined(USING_ATTINY1604):
-  include private/attiny1604
-elif defined(USING_ATTINY204):
-  include private/attiny204
-elif defined(USING_AT90PWM161):
-  include private/at90pwm161
-elif defined(USING_AT90PWM3):
-  include private/at90pwm3
-elif defined(USING_ATTINY85):
-  include private/attiny85
-elif defined(USING_ATTINY827):
-  include private/attiny827
-elif defined(USING_ATTINY416):
-  include private/attiny416
-elif defined(USING_ATTINY402):
-  include private/attiny402
-elif defined(USING_ATMEGA162):
-  include private/atmega162
-elif defined(USING_ATTINY417):
-  include private/attiny417
-elif defined(USING_AT90PWM216):
-  include private/at90pwm216
-elif defined(USING_ATMEGA406):
-  include private/atmega406
-elif defined(USING_ATTINY826):
-  include private/attiny826
-elif defined(USING_ATTINY167):
-  include private/attiny167
-elif defined(USING_ATTINY84):
-  include private/attiny84
-elif defined(USING_ATMEGA64RFR2):
-  include private/atmega64rfr2
-elif defined(USING_ATTINY45):
-  include private/attiny45
-elif defined(USING_ATMEGA8A):
-  include private/atmega8a
 elif defined(USING_AT90CAN64):
   include private/at90can64
-elif defined(USING_ATMEGAS128):
-  include private/atmegas128
-elif defined(USING_AT90USB82):
-  include private/at90usb82
-elif defined(USING_ATTINY824):
-  include private/attiny824
-elif defined(USING_ATMEGA8HVA):
-  include private/atmega8hva
-elif defined(USING_ATMEGA329PA):
-  include private/atmega329pa
-elif defined(USING_ATMEGA809):
-  include private/atmega809
-elif defined(USING_ATTINY414):
-  include private/attiny414
-elif defined(USING_ATMEGA3250P):
-  include private/atmega3250p
-elif defined(USING_ATMEGA808):
-  include private/atmega808
-elif defined(USING_ATTINY87):
-  include private/attiny87
 elif defined(USING_AT90PWM1):
   include private/at90pwm1
-elif defined(USING_ATTINY44):
-  include private/attiny44
-elif defined(USING_ATMEGA644PA):
-  include private/atmega644pa
-elif defined(USING_ATMEGA169PA):
-  include private/atmega169pa
-elif defined(USING_ATTINY212):
-  include private/attiny212
-elif defined(USING_ATTINY202):
-  include private/attiny202
-elif defined(USING_AT90USB646):
-  include private/at90usb646
-elif defined(USING_ATMEGA2564RFR2):
-  include private/atmega2564rfr2
-elif defined(USING_ATTINY40):
-  include private/attiny40
-elif defined(USING_ATTINY404):
-  include private/attiny404
+elif defined(USING_AT90PWM161):
+  include private/at90pwm161
+elif defined(USING_AT90PWM216):
+  include private/at90pwm216
+elif defined(USING_AT90PWM2B):
+  include private/at90pwm2b
+elif defined(USING_AT90PWM3):
+  include private/at90pwm3
+elif defined(USING_AT90PWM316):
+  include private/at90pwm316
+elif defined(USING_AT90PWM3B):
+  include private/at90pwm3b
 elif defined(USING_AT90PWM81):
   include private/at90pwm81
+elif defined(USING_AT90USB1286):
+  include private/at90usb1286
+elif defined(USING_AT90USB1287):
+  include private/at90usb1287
+elif defined(USING_AT90USB162):
+  include private/at90usb162
+elif defined(USING_AT90USB646):
+  include private/at90usb646
 elif defined(USING_AT90USB647):
   include private/at90usb647
-elif defined(USING_ATMEGA8):
-  include private/atmega8
+elif defined(USING_AT90USB82):
+  include private/at90usb82
+elif defined(USING_ATMEGA128):
+  include private/atmega128
+elif defined(USING_ATMEGA1280):
+  include private/atmega1280
+elif defined(USING_ATMEGA1281):
+  include private/atmega1281
+elif defined(USING_ATMEGA1284):
+  include private/atmega1284
+elif defined(USING_ATMEGA1284P):
+  include private/atmega1284p
+elif defined(USING_ATMEGA1284RFR2):
+  include private/atmega1284rfr2
+elif defined(USING_ATMEGA128A):
+  include private/atmega128a
+elif defined(USING_ATMEGA128RFA1):
+  include private/atmega128rfa1
+elif defined(USING_ATMEGA128RFR2):
+  include private/atmega128rfr2
+elif defined(USING_ATMEGA16):
+  include private/atmega16
+elif defined(USING_ATMEGA162):
+  include private/atmega162
+elif defined(USING_ATMEGA164A):
+  include private/atmega164a
+elif defined(USING_ATMEGA164P):
+  include private/atmega164p
+elif defined(USING_ATMEGA164PA):
+  include private/atmega164pa
+elif defined(USING_ATMEGA165A):
+  include private/atmega165a
+elif defined(USING_ATMEGA165P):
+  include private/atmega165p
+elif defined(USING_ATMEGA165PA):
+  include private/atmega165pa
+elif defined(USING_ATMEGA168):
+  include private/atmega168
+elif defined(USING_ATMEGA168A):
+  include private/atmega168a
+elif defined(USING_ATMEGA168P):
+  include private/atmega168p
+elif defined(USING_ATMEGA168PA):
+  include private/atmega168pa
+elif defined(USING_ATMEGA168PB):
+  include private/atmega168pb
+elif defined(USING_ATMEGA169A):
+  include private/atmega169a
+elif defined(USING_ATMEGA169P):
+  include private/atmega169p
+elif defined(USING_ATMEGA169PA):
+  include private/atmega169pa
 elif defined(USING_ATMEGA16A):
   include private/atmega16a
+elif defined(USING_ATMEGA16HVA):
+  include private/atmega16hva
+elif defined(USING_ATMEGA16HVB):
+  include private/atmega16hvb
+elif defined(USING_ATMEGA16HVBREVB):
+  include private/atmega16hvbrevb
+elif defined(USING_ATMEGA16M1):
+  include private/atmega16m1
+elif defined(USING_ATMEGA16U2):
+  include private/atmega16u2
+elif defined(USING_ATMEGA16U4):
+  include private/atmega16u4
+elif defined(USING_ATMEGA2560):
+  include private/atmega2560
+elif defined(USING_ATMEGA2561):
+  include private/atmega2561
+elif defined(USING_ATMEGA2564RFR2):
+  include private/atmega2564rfr2
+elif defined(USING_ATMEGA256RFR2):
+  include private/atmega256rfr2
+elif defined(USING_ATMEGA32):
+  include private/atmega32
+elif defined(USING_ATMEGA324A):
+  include private/atmega324a
+elif defined(USING_ATMEGA324P):
+  include private/atmega324p
+elif defined(USING_ATMEGA324PA):
+  include private/atmega324pa
+elif defined(USING_ATMEGA324PB):
+  include private/atmega324pb
+elif defined(USING_ATMEGA325):
+  include private/atmega325
+elif defined(USING_ATMEGA3250):
+  include private/atmega3250
 elif defined(USING_ATMEGA3250A):
   include private/atmega3250a
-elif defined(USING_ATTINY406):
-  include private/attiny406
-elif defined(USING_ATTINY412):
-  include private/attiny412
-elif defined(USING_ATTINY214):
-  include private/attiny214
+elif defined(USING_ATMEGA3250P):
+  include private/atmega3250p
+elif defined(USING_ATMEGA3250PA):
+  include private/atmega3250pa
+elif defined(USING_ATMEGA325A):
+  include private/atmega325a
+elif defined(USING_ATMEGA325P):
+  include private/atmega325p
+elif defined(USING_ATMEGA325PA):
+  include private/atmega325pa
+elif defined(USING_ATMEGA328):
+  include private/atmega328
+elif defined(USING_ATMEGA328P):
+  include private/atmega328p
+elif defined(USING_ATMEGA328PB):
+  include private/atmega328pb
+elif defined(USING_ATMEGA329):
+  include private/atmega329
+elif defined(USING_ATMEGA3290):
+  include private/atmega3290
+elif defined(USING_ATMEGA3290A):
+  include private/atmega3290a
+elif defined(USING_ATMEGA3290P):
+  include private/atmega3290p
+elif defined(USING_ATMEGA3290PA):
+  include private/atmega3290pa
+elif defined(USING_ATMEGA329A):
+  include private/atmega329a
+elif defined(USING_ATMEGA329P):
+  include private/atmega329p
+elif defined(USING_ATMEGA329PA):
+  include private/atmega329pa
+elif defined(USING_ATMEGA32A):
+  include private/atmega32a
+elif defined(USING_ATMEGA32C1):
+  include private/atmega32c1
+elif defined(USING_ATMEGA32HVB):
+  include private/atmega32hvb
+elif defined(USING_ATMEGA32HVBREVB):
+  include private/atmega32hvbrevb
+elif defined(USING_ATMEGA32M1):
+  include private/atmega32m1
+elif defined(USING_ATMEGA32U2):
+  include private/atmega32u2
+elif defined(USING_ATMEGA32U4):
+  include private/atmega32u4
+elif defined(USING_ATMEGA406):
+  include private/atmega406
+elif defined(USING_ATMEGA48):
+  include private/atmega48
+elif defined(USING_ATMEGA48A):
+  include private/atmega48a
+elif defined(USING_ATMEGA48P):
+  include private/atmega48p
+elif defined(USING_ATMEGA48PA):
+  include private/atmega48pa
+elif defined(USING_ATMEGA48PB):
+  include private/atmega48pb
+elif defined(USING_ATMEGA64):
+  include private/atmega64
+elif defined(USING_ATMEGA640):
+  include private/atmega640
+elif defined(USING_ATMEGA644):
+  include private/atmega644
+elif defined(USING_ATMEGA644A):
+  include private/atmega644a
+elif defined(USING_ATMEGA644P):
+  include private/atmega644p
+elif defined(USING_ATMEGA644PA):
+  include private/atmega644pa
+elif defined(USING_ATMEGA644RFR2):
+  include private/atmega644rfr2
+elif defined(USING_ATMEGA645):
+  include private/atmega645
+elif defined(USING_ATMEGA6450):
+  include private/atmega6450
+elif defined(USING_ATMEGA6450A):
+  include private/atmega6450a
+elif defined(USING_ATMEGA6450P):
+  include private/atmega6450p
+elif defined(USING_ATMEGA645A):
+  include private/atmega645a
+elif defined(USING_ATMEGA645P):
+  include private/atmega645p
+elif defined(USING_ATMEGA649):
+  include private/atmega649
+elif defined(USING_ATMEGA6490):
+  include private/atmega6490
+elif defined(USING_ATMEGA6490A):
+  include private/atmega6490a
+elif defined(USING_ATMEGA6490P):
+  include private/atmega6490p
+elif defined(USING_ATMEGA649A):
+  include private/atmega649a
+elif defined(USING_ATMEGA649P):
+  include private/atmega649p
+elif defined(USING_ATMEGA64A):
+  include private/atmega64a
+elif defined(USING_ATMEGA64C1):
+  include private/atmega64c1
+elif defined(USING_ATMEGA64HVE2):
+  include private/atmega64hve2
+elif defined(USING_ATMEGA64M1):
+  include private/atmega64m1
+elif defined(USING_ATMEGA64RFR2):
+  include private/atmega64rfr2
+elif defined(USING_ATMEGA8):
+  include private/atmega8
+elif defined(USING_ATMEGA8515):
+  include private/atmega8515
+elif defined(USING_ATMEGA8535):
+  include private/atmega8535
+elif defined(USING_ATMEGA88):
+  include private/atmega88
+elif defined(USING_ATMEGA88A):
+  include private/atmega88a
+elif defined(USING_ATMEGA88P):
+  include private/atmega88p
+elif defined(USING_ATMEGA88PA):
+  include private/atmega88pa
+elif defined(USING_ATMEGA88PB):
+  include private/atmega88pb
+elif defined(USING_ATMEGA8A):
+  include private/atmega8a
+elif defined(USING_ATMEGA8HVA):
+  include private/atmega8hva
+elif defined(USING_ATMEGA8U2):
+  include private/atmega8u2
+elif defined(USING_ATMEGAS128):
+  include private/atmegas128
+elif defined(USING_ATMEGAS64M1):
+  include private/atmegas64m1
+elif defined(USING_ATTINY13):
+  include private/attiny13
+elif defined(USING_ATTINY13A):
+  include private/attiny13a
+elif defined(USING_ATTINY1634):
+  include private/attiny1634
+elif defined(USING_ATTINY167):
+  include private/attiny167
+elif defined(USING_ATTINY2313):
+  include private/attiny2313
+elif defined(USING_ATTINY2313A):
+  include private/attiny2313a
+elif defined(USING_ATTINY24):
+  include private/attiny24
+elif defined(USING_ATTINY24A):
+  include private/attiny24a
+elif defined(USING_ATTINY25):
+  include private/attiny25
+elif defined(USING_ATTINY26):
+  include private/attiny26
+elif defined(USING_ATTINY261):
+  include private/attiny261
+elif defined(USING_ATTINY261A):
+  include private/attiny261a
+elif defined(USING_ATTINY4313):
+  include private/attiny4313
+elif defined(USING_ATTINY43U):
+  include private/attiny43u
+elif defined(USING_ATTINY44):
+  include private/attiny44
+elif defined(USING_ATTINY441):
+  include private/attiny441
+elif defined(USING_ATTINY44A):
+  include private/attiny44a
+elif defined(USING_ATTINY45):
+  include private/attiny45
+elif defined(USING_ATTINY461):
+  include private/attiny461
+elif defined(USING_ATTINY461A):
+  include private/attiny461a
+elif defined(USING_ATTINY48):
+  include private/attiny48
+elif defined(USING_ATTINY828):
+  include private/attiny828
+elif defined(USING_ATTINY84):
+  include private/attiny84
+elif defined(USING_ATTINY841):
+  include private/attiny841
+elif defined(USING_ATTINY84A):
+  include private/attiny84a
+elif defined(USING_ATTINY85):
+  include private/attiny85
+elif defined(USING_ATTINY861):
+  include private/attiny861
+elif defined(USING_ATTINY861A):
+  include private/attiny861a
+elif defined(USING_ATTINY87):
+  include private/attiny87
+elif defined(USING_ATTINY88):
+  include private/attiny88
 else:
   static: error "undefined architecture"

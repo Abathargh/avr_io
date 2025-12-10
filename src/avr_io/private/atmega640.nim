@@ -227,31 +227,3 @@ const
   portk* = Port(direction: DDRK, output: PORTK, input: PINK)
   portl* = Port(direction: DDRL, output: PORTL, input: PINL)
 
-  usart0* = BaseUsart(baudLo: UBRR0L, baudHi: UBRR0H, ctlA: UCSR0A,
-    ctlB: UCSR0B, ctlC: UCSR0C, udr: UDR0)
-  usart1* = BaseUsart(baudLo: UBRR1L, baudHi: UBRR1H, ctlA: UCSR1A,
-    ctlB: UCSR1B, ctlC: UCSR1C, udr: UDR1)
-
-  timer0* = Timer8BitPwm(
-    tccra: TCCR0A, tccrb: TCCR0B, tcnt: TCNT0, ocra: OCR0A, ocrb: OCR0B,
-    timsk: TIMSK0, tifr: TIFR0)
-  timer1* = Timer16Bit3ComparePwm(tccra: TCCR1A, tccrb: TCCR1B, tccrc: TCCR1C,
-    tcnt: TCNT1, tcnth: TCNT1H, tcntl: TCNT1L, ocra: OCR1A, ocrah: OCR1AH,
-    ocral: OCR1AL, ocrb: OCR1B, ocrbh: OCR1BH, ocrbl: OCR1BL, icr: ICR1,
-    icrh: ICR1H, icrl: ICR1L, timsk: TIMSK1, tifr: TIFR1, gtccr: GTCCR)
-  timer2* = Timer8BitPwmAsync(tccra: TCCR2A, tccrb: TCCR2B, tcnt: TCNT2,
-    ocra: OCR2A, ocrb: OCR2B, assr: ASSR, timsk: TIMSK2, tifr: TIFR2,
-    gtccr: GTCCR)
-  timer3* = Timer16Bit3ComparePwm(tccra: TCCR3A, tccrb: TCCR3B, tccrc: TCCR3C,
-    tcnt: TCNT3, tcnth: TCNT3H, tcntl: TCNT3L, ocra: OCR3A, ocrah: OCR3AH,
-    ocral: OCR3AL, ocrb: OCR3B, ocrbh: OCR3BH, ocrbl: OCR3BL, icr: ICR3,
-    icrh: ICR3H, icrl: ICR3L, timsk: TIMSK3, tifr: TIFR3, gtccr: GTCCR)
-  timer4* = Timer16Bit3ComparePwm(tccra: TCCR4A, tccrb: TCCR4B, tccrc: TCCR4C,
-    tcnt: TCNT4, tcnth: TCNT4H, tcntl: TCNT4L, ocra: OCR4A, ocrah: OCR4AH,
-    ocral: OCR4AL, ocrb: OCR4B, ocrbh: OCR4BH, ocrbl: OCR4BL, icr: ICR4,
-    icrh: ICR4H, icrl: ICR4L, timsk: TIMSK4, tifr: TIFR4, gtccr: GTCCR)
-  timer5* = Timer16Bit3ComparePwm(tccra: TCCR5A, tccrb: TCCR5B, tccrc: TCCR5C,
-    tcnt: TCNT5, tcnth: TCNT5H, tcntl: TCNT5L, ocra: OCR5A, ocrah: OCR5AH,
-    ocral: OCR5AL, ocrb: OCR5B, ocrbh: OCR5BH, ocrbl: OCR5BL, icr: ICR5,
-    icrh: ICR5H, icrl: ICR5L, timsk: TIMSK5, tifr: TIFR5, gtccr: GTCCR)
-

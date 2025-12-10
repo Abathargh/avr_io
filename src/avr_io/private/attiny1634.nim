@@ -107,7 +107,7 @@ const
   TWSCRA*    = MappedIoRegister[uint8](0x7F)
 
 const
+  porta* = Port(direction: DDRA, output: PORTA, input: PINA)
   portb* = Port(direction: DDRB, output: PORTB, input: PINB)
   portc* = Port(direction: DDRC, output: PORTC, input: PINC)
-  porta* = Port(direction: DDRA, output: PORTA, input: PINA)
 
