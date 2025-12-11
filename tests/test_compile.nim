@@ -83,7 +83,7 @@ proc generate_main(mcu: string): string =
 
 
 template with_temp_project(mcu: string, body: untyped): untyped =
-  let current = os.getCurrentDir()
+  let current = os.get_current_dir()
   try:
     create_dir("temp")
     setCurrentDir("temp")
@@ -102,6 +102,16 @@ type
 
   FnCallback = proc(args: seq[string]): (string, bool)
 
+proc wrap_process(cmd: string, args: open_array[string]): (string, string, int) =
+  let process = startProcess(cmd, args = args, options = {poUsePath})
+  let stdout  = process.outputStream.readAll()
+  let stderr  = process.errorStream.readAll()
+  let code    = process.waitForExit()
+  process.close()
+
+  (stdout, stderr, code)
+
+
 proc compile_file*(mcu: string,
                    fns: seq[FnCallback],
                    fn_args: seq[seq[string]]): CompileOutcome =
@@ -112,12 +122,7 @@ proc compile_file*(mcu: string,
     args         = @[first] & full_cmd.split_whitespace()
 
   with_temp_project(mcu):
-    let process = startProcess(cmd, args = args, options = {poUsePath})
-    let stdout  = process.outputStream.readAll()
-    let stderr  = process.errorStream.readAll()
-    let code    = process.waitForExit()
-    process.close()
-
+    let (stdout, stderr, code) = wrap_process(cmd, args)
     result.output = stdout
     result.code = code
 
@@ -129,16 +134,11 @@ proc compile_file*(mcu: string,
       result.cb_out.add fn(@["main.elf"] & fn_args[idx])
 
 
-proc objdump(file: string): (string, int) =
+proc objdump(file: string, section = ".text"): (string, int) =
   const objdump = "avr-objdump"
-  let   args    = ["-D", "-j", ".text", file]
+  let   args    = ["-D", "-j", section, file]
 
-  let process = startProcess(objdump, args = args, options = {poUsePath})
-  let stdout  = process.outputStream.readAll()
-  let stderr  = process.errorStream.readAll()
-  let code    = process.waitForExit()
-  process.close()
-
+  let (stdout, stderr, code) = wrap_process(objdump, args)
   ((if code != 0: stderr else: stdout), code)
 
 
@@ -158,6 +158,15 @@ proc check_pms(args: seq[string]): (string, bool) =
 
   let full_name = fmt"<{args[1]}>:"
   (output, full_name in output)
+
+
+template with_dir*(dir: string; body: untyped): untyped =
+  let curr = os.get_current_dir()
+  try:
+    set_current_dir(dir)
+    body
+  finally:
+    set_current_dir(curr)
 
 
 suite "compilation":
@@ -189,3 +198,63 @@ suite "compilation":
       if not pms_ok:
         echo out_pms
         break
+
+suite "examples and peripherals":
+  test "compilation with basic IO and peripherals":
+    for kind, d in walk_dir("./examples"):
+      if kind == pc_dir:
+        with_dir(d):
+          let proj = d.extract_filename
+          let main = fmt"src/{proj}.nim"
+          let (_, stderr, code) = wrap_process(
+            "nim", ["c", "--noNimblePath", fmt"--path={cwd}/src", main])
+
+          checkpoint fmt"testing {d}"
+          check code == 0
+          if code != 0:
+            echo stderr
+
+  test "progmem":
+      const pm_symbols = [
+        "testFloat", "testInt1", "testInt2", "testInt3", "testStr", "testArr",
+        "testObj1", "testObj2", "testObj3", "testObj4", "testArrObj",
+        "testNonInitArr"
+      ]
+
+      with_dir("./examples/progmem"):
+        let (_, stderr, code) = wrap_process(
+          "nim", ["c", "--noNimblePath", "--opt:none", fmt"--path={cwd}/src",
+          "src/progmem.nim"])
+
+        checkpoint fmt"testing progmem generation"
+        check code == 0
+        if code != 0:
+          echo stderr
+
+        let (text, ocode) = objdump("./src/progmem")
+        check ocode == 0
+        if ocode != 0:
+          echo text
+
+        for pm_symbol in pm_symbols:
+          let full_name = fmt"<{pm_symbol}>:"
+          check full_name in text
+
+  test "system & bootloaders":
+    const section_name = ".metadata"
+    with_dir("./examples/bootloader"):
+      let (_, stderr, code) = wrap_process(
+        "nim", ["c", "--noNimblePath", fmt"--path={cwd}/src",
+        "src/application.nim"])
+
+      checkpoint fmt"testing elf section generation"
+      check code == 0
+      if code != 0:
+        echo stderr
+
+      let (metadata, ocode) = objdump("./src/application", section_name)
+      check ocode == 0
+      if ocode != 0:
+        echo metadata
+
+      check "<header>" in metadata
