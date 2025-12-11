@@ -1,4 +1,6 @@
 .nimcache/
+src/bootloader
+src/application
 *.elf
 *.hex
 *.bin

@@ -1,4 +1,5 @@
 .nimcache/
+src/arduino_uno_blink
 *.elf
 *.hex
 *.bin

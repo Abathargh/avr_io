@@ -1,4 +1,5 @@
-/.nimcache
+.nimcache
+src/timer
 *.elf
 *.hex
 *.bin

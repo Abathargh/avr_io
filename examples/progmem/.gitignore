@@ -1,4 +1,5 @@
 .nimcache/
+src/progmem
 *.elf
 *.hex
 *.bin
