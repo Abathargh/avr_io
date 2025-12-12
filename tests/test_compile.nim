@@ -74,7 +74,7 @@ else:
 
 
 proc generate_main(mcu: string): string =
-  for line in fmt"../src/Avr_io/private/{mcu}.nim".lines:
+  for line in fmt"../src/avr_io/private/{mcu}.nim".lines:
     let idx = line.find("PORT")
     if  idx != -1:
       let letter = line[idx + "PORT".len]
