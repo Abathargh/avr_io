@@ -29,7 +29,7 @@ a v1.0 release!**
 
 ## Requirements
 
-- nim >= 2.0.6
+- nim >= 2.0.10
 - avr-gcc and avr-libc installed on your machine and available in your path.
 
 
