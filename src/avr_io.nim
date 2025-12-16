@@ -23,318 +23,632 @@ import avr_io/[interrupt, progmem, system]
 export interrupt, progmem, system
 
 when defined(USING_AT90CAN128):
+  {.passC: "-mmcu=at90can128".}
+  {.passL: "-mmcu=at90can128".}
   include avr_io/private/at90can128
 elif defined(USING_AT90CAN32):
+  {.passC: "-mmcu=at90can32".}
+  {.passL: "-mmcu=at90can32".}
   include avr_io/private/at90can32
 elif defined(USING_AT90CAN64):
+  {.passC: "-mmcu=at90can64".}
+  {.passL: "-mmcu=at90can64".}
   include avr_io/private/at90can64
 elif defined(USING_AT90PWM1):
+  {.passC: "-mmcu=at90pwm1".}
+  {.passL: "-mmcu=at90pwm1".}
   include avr_io/private/at90pwm1
 elif defined(USING_AT90PWM161):
+  {.passC: "-mmcu=at90pwm161".}
+  {.passL: "-mmcu=at90pwm161".}
   include avr_io/private/at90pwm161
 elif defined(USING_AT90PWM216):
+  {.passC: "-mmcu=at90pwm216".}
+  {.passL: "-mmcu=at90pwm216".}
   include avr_io/private/at90pwm216
 elif defined(USING_AT90PWM2B):
+  {.passC: "-mmcu=at90pwm2b".}
+  {.passL: "-mmcu=at90pwm2b".}
   include avr_io/private/at90pwm2b
 elif defined(USING_AT90PWM3):
+  {.passC: "-mmcu=at90pwm3".}
+  {.passL: "-mmcu=at90pwm3".}
   include avr_io/private/at90pwm3
 elif defined(USING_AT90PWM316):
+  {.passC: "-mmcu=at90pwm316".}
+  {.passL: "-mmcu=at90pwm316".}
   include avr_io/private/at90pwm316
 elif defined(USING_AT90PWM3B):
+  {.passC: "-mmcu=at90pwm3b".}
+  {.passL: "-mmcu=at90pwm3b".}
   include avr_io/private/at90pwm3b
 elif defined(USING_AT90PWM81):
+  {.passC: "-mmcu=at90pwm81".}
+  {.passL: "-mmcu=at90pwm81".}
   include avr_io/private/at90pwm81
 elif defined(USING_AT90USB1286):
+  {.passC: "-mmcu=at90usb1286".}
+  {.passL: "-mmcu=at90usb1286".}
   include avr_io/private/at90usb1286
 elif defined(USING_AT90USB1287):
+  {.passC: "-mmcu=at90usb1287".}
+  {.passL: "-mmcu=at90usb1287".}
   include avr_io/private/at90usb1287
 elif defined(USING_AT90USB162):
+  {.passC: "-mmcu=at90usb162".}
+  {.passL: "-mmcu=at90usb162".}
   include avr_io/private/at90usb162
 elif defined(USING_AT90USB646):
+  {.passC: "-mmcu=at90usb646".}
+  {.passL: "-mmcu=at90usb646".}
   include avr_io/private/at90usb646
 elif defined(USING_AT90USB647):
+  {.passC: "-mmcu=at90usb647".}
+  {.passL: "-mmcu=at90usb647".}
   include avr_io/private/at90usb647
 elif defined(USING_AT90USB82):
+  {.passC: "-mmcu=at90usb82".}
+  {.passL: "-mmcu=at90usb82".}
   include avr_io/private/at90usb82
 elif defined(USING_ATMEGA128):
+  {.passC: "-mmcu=atmega128".}
+  {.passL: "-mmcu=atmega128".}
   include avr_io/private/atmega128
 elif defined(USING_ATMEGA1280):
+  {.passC: "-mmcu=atmega1280".}
+  {.passL: "-mmcu=atmega1280".}
   include avr_io/private/atmega1280
 elif defined(USING_ATMEGA1281):
+  {.passC: "-mmcu=atmega1281".}
+  {.passL: "-mmcu=atmega1281".}
   include avr_io/private/atmega1281
 elif defined(USING_ATMEGA1284):
+  {.passC: "-mmcu=atmega1284".}
+  {.passL: "-mmcu=atmega1284".}
   include avr_io/private/atmega1284
 elif defined(USING_ATMEGA1284P):
+  {.passC: "-mmcu=atmega1284p".}
+  {.passL: "-mmcu=atmega1284p".}
   include avr_io/private/atmega1284p
 elif defined(USING_ATMEGA1284RFR2):
+  {.passC: "-mmcu=atmega1284rfr2".}
+  {.passL: "-mmcu=atmega1284rfr2".}
   include avr_io/private/atmega1284rfr2
 elif defined(USING_ATMEGA128A):
+  {.passC: "-mmcu=atmega128a".}
+  {.passL: "-mmcu=atmega128a".}
   include avr_io/private/atmega128a
 elif defined(USING_ATMEGA128RFA1):
+  {.passC: "-mmcu=atmega128rfa1".}
+  {.passL: "-mmcu=atmega128rfa1".}
   include avr_io/private/atmega128rfa1
 elif defined(USING_ATMEGA128RFR2):
+  {.passC: "-mmcu=atmega128rfr2".}
+  {.passL: "-mmcu=atmega128rfr2".}
   include avr_io/private/atmega128rfr2
 elif defined(USING_ATMEGA16):
+  {.passC: "-mmcu=atmega16".}
+  {.passL: "-mmcu=atmega16".}
   include avr_io/private/atmega16
 elif defined(USING_ATMEGA162):
+  {.passC: "-mmcu=atmega162".}
+  {.passL: "-mmcu=atmega162".}
   include avr_io/private/atmega162
 elif defined(USING_ATMEGA164A):
+  {.passC: "-mmcu=atmega164a".}
+  {.passL: "-mmcu=atmega164a".}
   include avr_io/private/atmega164a
 elif defined(USING_ATMEGA164P):
+  {.passC: "-mmcu=atmega164p".}
+  {.passL: "-mmcu=atmega164p".}
   include avr_io/private/atmega164p
 elif defined(USING_ATMEGA164PA):
+  {.passC: "-mmcu=atmega164pa".}
+  {.passL: "-mmcu=atmega164pa".}
   include avr_io/private/atmega164pa
 elif defined(USING_ATMEGA165A):
+  {.passC: "-mmcu=atmega165a".}
+  {.passL: "-mmcu=atmega165a".}
   include avr_io/private/atmega165a
 elif defined(USING_ATMEGA165P):
+  {.passC: "-mmcu=atmega165p".}
+  {.passL: "-mmcu=atmega165p".}
   include avr_io/private/atmega165p
 elif defined(USING_ATMEGA165PA):
+  {.passC: "-mmcu=atmega165pa".}
+  {.passL: "-mmcu=atmega165pa".}
   include avr_io/private/atmega165pa
 elif defined(USING_ATMEGA168):
+  {.passC: "-mmcu=atmega168".}
+  {.passL: "-mmcu=atmega168".}
   include avr_io/private/atmega168
 elif defined(USING_ATMEGA168A):
+  {.passC: "-mmcu=atmega168a".}
+  {.passL: "-mmcu=atmega168a".}
   include avr_io/private/atmega168a
 elif defined(USING_ATMEGA168P):
+  {.passC: "-mmcu=atmega168p".}
+  {.passL: "-mmcu=atmega168p".}
   include avr_io/private/atmega168p
 elif defined(USING_ATMEGA168PA):
+  {.passC: "-mmcu=atmega168pa".}
+  {.passL: "-mmcu=atmega168pa".}
   include avr_io/private/atmega168pa
 elif defined(USING_ATMEGA168PB):
+  {.passC: "-mmcu=atmega168pb".}
+  {.passL: "-mmcu=atmega168pb".}
   include avr_io/private/atmega168pb
 elif defined(USING_ATMEGA169A):
+  {.passC: "-mmcu=atmega169a".}
+  {.passL: "-mmcu=atmega169a".}
   include avr_io/private/atmega169a
 elif defined(USING_ATMEGA169P):
+  {.passC: "-mmcu=atmega169p".}
+  {.passL: "-mmcu=atmega169p".}
   include avr_io/private/atmega169p
 elif defined(USING_ATMEGA169PA):
+  {.passC: "-mmcu=atmega169pa".}
+  {.passL: "-mmcu=atmega169pa".}
   include avr_io/private/atmega169pa
 elif defined(USING_ATMEGA16A):
+  {.passC: "-mmcu=atmega16a".}
+  {.passL: "-mmcu=atmega16a".}
   include avr_io/private/atmega16a
 elif defined(USING_ATMEGA16HVA):
+  {.passC: "-mmcu=atmega16hva".}
+  {.passL: "-mmcu=atmega16hva".}
   include avr_io/private/atmega16hva
 elif defined(USING_ATMEGA16HVB):
+  {.passC: "-mmcu=atmega16hvb".}
+  {.passL: "-mmcu=atmega16hvb".}
   include avr_io/private/atmega16hvb
 elif defined(USING_ATMEGA16HVBREVB):
+  {.passC: "-mmcu=atmega16hvbrevb".}
+  {.passL: "-mmcu=atmega16hvbrevb".}
   include avr_io/private/atmega16hvbrevb
 elif defined(USING_ATMEGA16M1):
+  {.passC: "-mmcu=atmega16m1".}
+  {.passL: "-mmcu=atmega16m1".}
   include avr_io/private/atmega16m1
 elif defined(USING_ATMEGA16U2):
+  {.passC: "-mmcu=atmega16u2".}
+  {.passL: "-mmcu=atmega16u2".}
   include avr_io/private/atmega16u2
 elif defined(USING_ATMEGA16U4):
+  {.passC: "-mmcu=atmega16u4".}
+  {.passL: "-mmcu=atmega16u4".}
   include avr_io/private/atmega16u4
 elif defined(USING_ATMEGA2560):
+  {.passC: "-mmcu=atmega2560".}
+  {.passL: "-mmcu=atmega2560".}
   include avr_io/private/atmega2560
 elif defined(USING_ATMEGA2561):
+  {.passC: "-mmcu=atmega2561".}
+  {.passL: "-mmcu=atmega2561".}
   include avr_io/private/atmega2561
 elif defined(USING_ATMEGA2564RFR2):
+  {.passC: "-mmcu=atmega2564rfr2".}
+  {.passL: "-mmcu=atmega2564rfr2".}
   include avr_io/private/atmega2564rfr2
 elif defined(USING_ATMEGA256RFR2):
+  {.passC: "-mmcu=atmega256rfr2".}
+  {.passL: "-mmcu=atmega256rfr2".}
   include avr_io/private/atmega256rfr2
 elif defined(USING_ATMEGA32):
+  {.passC: "-mmcu=atmega32".}
+  {.passL: "-mmcu=atmega32".}
   include avr_io/private/atmega32
 elif defined(USING_ATMEGA324A):
+  {.passC: "-mmcu=atmega324a".}
+  {.passL: "-mmcu=atmega324a".}
   include avr_io/private/atmega324a
 elif defined(USING_ATMEGA324P):
+  {.passC: "-mmcu=atmega324p".}
+  {.passL: "-mmcu=atmega324p".}
   include avr_io/private/atmega324p
 elif defined(USING_ATMEGA324PA):
+  {.passC: "-mmcu=atmega324pa".}
+  {.passL: "-mmcu=atmega324pa".}
   include avr_io/private/atmega324pa
 elif defined(USING_ATMEGA324PB):
+  {.passC: "-mmcu=atmega324pb".}
+  {.passL: "-mmcu=atmega324pb".}
   include avr_io/private/atmega324pb
 elif defined(USING_ATMEGA325):
+  {.passC: "-mmcu=atmega325".}
+  {.passL: "-mmcu=atmega325".}
   include avr_io/private/atmega325
 elif defined(USING_ATMEGA3250):
+  {.passC: "-mmcu=atmega3250".}
+  {.passL: "-mmcu=atmega3250".}
   include avr_io/private/atmega3250
 elif defined(USING_ATMEGA3250A):
+  {.passC: "-mmcu=atmega3250a".}
+  {.passL: "-mmcu=atmega3250a".}
   include avr_io/private/atmega3250a
 elif defined(USING_ATMEGA3250P):
+  {.passC: "-mmcu=atmega3250p".}
+  {.passL: "-mmcu=atmega3250p".}
   include avr_io/private/atmega3250p
 elif defined(USING_ATMEGA3250PA):
+  {.passC: "-mmcu=atmega3250pa".}
+  {.passL: "-mmcu=atmega3250pa".}
   include avr_io/private/atmega3250pa
 elif defined(USING_ATMEGA325A):
+  {.passC: "-mmcu=atmega325a".}
+  {.passL: "-mmcu=atmega325a".}
   include avr_io/private/atmega325a
 elif defined(USING_ATMEGA325P):
+  {.passC: "-mmcu=atmega325p".}
+  {.passL: "-mmcu=atmega325p".}
   include avr_io/private/atmega325p
 elif defined(USING_ATMEGA325PA):
+  {.passC: "-mmcu=atmega325pa".}
+  {.passL: "-mmcu=atmega325pa".}
   include avr_io/private/atmega325pa
 elif defined(USING_ATMEGA328):
+  {.passC: "-mmcu=atmega328".}
+  {.passL: "-mmcu=atmega328".}
   include avr_io/private/atmega328
 elif defined(USING_ATMEGA328P):
+  {.passC: "-mmcu=atmega328p".}
+  {.passL: "-mmcu=atmega328p".}
   include avr_io/private/atmega328p
 elif defined(USING_ATMEGA328PB):
+  {.passC: "-mmcu=atmega328pb".}
+  {.passL: "-mmcu=atmega328pb".}
   include avr_io/private/atmega328pb
 elif defined(USING_ATMEGA329):
+  {.passC: "-mmcu=atmega329".}
+  {.passL: "-mmcu=atmega329".}
   include avr_io/private/atmega329
 elif defined(USING_ATMEGA3290):
+  {.passC: "-mmcu=atmega3290".}
+  {.passL: "-mmcu=atmega3290".}
   include avr_io/private/atmega3290
 elif defined(USING_ATMEGA3290A):
+  {.passC: "-mmcu=atmega3290a".}
+  {.passL: "-mmcu=atmega3290a".}
   include avr_io/private/atmega3290a
 elif defined(USING_ATMEGA3290P):
+  {.passC: "-mmcu=atmega3290p".}
+  {.passL: "-mmcu=atmega3290p".}
   include avr_io/private/atmega3290p
 elif defined(USING_ATMEGA3290PA):
+  {.passC: "-mmcu=atmega3290pa".}
+  {.passL: "-mmcu=atmega3290pa".}
   include avr_io/private/atmega3290pa
 elif defined(USING_ATMEGA329A):
+  {.passC: "-mmcu=atmega329a".}
+  {.passL: "-mmcu=atmega329a".}
   include avr_io/private/atmega329a
 elif defined(USING_ATMEGA329P):
+  {.passC: "-mmcu=atmega329p".}
+  {.passL: "-mmcu=atmega329p".}
   include avr_io/private/atmega329p
 elif defined(USING_ATMEGA329PA):
+  {.passC: "-mmcu=atmega329pa".}
+  {.passL: "-mmcu=atmega329pa".}
   include avr_io/private/atmega329pa
 elif defined(USING_ATMEGA32A):
+  {.passC: "-mmcu=atmega32a".}
+  {.passL: "-mmcu=atmega32a".}
   include avr_io/private/atmega32a
 elif defined(USING_ATMEGA32C1):
+  {.passC: "-mmcu=atmega32c1".}
+  {.passL: "-mmcu=atmega32c1".}
   include avr_io/private/atmega32c1
 elif defined(USING_ATMEGA32HVB):
+  {.passC: "-mmcu=atmega32hvb".}
+  {.passL: "-mmcu=atmega32hvb".}
   include avr_io/private/atmega32hvb
 elif defined(USING_ATMEGA32HVBREVB):
+  {.passC: "-mmcu=atmega32hvbrevb".}
+  {.passL: "-mmcu=atmega32hvbrevb".}
   include avr_io/private/atmega32hvbrevb
 elif defined(USING_ATMEGA32M1):
+  {.passC: "-mmcu=atmega32m1".}
+  {.passL: "-mmcu=atmega32m1".}
   include avr_io/private/atmega32m1
 elif defined(USING_ATMEGA32U2):
+  {.passC: "-mmcu=atmega32u2".}
+  {.passL: "-mmcu=atmega32u2".}
   include avr_io/private/atmega32u2
 elif defined(USING_ATMEGA32U4):
+  {.passC: "-mmcu=atmega32u4".}
+  {.passL: "-mmcu=atmega32u4".}
   include avr_io/private/atmega32u4
 elif defined(USING_ATMEGA406):
+  {.passC: "-mmcu=atmega406".}
+  {.passL: "-mmcu=atmega406".}
   include avr_io/private/atmega406
 elif defined(USING_ATMEGA48):
+  {.passC: "-mmcu=atmega48".}
+  {.passL: "-mmcu=atmega48".}
   include avr_io/private/atmega48
 elif defined(USING_ATMEGA48A):
+  {.passC: "-mmcu=atmega48a".}
+  {.passL: "-mmcu=atmega48a".}
   include avr_io/private/atmega48a
 elif defined(USING_ATMEGA48P):
+  {.passC: "-mmcu=atmega48p".}
+  {.passL: "-mmcu=atmega48p".}
   include avr_io/private/atmega48p
 elif defined(USING_ATMEGA48PA):
+  {.passC: "-mmcu=atmega48pa".}
+  {.passL: "-mmcu=atmega48pa".}
   include avr_io/private/atmega48pa
 elif defined(USING_ATMEGA48PB):
+  {.passC: "-mmcu=atmega48pb".}
+  {.passL: "-mmcu=atmega48pb".}
   include avr_io/private/atmega48pb
 elif defined(USING_ATMEGA64):
+  {.passC: "-mmcu=atmega64".}
+  {.passL: "-mmcu=atmega64".}
   include avr_io/private/atmega64
 elif defined(USING_ATMEGA640):
+  {.passC: "-mmcu=atmega640".}
+  {.passL: "-mmcu=atmega640".}
   include avr_io/private/atmega640
 elif defined(USING_ATMEGA644):
+  {.passC: "-mmcu=atmega644".}
+  {.passL: "-mmcu=atmega644".}
   include avr_io/private/atmega644
 elif defined(USING_ATMEGA644A):
+  {.passC: "-mmcu=atmega644a".}
+  {.passL: "-mmcu=atmega644a".}
   include avr_io/private/atmega644a
 elif defined(USING_ATMEGA644P):
+  {.passC: "-mmcu=atmega644p".}
+  {.passL: "-mmcu=atmega644p".}
   include avr_io/private/atmega644p
 elif defined(USING_ATMEGA644PA):
+  {.passC: "-mmcu=atmega644pa".}
+  {.passL: "-mmcu=atmega644pa".}
   include avr_io/private/atmega644pa
 elif defined(USING_ATMEGA644RFR2):
+  {.passC: "-mmcu=atmega644rfr2".}
+  {.passL: "-mmcu=atmega644rfr2".}
   include avr_io/private/atmega644rfr2
 elif defined(USING_ATMEGA645):
+  {.passC: "-mmcu=atmega645".}
+  {.passL: "-mmcu=atmega645".}
   include avr_io/private/atmega645
 elif defined(USING_ATMEGA6450):
+  {.passC: "-mmcu=atmega6450".}
+  {.passL: "-mmcu=atmega6450".}
   include avr_io/private/atmega6450
 elif defined(USING_ATMEGA6450A):
+  {.passC: "-mmcu=atmega6450a".}
+  {.passL: "-mmcu=atmega6450a".}
   include avr_io/private/atmega6450a
 elif defined(USING_ATMEGA6450P):
+  {.passC: "-mmcu=atmega6450p".}
+  {.passL: "-mmcu=atmega6450p".}
   include avr_io/private/atmega6450p
 elif defined(USING_ATMEGA645A):
+  {.passC: "-mmcu=atmega645a".}
+  {.passL: "-mmcu=atmega645a".}
   include avr_io/private/atmega645a
 elif defined(USING_ATMEGA645P):
+  {.passC: "-mmcu=atmega645p".}
+  {.passL: "-mmcu=atmega645p".}
   include avr_io/private/atmega645p
 elif defined(USING_ATMEGA649):
+  {.passC: "-mmcu=atmega649".}
+  {.passL: "-mmcu=atmega649".}
   include avr_io/private/atmega649
 elif defined(USING_ATMEGA6490):
+  {.passC: "-mmcu=atmega6490".}
+  {.passL: "-mmcu=atmega6490".}
   include avr_io/private/atmega6490
 elif defined(USING_ATMEGA6490A):
+  {.passC: "-mmcu=atmega6490a".}
+  {.passL: "-mmcu=atmega6490a".}
   include avr_io/private/atmega6490a
 elif defined(USING_ATMEGA6490P):
+  {.passC: "-mmcu=atmega6490p".}
+  {.passL: "-mmcu=atmega6490p".}
   include avr_io/private/atmega6490p
 elif defined(USING_ATMEGA649A):
+  {.passC: "-mmcu=atmega649a".}
+  {.passL: "-mmcu=atmega649a".}
   include avr_io/private/atmega649a
 elif defined(USING_ATMEGA649P):
+  {.passC: "-mmcu=atmega649p".}
+  {.passL: "-mmcu=atmega649p".}
   include avr_io/private/atmega649p
 elif defined(USING_ATMEGA64A):
+  {.passC: "-mmcu=atmega64a".}
+  {.passL: "-mmcu=atmega64a".}
   include avr_io/private/atmega64a
 elif defined(USING_ATMEGA64C1):
+  {.passC: "-mmcu=atmega64c1".}
+  {.passL: "-mmcu=atmega64c1".}
   include avr_io/private/atmega64c1
 elif defined(USING_ATMEGA64HVE2):
+  {.passC: "-mmcu=atmega64hve2".}
+  {.passL: "-mmcu=atmega64hve2".}
   include avr_io/private/atmega64hve2
 elif defined(USING_ATMEGA64M1):
+  {.passC: "-mmcu=atmega64m1".}
+  {.passL: "-mmcu=atmega64m1".}
   include avr_io/private/atmega64m1
 elif defined(USING_ATMEGA64RFR2):
+  {.passC: "-mmcu=atmega64rfr2".}
+  {.passL: "-mmcu=atmega64rfr2".}
   include avr_io/private/atmega64rfr2
 elif defined(USING_ATMEGA8):
+  {.passC: "-mmcu=atmega8".}
+  {.passL: "-mmcu=atmega8".}
   include avr_io/private/atmega8
 elif defined(USING_ATMEGA8515):
+  {.passC: "-mmcu=atmega8515".}
+  {.passL: "-mmcu=atmega8515".}
   include avr_io/private/atmega8515
 elif defined(USING_ATMEGA8535):
+  {.passC: "-mmcu=atmega8535".}
+  {.passL: "-mmcu=atmega8535".}
   include avr_io/private/atmega8535
 elif defined(USING_ATMEGA88):
+  {.passC: "-mmcu=atmega88".}
+  {.passL: "-mmcu=atmega88".}
   include avr_io/private/atmega88
 elif defined(USING_ATMEGA88A):
+  {.passC: "-mmcu=atmega88a".}
+  {.passL: "-mmcu=atmega88a".}
   include avr_io/private/atmega88a
 elif defined(USING_ATMEGA88P):
+  {.passC: "-mmcu=atmega88p".}
+  {.passL: "-mmcu=atmega88p".}
   include avr_io/private/atmega88p
 elif defined(USING_ATMEGA88PA):
+  {.passC: "-mmcu=atmega88pa".}
+  {.passL: "-mmcu=atmega88pa".}
   include avr_io/private/atmega88pa
 elif defined(USING_ATMEGA88PB):
+  {.passC: "-mmcu=atmega88pb".}
+  {.passL: "-mmcu=atmega88pb".}
   include avr_io/private/atmega88pb
 elif defined(USING_ATMEGA8A):
+  {.passC: "-mmcu=atmega8a".}
+  {.passL: "-mmcu=atmega8a".}
   include avr_io/private/atmega8a
 elif defined(USING_ATMEGA8HVA):
+  {.passC: "-mmcu=atmega8hva".}
+  {.passL: "-mmcu=atmega8hva".}
   include avr_io/private/atmega8hva
 elif defined(USING_ATMEGA8U2):
+  {.passC: "-mmcu=atmega8u2".}
+  {.passL: "-mmcu=atmega8u2".}
   include avr_io/private/atmega8u2
 elif defined(USING_ATMEGAS128):
+  {.passC: "-mmcu=atmega128".}
+  {.passL: "-mmcu=atmega128".}
   include avr_io/private/atmegas128
 elif defined(USING_ATMEGAS64M1):
+  {.passC: "-mmcu=atmega64m1".}
+  {.passL: "-mmcu=atmega64m1".}
   include avr_io/private/atmegas64m1
 elif defined(USING_ATTINY13):
+  {.passC: "-mmcu=attiny13".}
+  {.passL: "-mmcu=attiny13".}
   include avr_io/private/attiny13
 elif defined(USING_ATTINY13A):
+  {.passC: "-mmcu=attiny13a".}
+  {.passL: "-mmcu=attiny13a".}
   include avr_io/private/attiny13a
 elif defined(USING_ATTINY1634):
+  {.passC: "-mmcu=attiny1634".}
+  {.passL: "-mmcu=attiny1634".}
   include avr_io/private/attiny1634
 elif defined(USING_ATTINY167):
+  {.passC: "-mmcu=attiny167".}
+  {.passL: "-mmcu=attiny167".}
   include avr_io/private/attiny167
 elif defined(USING_ATTINY2313):
+  {.passC: "-mmcu=attiny2313".}
+  {.passL: "-mmcu=attiny2313".}
   include avr_io/private/attiny2313
 elif defined(USING_ATTINY2313A):
+  {.passC: "-mmcu=attiny2313a".}
+  {.passL: "-mmcu=attiny2313a".}
   include avr_io/private/attiny2313a
 elif defined(USING_ATTINY24):
+  {.passC: "-mmcu=attiny24".}
+  {.passL: "-mmcu=attiny24".}
   include avr_io/private/attiny24
 elif defined(USING_ATTINY24A):
+  {.passC: "-mmcu=attiny24a".}
+  {.passL: "-mmcu=attiny24a".}
   include avr_io/private/attiny24a
 elif defined(USING_ATTINY25):
+  {.passC: "-mmcu=attiny25".}
+  {.passL: "-mmcu=attiny25".}
   include avr_io/private/attiny25
 elif defined(USING_ATTINY26):
+  {.passC: "-mmcu=attiny26".}
+  {.passL: "-mmcu=attiny26".}
   include avr_io/private/attiny26
 elif defined(USING_ATTINY261):
+  {.passC: "-mmcu=attiny261".}
+  {.passL: "-mmcu=attiny261".}
   include avr_io/private/attiny261
 elif defined(USING_ATTINY261A):
+  {.passC: "-mmcu=attiny261a".}
+  {.passL: "-mmcu=attiny261a".}
   include avr_io/private/attiny261a
 elif defined(USING_ATTINY4313):
+  {.passC: "-mmcu=attiny4313".}
+  {.passL: "-mmcu=attiny4313".}
   include avr_io/private/attiny4313
 elif defined(USING_ATTINY43U):
+  {.passC: "-mmcu=attiny43u".}
+  {.passL: "-mmcu=attiny43u".}
   include avr_io/private/attiny43u
 elif defined(USING_ATTINY44):
+  {.passC: "-mmcu=attiny44".}
+  {.passL: "-mmcu=attiny44".}
   include avr_io/private/attiny44
 elif defined(USING_ATTINY441):
+  {.passC: "-mmcu=attiny441".}
+  {.passL: "-mmcu=attiny441".}
   include avr_io/private/attiny441
 elif defined(USING_ATTINY44A):
+  {.passC: "-mmcu=attiny44a".}
+  {.passL: "-mmcu=attiny44a".}
   include avr_io/private/attiny44a
 elif defined(USING_ATTINY45):
+  {.passC: "-mmcu=attiny45".}
+  {.passL: "-mmcu=attiny45".}
   include avr_io/private/attiny45
 elif defined(USING_ATTINY461):
+  {.passC: "-mmcu=attiny461".}
+  {.passL: "-mmcu=attiny461".}
   include avr_io/private/attiny461
 elif defined(USING_ATTINY461A):
+  {.passC: "-mmcu=attiny461a".}
+  {.passL: "-mmcu=attiny461a".}
   include avr_io/private/attiny461a
 elif defined(USING_ATTINY48):
+  {.passC: "-mmcu=attiny48".}
+  {.passL: "-mmcu=attiny48".}
   include avr_io/private/attiny48
 elif defined(USING_ATTINY828):
+  {.passC: "-mmcu=attiny828".}
+  {.passL: "-mmcu=attiny828".}
   include avr_io/private/attiny828
 elif defined(USING_ATTINY84):
+  {.passC: "-mmcu=attiny84".}
+  {.passL: "-mmcu=attiny84".}
   include avr_io/private/attiny84
 elif defined(USING_ATTINY841):
+  {.passC: "-mmcu=attiny841".}
+  {.passL: "-mmcu=attiny841".}
   include avr_io/private/attiny841
 elif defined(USING_ATTINY84A):
+  {.passC: "-mmcu=attiny84a".}
+  {.passL: "-mmcu=attiny84a".}
   include avr_io/private/attiny84a
 elif defined(USING_ATTINY85):
+  {.passC: "-mmcu=attiny85".}
+  {.passL: "-mmcu=attiny85".}
   include avr_io/private/attiny85
 elif defined(USING_ATTINY861):
+  {.passC: "-mmcu=attiny861".}
+  {.passL: "-mmcu=attiny861".}
   include avr_io/private/attiny861
 elif defined(USING_ATTINY861A):
+  {.passC: "-mmcu=attiny861a".}
+  {.passL: "-mmcu=attiny861a".}
   include avr_io/private/attiny861a
 elif defined(USING_ATTINY87):
+  {.passC: "-mmcu=attiny87".}
+  {.passL: "-mmcu=attiny87".}
   include avr_io/private/attiny87
 elif defined(USING_ATTINY88):
+  {.passC: "-mmcu=attiny88".}
+  {.passL: "-mmcu=attiny88".}
   include avr_io/private/attiny88
 else:
   static: error "undefined architecture"
