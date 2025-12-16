@@ -6,8 +6,6 @@ switch("stackTrace", "off")
 switch("lineTrace", "off")
 switch("define", "release")
 switch("define", "USING_ATMEGA328P")
-switch("passC", "-mmcu=atmega328p -DF_CPU=16000000")
-switch("passL", "-mmcu=atmega328p -DF_CPU=16000000")
 switch("nimcache", ".nimcache")
 
 switch("cc", "gcc")

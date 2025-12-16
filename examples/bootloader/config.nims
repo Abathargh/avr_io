@@ -7,8 +7,6 @@ switch("define", "release")
 switch("checks", "off")
 switch("opt", "size")
 switch("define", "USING_ATMEGA644")
-switch("passC", "-mmcu=atmega644 -DF_CPU=8000000")
-switch("passL", "-mmcu=atmega644 -DF_CPU=8000000")
 switch("nimcache", ".nimcache")
 
 switch("cc", "gcc")
