@@ -57,6 +57,10 @@ The library is currently tested with:
 nimble install avr_io
 ```
 
+In order to compile a project with this library, please follow 
+[the setup instructions](https://github.com/Abathargh/avr_io/wiki/Setting-up-your-project)
+pointed out in the wiki.
+
 ## Documentation
 
 There are three main documentation sources for this project:
