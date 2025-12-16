@@ -4,20 +4,21 @@
 import std/[dirs, enumerate, strformat, streams, strutils]
 import std/[os, osproc, tables, unittest]
 
+import arch
 
 # The following preamble code is adapted from avrman/compiler.nim
 
 let cwd = os.get_current_dir()
 let avrman_flags = """
 --os:standalone --cpu:avr --mm:none --threads:off --define:release --opt:none
---define:$# --passC:"-mmcu=$#" --passL:"-mmcu=$#" --cc:gcc
+--define:$# --cc:gcc
 --avr.standalone.gcc.options.linker:"-static"
 --avr.standalone.gcc.exe:avr-gcc
 --avr.standalone.gcc.linkerexe:avr-gcc
 --noNimblePath
 --skipParentCfg
 --path:""" & cwd & """/src
--o:$#.elf $#
+-o:main.elf main
 """
 
 const
@@ -102,6 +103,7 @@ type
 
   FnCallback = proc(args: seq[string]): (string, bool)
 
+
 proc wrap_process(cmd: string, args: open_array[string]): (string, string, int) =
   let process = startProcess(cmd, args = args, options = {poUsePath})
   let stdout  = process.outputStream.readAll()
@@ -112,14 +114,17 @@ proc wrap_process(cmd: string, args: open_array[string]): (string, string, int) 
   (stdout, stderr, code)
 
 
+proc get_compile_args(mcu: string): seq[string] =
+  let mcu_flag = mcu_map[mcu]
+  let full_cmd = flags % [mcu_flag, mcu, mcu]
+  let splitted = full_cmd.split_whitespace()
+  splitted
+
+
 proc compile_file*(mcu: string,
                    fns: seq[FnCallback],
                    fn_args: seq[seq[string]]): CompileOutcome =
-  let
-    mcu_flag     = mcu_map[mcu]
-    (_, name, _) = splitFile("main.nim")
-    full_cmd     = flags % [mcu_flag, mcu, mcu, name, "main.nim"]
-    args         = @[first] & full_cmd.split_whitespace()
+  let args = @[first] & get_compile_args(mcu)
 
   with_temp_project(mcu):
     let (stdout, stderr, code) = wrap_process(cmd, args)
@@ -142,6 +147,23 @@ proc objdump(file: string, section = ".text"): (string, int) =
   ((if code != 0: stderr else: stdout), code)
 
 
+proc readelf(file: string): (string, int) =
+  const readelf = "avr-readelf"
+  let   args    = ["-h", file]
+
+  let (stdout, stderr, code) = wrap_process(readelf, args)
+  if code != 0:
+    return (stderr, code)
+
+  for line in stdout.split_lines:
+    if line.strip.starts_with("Flags:"):
+      let entries = line.split_whitespace
+      let arch    = entries[^1].replace(":", "")
+      return (arch, 0)
+
+  (stderr, -1)
+
+
 proc check_isr(args: seq[string]): (string, bool) =
   let (output, code) = objdump(args[0])
   if code != 0:
@@ -160,6 +182,16 @@ proc check_pms(args: seq[string]): (string, bool) =
   (output, full_name in output)
 
 
+proc check_arch(args: seq[string]): (string, bool) =
+  let (output, code) = readelf(args[0])
+  if code != 0:
+    return (output, false)
+
+  let supported_arch = output in arch_map
+  let arch_chips     = arch_map[output]
+  (output, supported_arch and (args[1] in arch_chips))
+
+
 template with_dir*(dir: string; body: untyped): untyped =
   let curr = os.get_current_dir()
   try:
@@ -172,8 +204,9 @@ template with_dir*(dir: string; body: untyped): untyped =
 suite "compilation":
   test "simple main":
     for mcu in mcu_map.keys:
-      let outcome = compile_file(mcu, @[check_isr.FnCallback, check_pms],
-                                 @[@[], @["pmtest"]])
+      let outcome = compile_file(
+        mcu, @[check_isr.FnCallback, check_pms, check_arch],
+        @[@[], @["pmtest"], @[mcu]])
 
       checkpoint fmt"testing {mcu}"
       check outcome.code == 0
@@ -182,8 +215,8 @@ suite "compilation":
         echo outcome.output
         break
 
-      check outcome.cb_out.len == 2
-      if outcome.cb_out.len != 2:
+      check outcome.cb_out.len == 3
+      if outcome.cb_out.len != 3:
         echo outcome.output
         break
 
@@ -198,6 +231,13 @@ suite "compilation":
       if not pms_ok:
         echo out_pms
         break
+
+      let (out_elf, elf_ok) = outcome.cb_out[2]
+      check elf_ok == true
+      if not elf_ok:
+        echo out_elf
+        break
+
 
 suite "examples and peripherals":
   test "compilation with basic IO and peripherals":
