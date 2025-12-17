@@ -22,6 +22,11 @@
 import avr_io/[interrupt, progmem, system]
 export interrupt, progmem, system
 
+# Disable strack and line trace as they are not compatible with the target
+# except in release mode.
+{.stackTrace: false}
+{.lineTrace: false}
+
 when defined(USING_AT90CAN128):
   {.passC: "-mmcu=at90can128".}
   {.passL: "-mmcu=at90can128".}
