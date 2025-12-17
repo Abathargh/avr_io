@@ -24,8 +24,8 @@ export interrupt, progmem, system
 
 # Disable strack and line trace as they are not compatible with the target
 # except in release mode.
-{.stackTrace: false}
-{.lineTrace: false}
+{.stackTrace: false.}
+{.lineTrace: false.}
 
 when defined(USING_AT90CAN128):
   {.passC: "-mmcu=at90can128".}
@@ -655,5 +655,10 @@ elif defined(USING_ATTINY88):
   {.passC: "-mmcu=attiny88".}
   {.passL: "-mmcu=attiny88".}
   include avr_io/private/attiny88
+elif defined(AVRIO_TESTING):
+  # Mock include so that unit testing is possible with modules importing avr_io
+  # on host systems where development takes place. The ATMega328P chip here  is
+  # chosen as a random one.
+  include avr_io/private/atmega328p
 else:
   static: error "undefined architecture"

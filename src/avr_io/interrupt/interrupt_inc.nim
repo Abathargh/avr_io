@@ -312,5 +312,10 @@ elif defined(USING_ATTINY87):
   include private/attiny87
 elif defined(USING_ATTINY88):
   include private/attiny88
+elif defined(AVRIO_TESTING):
+  # Mock include so that unit testing is possible with modules importing avr_io
+  # on host systems where development takes place. The ATMega328P chip here  is
+  # chosen as a random one.
+  include private/atmega328p
 else:
   static: error "undefined architecture"

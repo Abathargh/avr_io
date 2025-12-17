@@ -61,6 +61,21 @@ In order to compile a project with this library, please follow
 [the setup instructions](https://github.com/Abathargh/avr_io/wiki/Setting-up-your-project)
 pointed out in the wiki.
 
+## Testing
+
+Run the `avr_io` test suite by executing the following command:
+
+```terminal
+nim r tests/test_compile
+```
+
+### Using `avr_io` in unit tests
+
+In case you want to perform unit tests on modules import `avr_io`, a special 
+symbol must be defined when calling such tests, using 
+`--define:AVRIO_TESTING`.
+
+
 ## Documentation
 
 There are three main documentation sources for this project:
