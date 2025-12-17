@@ -23,6 +23,8 @@ a v1.0 release!**
   * [Requirements](#requirements)
   * [Support](#support)
   * [Install](#install)
+  * [Testing](#testing)
+    * [Using `avr_io` in unit tests](#using-avr_io-in-unit-tests)
   * [Documentation](#documentation)
   * [License](#license)
 <!-- TOC -->
@@ -36,7 +38,7 @@ a v1.0 release!**
 ## Support
 
 The nim modules that offer IO register mappings and ISR definitions are 
-generated using the chips' `atdf` description files as a reference. 
+generated using the `atdf` chips description files as a reference. 
 
 The library currently supports most `attiny` and `atmega` chips, except for 
 ones from the `avrxmega` and `avr1` families. The former uses the new Port API 
@@ -46,6 +48,18 @@ are only supported at the assembler-level by `avr-gcc`.
 Since this `avr_io` makes heavy usage of c codegen, `avr1` devices are not 
 planned to be supported.
 
+For a full list of supported targets, you can run:
+
+```terminal
+./scripts/supported.nims
+```
+
+Or to check if a specific chip is supported (e.g. atmega644):
+
+```terminal
+./scripts/supported.nims atmega644
+```
+
 The library is currently tested with:
   - avr-gcc  15.2.0
   - binutils 2.45
@@ -53,7 +67,7 @@ The library is currently tested with:
 
 ## Install
 
-```bash 
+```bash
 nimble install avr_io
 ```
 
@@ -74,7 +88,6 @@ nim r tests/test_compile
 In case you want to perform unit tests on modules import `avr_io`, a special 
 symbol must be defined when calling such tests, using 
 `--define:AVRIO_TESTING`.
-
 
 ## Documentation
 
