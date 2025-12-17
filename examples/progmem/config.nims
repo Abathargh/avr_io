@@ -1,8 +1,6 @@
 switch("os", "standalone")
 switch("cpu", "avr")
 switch("gc", "none")
-switch("stackTrace", "off")
-switch("lineTrace", "off")
 switch("define", "release")
 switch("define", "USING_ATMEGA328P")
 switch("nimcache", ".nimcache")
