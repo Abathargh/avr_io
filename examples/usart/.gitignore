@@ -1,5 +1,6 @@
 .nimcache/
 src/usart
+src/usart9bits
 *.elf
 *.hex
 *.bin
