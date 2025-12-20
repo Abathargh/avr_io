@@ -11,21 +11,20 @@ proc loop =
   # The baud rate template allows for the end user to have a compile-time 
   # evaluated baud rate, compliant with the 16-bit value expected from the 
   # MCU. Use with `const`.
-  const baud = baudRate(9600'u32) 
+  const baud = baud_rate(9600'u32)
 
   # A number of usartN objects will be exposed by the library, depending on the 
   # number of usart peripherals on the chosen MCU. To initiaize the 
   # peripheral, just pass the required flags as flagsets for the three control 
   # registers to the `initUart` procedure.
-  usart0.initUart(baud, {}, {txen, rxen}, {ucsz1, ucsz0})
-  portB.asOutputPin(builtinLed)
+  usart0.init_uart(baud, {}, {txen, rxen}, {ucsz1, ucsz0})
+  portB.as_output_pin(builtinLed)
   
   var buf: array[100, cchar]
   while true:
-    discard usart0.readLine(buf) # Read the data using `buf` as a buffer
-    usart0.sendString(buf)       # Send the 0-terminated string back
-    usart0.sendByte('\n')        # Let us use `\n` as a terminator 
-    portB.togglePin(builtinLed)  # Toggling the LED to have some feedback
+    discard usart0.read_line(buf) # Read the data using `buf` as a buffer
+    usart0.write_string_ln(buf)   # Send the 0-terminated string back
+    portB.toggle_pin(builtinLed)   # Toggling the LED to have some feedback
 
 when isMainModule:
   loop()

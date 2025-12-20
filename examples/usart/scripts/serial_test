@@ -2,12 +2,16 @@
 
 import serial
 import struct
-
+import sys
 
 def do8bit():
   try:
     while True:
-      c = serial.Serial(port="/dev/ttyACM0", baudrate=9600)
+      port = "/dev/ttyACM0"
+      if len(sys.argv) == 2:
+        port = sys.argv[1]
+
+      c = serial.Serial(port=port, baudrate=9600)
       d = input("Insert any word: ")
       dd = f"{d}\n".encode()
       c.write(dd)

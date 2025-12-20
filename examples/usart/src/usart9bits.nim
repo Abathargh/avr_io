@@ -15,13 +15,13 @@ proc loop =
 
   # As for the 8-bit example, the ucsz2 bit can be sit directly here as a flag 
   # in a bitset, enabling 9-bit mode.
-  usart0.initUart(baud, {}, {txen, rxen, ucsz2}, {ucsz1, ucsz0})
-  portB.asOutputPin(builtinLed)
+  usart0.init_uart(baud, {}, {txen, rxen, ucsz2}, {ucsz1, ucsz0})
+  portB.as_output_pin(builtinLed)
   
   while true:
-    let n = usart0.readInt()     # Read up to 9-bit of data
-    usart0.sendInt(n)            # And send it back
-    portB.togglePin(builtinLed)  # Toggling the LED to have some feedback
+    let n = usart0.read_int()     # Read up to 9-bit of data
+    usart0.write_int(n)            # And send it back
+    portB.toggle_pin(builtinLed)  # Toggling the LED to have some feedback
 
 when isMainModule:
   loop()

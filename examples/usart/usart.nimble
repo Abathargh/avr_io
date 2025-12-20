@@ -40,7 +40,7 @@ task flash, "Loads the compiled binary onto the MCU":
       if code != 0:
         echo dev_port
         return
-      exec("avrdude -c arduino -b 115200 -p m328p " & dev_port & " -U flash:w:" & b & ".hex:i")
+      exec("avrdude -c arduino -b 115200 -p m328p -P " & dev_port & " -U flash:w:" & b & ".hex:i")
       break
 
 task flash_debug, "Loads the elf binary onto the MCU":

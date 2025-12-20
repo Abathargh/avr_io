@@ -84,20 +84,20 @@ proc sendAsBitstring[T: SomeNumber | bool](usart: Usart; num: T) =
   # If the data being sent is a number, this changes it to its bitstring 
   # representation and sends it through usart.
   when T is float32:
-    usart.sendString("float ")
+    usart.write("float ")
   elif T is uint8 or T is bool:
-    usart.sendString("uint8 ")
+    usart.write("uint8 ")
   elif T is uint16:
-    usart.sendString("uint16 ")
+    usart.write("uint16 ")
   else:
-    usart.sendString("uint32 ")
+    usart.write("uint32 ")
   
   var b = cast[uint32](num)
   for i in 0..31:
     let wd = 31u32 - uint32(i)
     let sh = 1'u32 shl wd
-    usart.sendByte(uint8('0') + uint8((b and sh) shr wd))
-  usart.sendByte('\n')
+    usart.write(uint8('0') + uint8((b and sh) shr wd))
+  usart.write('\n')
 
 proc sendProgmemVar(usart: Usart) =
   # To get the contents of a progmem variable, you just dereference said 
@@ -113,7 +113,7 @@ proc sendProgmemVar(usart: Usart) =
   usart.sendAsBitString(testObj1[].f2)
 
   usart.sendAsBitString(testObj2[].b1)
-  usart.sendString(testObj2[].b2)
+  usart.write(testObj2[].b2)
 
   usart.sendAsBitString(testObj3[].fb1)
   usart.sendAsBitString(testObj3[].fb2.f1)
@@ -121,53 +121,53 @@ proc sendProgmemVar(usart: Usart) =
 
   usart.sendAsBitString(testObj4[].bf1)
   usart.sendAsBitString(testObj4[].bf2.b1)
-  usart.sendString(testObj4[].bf2.b2)
+  usart.write(testObj4[].bf2.b2)
 
   # Progmem arrays can also be indexed, passing an offset works too.
-  usart.sendByte(testArr[0])
-  usart.sendByte(testArr[1])
-  usart.sendByte(testArr[2])
-  usart.sendByte(testArr[3])
-  usart.sendByte('\n')
+  usart.write(testArr[0])
+  usart.write(testArr[1])
+  usart.write(testArr[2])
+  usart.write(testArr[3])
+  usart.write('\n')
 
   # They can also be iterated, which is easier and safer.
   for num in progmemIter(testArr):
-    usart.sendByte(num)
+    usart.write(num)
 
   # Or you can just dereference them and get a copy of the whole array.
-  usart.sendBytes(testArr[])
-  usart.sendBytes(testNonInitArr[])
-  usart.sendByte('\n')
+  usart.write(testArr[])
+  usart.write(testNonInitArr[])
+  usart.write('\n')
 
   # Note that this works for progmem strings too: dereferencing one will yield
   # an array[S, cchar].
-  usart.sendString(testStr[])
+  usart.write(testStr[])
 
   # we can also use some notable procs and operators on progmem types
 
   # you can use len on any valid progmem array (including strings)
-  usart.sendString("testArrObj.len = \n")
+  usart.write_line("testArrObj.len = ")
   usart.sendAsBitString(testArrObj.len.uint8)
 
   # and also use `==` and `!=`
   if testInt1 == 12'u8:
-    usart.sendString("12 matches\n")
+    usart.write("12 matches")
 
   if testStr == "test progmem string\n":
-    usart.sendString("string match\n")
+    usart.write_line("string match")
 
   if testStr != "test wrong string\n":
-    usart.sendString("string not matching\n")
+    usart.write_line("string not matching")
 
   if testInt3 != 42'u32:
-    usart.sendString("testInt3 is not 42\n")
+    usart.write_line("testInt3 is not 42")
 
   # you can also use `in` but only for progmem strings
   if "string" in testStr:
-    usart.sendString("testStr contains the substring 'string'\n")
+    usart.write_line("testStr contains the substring 'string'")
 
   if "wrong" notin testStr:
-    usart.sendString("testStr does not contain the substring 'wrong'\n")
+    usart.write_line("testStr does not contain the substring 'wrong'")
 
 proc loop =  
   sei()

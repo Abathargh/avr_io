@@ -1,5 +1,6 @@
 ## The usart module provides a series of utilities to interface with the USART 
 ## peripherals on AVR chips.
+## Warning: *Experimental API*.
 
 when not declared(bitor):
   import bitops
@@ -103,10 +104,6 @@ template toBitSet*[T: Flags](u: uint8): T =
   cast[T](u)
 
 
-type character* = uint8 | char | cchar ## A valid nim or c-compatible \
-  ## character type
-
-
 proc initUart*(usart: Usart; baud: uint16; ctlA: CtlAFlags; ctlB: CtlBFlags; ctlC: CtlCFlags) =
   ## Initializes the Usart peripheral to be used with the specified flags and 
   ## baud rate. Use the `baudRate` template to generate a valid input for that 
@@ -154,45 +151,55 @@ template clearCtlFlags*(usart: Usart; flags: Flags) =
     usart.ctlD.clearMask(toBitMask(flags))
 
 
-template sendByte*(usart: Usart; c: character) =
+type u8* = uint8 | char | cchar ## A valid nim or c-compatible \
+  ## character type
+
+
+proc write*(usart: Usart; c: u8) =
   ## Sends a single byte via Usart.
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[] = uint8(c)
 
 
-proc sendBytes*[S: static[int]](usart: Usart; s: array[S, character]) =
+proc write*(usart: Usart; s: open_array[u8]) =
   ## Sends an array of bytes via Usart.
   for ch in s:
-    usart.sendByte(ch)
+    usart.write(uint8(ch))
 
 
-proc sendString*(usart: Usart; s: cstring|string) =
+proc write*(usart: Usart; s: string) =
   ## Sends a string via Usart.
   for ch in s:
-    usart.sendByte(uint8(ch))
+    usart.write(uint8(ch))
 
 
-proc sendString*[S](usart: Usart; s: array[S, character]) = 
+proc write*(usart: Usart; s: cstring) =
+  ## Sends a cstring via Usart.
+  for ch in s:
+    usart.write(uint8(ch))
+
+
+proc write_line*(usart: Usart; s: open_array[char]) =
+  ## Sends an array of bytes plus a newline character via Usart.
+  for ch in s:
+    usart.write(uint8(ch))
+  usart.write('\n')
+
+
+proc write_string*(usart: Usart; s: open_array[char]) =
   ## Sends a string-encoded array of bytes via Usart.
   for ch in s:
-    if ch == '\0':
-      break
-    usart.sendByte(uint8(ch))
+    if ch == '\0': break
+    usart.write(uint8(ch))
 
 
-proc sendStringLn*(usart: Usart; s: cstring|string) =
+proc write_string_ln*(usart: Usart; s: open_array[char]) =
   ## Sends a string-encoded array of bytes via Usart, adding a \n at the end.
-  usart.sendString(s)
-  usart.sendByte('\n')
+  usart.write_string(s)
+  usart.write('\n')
 
 
-proc writeLine*[S](usart: Usart; s: array[S, character]) =
-  ## Sends a string-encoded array of bytes via Usart, adding a \n at the end.
-  usart.sendBytes(s)
-  usart.sendByte('\n')
-
-
-proc sendInt*(usart: Usart, data: uint16) =
+proc write_int*(usart: Usart, data: uint16) =
   ## Sends up-to-9 bits of data via Usart.
   while udre notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.ctlB.clearBit(txb8.ord)
@@ -201,18 +208,18 @@ proc sendInt*(usart: Usart, data: uint16) =
   usart.udr[] = uint8(bitand(data, 0x00ff))
 
 
-template readByte*(usart: Usart): uint8 =
+template read*(usart: Usart): uint8 =
   ## Reads a single byte via Usart.
   while rxc notin toBitSet[CtlAFlags](usart.ctlA[]): discard
   usart.udr[]
 
 
-template readByteIsr*(usart: Usart): uint8 =
+template read_isr*(usart: Usart): uint8 =
   ## Reads a single byte via Usart, can be called in an ISR.
   usart.udr[]
 
 
-proc readInt*(usart: Usart): uint16 =
+proc read_int*(usart: Usart): uint16 =
   ## Reads up-to-0 bits of data via Usart. Note that this will return a 9-bit 
   ## chunk of data encoded into a 16-bit unsigned integer. If an error raises 
   ## while communicating, the 10-th bit of thie returned integer will be set 
@@ -224,38 +231,26 @@ proc readInt*(usart: Usart): uint16 =
   bitor(uint16(msb) shl 8, uint16(usart.udr[]))
 
 
-proc readLine*[S: static[int]](usart: Usart; buf: var array[S, character]): int =
+proc read_line*[S: static int](usart: Usart; buf: var array[S, u8]): int =
   ## Reads bytes via Usart until a newline character (`\n`) is read. Returns 
   ## the number of read bytes.
   var c = 0
-  var b = usart.readByte()
+  var b = usart.read()
   while char(b) != '\n' and c < S-1: 
     buf[c] = cchar(b)
-    b = usart.readByte()
+    b = usart.read()
     inc c
   buf[c] = '\0'
   c-1
 
-  
-proc readBytes*[S: static[int]](usart: Usart; n: int; buf: var array[S, character]): int =
-  ## Reads `n` bytes via Usart, truncated to the lenght of the buffer. Returns 
-  ## the number of read bytes.
+
+proc read_bytes*[S: static int](usart: Usart; n: int; buf: var open_array[u8]): int =
+  ## Reads `n` bytes via Usart, truncated to the lenght of the buffer.
+  ## Returns the number of read bytes.
   var c = 0
-  var b = usart.readByte()
+  var b = usart.read()
   while c < n and c < S:
     buf[c] = cchar(b)
-    b = usart.readByte()
+    b = usart.read()
     inc c
   c
-
-proc readBytesUnsafe*[S: static[int]](usart: Usart; n: int; buf: var array[S, character]): int =
-  ## Reads `n` bytes via Usart, without bound-checking. Returns the number of 
-  ## read bytes.
-  var c = 0
-  var b = usart.readByte()
-  while c < n:
-    buf[c] = cchar(b)
-    b = usart.readByte()
-    inc c
-  c
-
