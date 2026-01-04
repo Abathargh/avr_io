@@ -40,13 +40,13 @@ a v1.0 release!**
 The nim modules that offer IO register mappings and ISR definitions are 
 generated using the `atdf` chips description files as a reference. 
 
-The library currently supports most `attiny` and `atmega` chips, except for 
-ones from the `avrxmega` and `avr1` families. The former uses the new Port API 
-which is not currently supported by this library, while the latter devices
-are only supported at the assembler-level by `avr-gcc`.
+The library supports most `attiny` and `atmega` chips, except for ones from 
+the `avrxmega` and `avr1` families. The former uses the new Port API which is 
+not currently supported by this library, while the latter devices are only 
+supported at the assembler-level by `avr-gcc`.
 
-Since this `avr_io` makes heavy usage of c codegen, `avr1` devices are not 
-planned to be supported.
+Since `avr_io` makes heavy usage of c codegen, `avr1` devices are not planned 
+to be supported.
 
 For a full list of supported targets, you can run:
 
