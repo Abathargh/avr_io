@@ -657,7 +657,7 @@ elif defined(USING_ATTINY88):
   include avr_io/private/attiny88
 elif defined(AVRIO_TESTING):
   # Mock include so that unit testing is possible with modules importing avr_io
-  # on host systems where development takes place. The ATMega328P chip here  is
+  # on host systems where development takes place. The ATMega328P chip here is
   # chosen as a random one.
   include avr_io/private/atmega328p
 else:
