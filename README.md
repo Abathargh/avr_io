@@ -80,7 +80,7 @@ pointed out in the wiki.
 Run the `avr_io` test suite by executing the following command:
 
 ```terminal
-nim r tests/test_compile
+./scripts/run_tests.nims
 ```
 
 ### Using `avr_io` in unit tests
