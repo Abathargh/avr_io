@@ -8,6 +8,8 @@ when not declared(bitor):
 when not declared(MappedIoRegister):
   import mapped_io
 
+when not declared(round):
+  import math
 
 type
   BaseUsart* {.byref.} = object 
@@ -85,12 +87,20 @@ type
 
   Flags = CtlAFlags | CtlBFlags | CtlCFlags | CtlDFlags
 
+  UsartMode* = enum
+    ## Usart operating mode, used to generate baud rates.
+    AsyncNormal = 16
+    AsyncDouble = 8
+    SynchMaster = 2
 
-template baudRate*(baud: typed, freq: uint32 = 16000000'u32): uint16 =
-  ## Generates the correct value to feed to the Usart initializers
-  ## starting from the baud rate.
-  uint16(freq div (16 * baud.uint32)) - 1'u16
-
+template baudRate*(baud: typed, freq = 16000000'f, mode = AsyncNormal): uint16 =
+  ## Generates the correct value to feed to the Usart initializers starting 
+  ## from the baud rate. You can and should specify the frequency and the 
+  ## mode of operation of your usar peripheral to get the exact baud rate 
+  ## generated. Note that this defaults to a F_CPU = 16e6 in async normal mode.
+  const factor = mode.ord
+  const rate   = (freq / (factor * baud.float)).round - 1
+  rate.uint16
 
 template toBitMask*(f: Flags): uint8 =
   ## Converts a bit field containing flags to be used with a control 
