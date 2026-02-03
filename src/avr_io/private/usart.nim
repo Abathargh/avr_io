@@ -161,8 +161,12 @@ template clearCtlFlags*(usart: Usart; flags: Flags) =
     usart.ctlD.clearMask(toBitMask(flags))
 
 
-type u8* = uint8 | char | cchar ## A valid nim or c-compatible \
-  ## character type
+type
+  u8* = uint8 | char | cchar ## A valid nim or c-compatible \
+    ## character type
+
+  Iterable = concept
+    iterator items(s: Self): u8
 
 
 proc write*(usart: Usart; c: u8) =
@@ -175,6 +179,12 @@ proc write*(usart: Usart; s: open_array[u8]) =
   ## Sends an array of bytes via Usart.
   for ch in s:
     usart.write(uint8(ch))
+
+
+proc write*(usart: Usart; s: Iterable) =
+  ## Sends data via Usart iterating over the collection.
+  for ch in s.items:
+    usart.write(ch)
 
 
 proc write*(usart: Usart; s: string) =
@@ -191,6 +201,14 @@ proc write*(usart: Usart; s: cstring) =
 
 proc write_line*(usart: Usart; s: open_array[char]) =
   ## Sends an array of bytes plus a newline character via Usart.
+  for ch in s:
+    usart.write(uint8(ch))
+  usart.write('\n')
+
+
+proc write_line*(usart: Usart; s: Iterable) =
+  ## Sends data plus a newline character via Usart iterating over the 
+  ## collection.
   for ch in s:
     usart.write(uint8(ch))
   usart.write('\n')
