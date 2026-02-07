@@ -96,7 +96,7 @@ type
 template baudRate*(baud: typed, freq = 16000000'f, mode = AsyncNormal): uint16 =
   ## Generates the correct value to feed to the Usart initializers starting 
   ## from the baud rate. You can and should specify the frequency and the 
-  ## mode of operation of your usar peripheral to get the exact baud rate 
+  ## mode of operation of your usart peripheral to get the exact baud rate 
   ## generated. Note that this defaults to a F_CPU = 16e6 in async normal mode.
   const factor = mode.ord
   const rate   = (freq / (factor * baud.float)).round - 1
